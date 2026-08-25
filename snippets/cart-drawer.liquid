@@ -1,0 +1,93 @@
+{%- comment -%}
+  snippets/cart-drawer.liquid — PAAVAI JEWELLERY Slide-Out AJAX Cart Drawer
+  Rendered globally from layout/theme.liquid. Controlled by assets/theme.js (CartDrawer module).
+{%- endcomment -%}
+
+<aside id="CartDrawer" class="cart-drawer" aria-hidden="true" aria-label="Shopping cart">
+  <div class="cart-drawer__header">
+    <h2 class="cart-drawer__title">Your Bag <span data-cart-drawer-count>({{ cart.item_count }})</span></h2>
+    <button type="button" class="cart-drawer__close" data-cart-drawer-close aria-label="Close cart">&times;</button>
+  </div>
+
+  <div class="cart-drawer__body" data-cart-drawer-body>
+    {%- if cart.item_count > 0 -%}
+      <ul class="cart-drawer__items" data-cart-drawer-items>
+        {%- for item in cart.items -%}
+          <li class="cart-drawer__item" data-cart-item data-line="{{ forloop.index }}" data-variant-id="{{ item.variant_id }}">
+            <a href="{{ item.url }}" class="cart-drawer__item-media">
+              {%- if item.image -%}
+                <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.image.alt | escape }}" width="90" height="90" loading="lazy">
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </a>
+            <div class="cart-drawer__item-details">
+              <a href="{{ item.url }}" class="cart-drawer__item-title">{{ item.product.title }}</a>
+              {%- unless item.variant.title == 'Default Title' -%}
+                <p class="cart-drawer__item-variant">{{ item.variant.title }}</p>
+              {%- endunless -%}
+              <p class="cart-drawer__item-price">{{ item.final_price | money }}</p>
+
+              <div class="cart-drawer__item-qty">
+                <button type="button" class="quantity-stepper__btn" data-cart-qty-minus data-line="{{ forloop.index }}" aria-label="Decrease quantity">&minus;</button>
+                <input
+                  type="number"
+                  class="cart-drawer__qty-input"
+                  min="0"
+                  value="{{ item.quantity }}"
+                  data-cart-qty-input
+                  data-line="{{ forloop.index }}"
+                  aria-label="Quantity for {{ item.product.title }}">
+                <button type="button" class="quantity-stepper__btn" data-cart-qty-plus data-line="{{ forloop.index }}" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+            <button type="button" class="cart-drawer__item-remove" data-cart-remove data-line="{{ forloop.index }}" aria-label="Remove {{ item.product.title }}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
+            </button>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- else -%}
+      <div class="cart-drawer__empty" data-cart-drawer-empty>
+        <p>Your bag is empty.</p>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-maroon" data-cart-drawer-close>Continue Shopping</a>
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="cart-drawer__footer" data-cart-drawer-footer{% if cart.item_count == 0 %} hidden{% endif %}>
+    <div class="cart-drawer__note">
+      <p>&#10022; Complimentary insured shipping &nbsp;&bull;&nbsp; 15-day exchange</p>
+    </div>
+    <div class="cart-drawer__subtotal">
+      <span>Subtotal</span>
+      <span data-cart-drawer-subtotal>{{ cart.total_price | money }}</span>
+    </div>
+    <p class="cart-drawer__shipping-note">Taxes and shipping calculated at checkout.</p>
+    <a href="{{ routes.cart_url }}" class="btn btn--outline-maroon btn--full">View Bag</a>
+    <button type="button" class="btn btn--maroon btn--full" data-checkout-btn>Checkout Securely</button>
+  </div>
+</aside>
+
+<form data-cart-drawer-template hidden>
+  <template id="CartDrawerItemTemplate">
+    <li class="cart-drawer__item" data-cart-item>
+      <a class="cart-drawer__item-media" data-item-url>
+        <img data-item-image width="90" height="90" loading="lazy" alt="">
+      </a>
+      <div class="cart-drawer__item-details">
+        <a class="cart-drawer__item-title" data-item-title data-item-url></a>
+        <p class="cart-drawer__item-variant" data-item-variant></p>
+        <p class="cart-drawer__item-price" data-item-price></p>
+        <div class="cart-drawer__item-qty">
+          <button type="button" class="quantity-stepper__btn" data-cart-qty-minus aria-label="Decrease quantity">&minus;</button>
+          <input type="number" class="cart-drawer__qty-input" min="0" data-cart-qty-input aria-label="Quantity">
+          <button type="button" class="quantity-stepper__btn" data-cart-qty-plus aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+      <button type="button" class="cart-drawer__item-remove" data-cart-remove aria-label="Remove item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>
+      </button>
+    </li>
+  </template>
+</form>

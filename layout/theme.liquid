@@ -1,0 +1,209 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#580820">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="{% if page_description %}{{ page_description | escape }}{% else %}PAAVAI JEWELLERY — Timeless South Indian bridal jewellery, gold bangles, diamond earrings and necklaces crafted for the modern heirloom.{% endif %}">
+
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&amp;family=Montserrat:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+
+  {%- if settings.favicon != blank -%}
+    <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+  {%- endif -%}
+
+  <title>
+    {{ page_title }}
+    {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+    {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+    {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+  </title>
+
+  {%- if page_description -%}
+    <meta property="og:description" content="{{ page_description | escape }}">
+  {%- endif -%}
+  <meta property="og:title" content="{{ page_title }}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:site_name" content="{{ shop.name }}">
+
+  {{ content_for_header }}
+
+  <style>
+    :root{
+      --color-maroon: #580820;
+      --color-maroon-dark: #3d0516;
+      --color-maroon-light: #7a1030;
+      --color-gold: #D4AF37;
+      --color-gold-light: #E8C766;
+      --color-gold-dark: #A8862A;
+      --color-pearl: #FBF8F3;
+      --color-pearl-dark: #F2ECE1;
+      --color-ink: #201014;
+      --color-charcoal: #2E2429;
+      --color-line: rgba(88, 8, 32, 0.14);
+      --font-heading: 'Cinzel', 'Georgia', serif;
+      --font-body: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --container-max: 1320px;
+      --radius-sm: 2px;
+      --radius-md: 6px;
+      --shadow-soft: 0 10px 30px rgba(61, 5, 22, 0.08);
+      --shadow-strong: 0 20px 50px rgba(61, 5, 22, 0.18);
+      --transition-base: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+  <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+
+  {%- render 'social-meta-tags' -%}
+</head>
+
+<body class="template-{{ request.page_type | handleize }}">
+
+  <a class="skip-to-content-link visually-hidden" href="#MainContent">Skip to content</a>
+
+  {%- comment -%} Announcement bar {%- endcomment -%}
+  <div class="announcement-bar" role="region" aria-label="Announcement">
+    <p>Complimentary insured shipping across India &nbsp;|&nbsp; BIS Hallmarked Gold &nbsp;|&nbsp; Lifetime Exchange Assurance</p>
+  </div>
+
+  <header class="site-header" id="SiteHeader">
+    <div class="site-header__inner container">
+
+      <button type="button" class="header__menu-toggle" aria-expanded="false" aria-controls="MobileNav" aria-label="Open menu">
+        <span class="menu-toggle__bar"></span>
+        <span class="menu-toggle__bar"></span>
+        <span class="menu-toggle__bar"></span>
+      </button>
+
+      <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
+        {%- if settings.logo != blank -%}
+          <img src="{{ settings.logo | image_url: width: 320 }}" alt="{{ shop.name }}" width="160" height="auto" loading="eager">
+        {%- else -%}
+          <span class="logo-text">
+            <span class="logo-text__main">PAAVAI</span>
+            <span class="logo-text__sub">JEWELLERY</span>
+          </span>
+        {%- endif -%}
+      </a>
+
+      <nav class="site-header__nav" aria-label="Primary">
+        <ul class="nav-list">
+          {%- for link in linklists.main-menu.links -%}
+            <li class="nav-list__item{% if link.links.size > 0 %} has-dropdown{% endif %}">
+              <a href="{{ link.url }}" class="nav-list__link"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
+              {%- if link.links.size > 0 -%}
+                <ul class="nav-dropdown">
+                  {%- for childlink in link.links -%}
+                    <li><a href="{{ childlink.url }}">{{ childlink.title }}</a></li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            </li>
+          {%- else -%}
+            <li class="nav-list__item"><a href="{{ routes.root_url }}" class="nav-list__link">Home</a></li>
+            <li class="nav-list__item"><a href="{{ routes.all_products_collection_url }}" class="nav-list__link">Shop All</a></li>
+            <li class="nav-list__item"><a href="/collections/necklaces" class="nav-list__link">Necklaces</a></li>
+            <li class="nav-list__item"><a href="/collections/diamond-earrings" class="nav-list__link">Diamond Earrings</a></li>
+            <li class="nav-list__item"><a href="/collections/gold-bangles" class="nav-list__link">Gold Bangles</a></li>
+            <li class="nav-list__item"><a href="/collections/bridal-sets" class="nav-list__link">Bridal Sets</a></li>
+            <li class="nav-list__item"><a href="/pages/our-story" class="nav-list__link">Our Story</a></li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+
+      <div class="site-header__actions">
+        <a href="{{ routes.search_url }}" class="header-icon-btn" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </a>
+        <a href="{{ routes.account_url }}" class="header-icon-btn" aria-label="Account">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+        <button type="button" class="header-icon-btn cart-toggle-btn" aria-label="Open cart" data-cart-drawer-toggle>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span class="cart-count-bubble" data-cart-count>{{ cart.item_count }}</span>
+        </button>
+      </div>
+    </div>
+
+    <nav id="MobileNav" class="mobile-nav" aria-label="Mobile" aria-hidden="true">
+      <ul class="mobile-nav__list">
+        {%- for link in linklists.main-menu.links -%}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+  </header>
+
+  <main id="MainContent" class="main-content" role="main">
+    {{ content_for_layout }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__grid">
+      <div class="footer-block footer-block--brand">
+        <span class="logo-text logo-text--footer">
+          <span class="logo-text__main">PAAVAI</span>
+          <span class="logo-text__sub">JEWELLERY</span>
+        </span>
+        <p class="footer-block__tagline">Heirloom gold and diamond jewellery, handcrafted for the modern South Indian bride.</p>
+        <div class="footer-block__social">
+          {%- if settings.social_instagram_link != blank -%}<a href="{{ settings.social_instagram_link }}" aria-label="Instagram">IG</a>{%- endif -%}
+          {%- if settings.social_facebook_link != blank -%}<a href="{{ settings.social_facebook_link }}" aria-label="Facebook">FB</a>{%- endif -%}
+        </div>
+      </div>
+
+      <div class="footer-block">
+        <h4 class="footer-block__title">Shop</h4>
+        <ul>
+          <li><a href="/collections/necklaces">Necklaces</a></li>
+          <li><a href="/collections/diamond-earrings">Diamond Earrings</a></li>
+          <li><a href="/collections/gold-bangles">Gold Bangles</a></li>
+          <li><a href="/collections/bridal-sets">Bridal Sets</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-block">
+        <h4 class="footer-block__title">Customer Care</h4>
+        <ul>
+          <li><a href="/pages/contact-us">Contact Us</a></li>
+          <li><a href="/pages/shipping-policy">Shipping &amp; Insurance</a></li>
+          <li><a href="/pages/exchange-policy">Exchange Policy</a></li>
+          <li><a href="/pages/hallmark-certification">Hallmark Certification</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-block">
+        <h4 class="footer-block__title">Stay Updated</h4>
+        <p class="footer-block__tagline">Subscribe for new collections and private trunk shows.</p>
+        {%- form 'customer', id: 'FooterNewsletterForm', class: 'footer-newsletter-form' -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <label for="FooterNewsletterEmail" class="visually-hidden">Email address</label>
+          <input type="email" name="contact[email]" id="FooterNewsletterEmail" placeholder="Your email address" required>
+          <button type="submit" aria-label="Subscribe">Subscribe</button>
+          {%- if form.posted_successfully? -%}
+            <p class="form-success">Thank you for subscribing.</p>
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    </div>
+
+    <div class="site-footer__bottom container">
+      <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</p>
+      <p>BIS Hallmarked &nbsp;&bull;&nbsp; 100% Certified Gold &nbsp;&bull;&nbsp; Made in India</p>
+    </div>
+  </footer>
+
+  {%- render 'cart-drawer' -%}
+
+  <div class="drawer-overlay" data-drawer-overlay hidden></div>
+
+</body>
+</html>

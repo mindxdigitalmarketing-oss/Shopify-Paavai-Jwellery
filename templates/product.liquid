@@ -1,0 +1,211 @@
+{%- comment -%}
+  templates/product.liquid — PAAVAI JEWELLERY Product Detail Page
+  Image gallery + dynamic variant pricing + AJAX add-to-cart
+{%- endcomment -%}
+
+<div class="product-page container" data-section-type="product">
+  <div class="product-page__grid">
+
+    {%- comment -%} ============ IMAGE GALLERY ============ {%- endcomment -%}
+    <div class="product-gallery" data-product-gallery>
+      <div class="product-gallery__main">
+        {%- for image in product.images -%}
+          <img
+            src="{{ image | image_url: width: 1200 }}"
+            srcset="{{ image | image_url: width: 600 }} 600w, {{ image | image_url: width: 900 }} 900w, {{ image | image_url: width: 1200 }} 1200w"
+            sizes="(min-width: 990px) 50vw, 100vw"
+            alt="{{ image.alt | default: product.title | escape }}"
+            width="{{ image.width }}"
+            height="{{ image.height }}"
+            loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+            class="product-gallery__main-img{% if forloop.first %} is-active{% endif %}"
+            data-gallery-main-image
+            data-index="{{ forloop.index0 }}">
+        {%- else -%}
+          <div class="product-gallery__main-img is-active">{{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+        {%- endfor -%}
+
+        {%- if product.compare_at_price > product.price -%}
+          <span class="badge badge--sale badge--gallery">Sale</span>
+        {%- endif -%}
+
+        <button type="button" class="gallery-nav gallery-nav--prev" data-gallery-prev aria-label="Previous image">&#10094;</button>
+        <button type="button" class="gallery-nav gallery-nav--next" data-gallery-next aria-label="Next image">&#10095;</button>
+      </div>
+
+      {%- if product.images.size > 1 -%}
+        <div class="product-gallery__thumbs" role="tablist" aria-label="Product images">
+          {%- for image in product.images -%}
+            <button
+              type="button"
+              class="product-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+              data-gallery-thumb
+              data-index="{{ forloop.index0 }}"
+              role="tab"
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+              aria-label="Show image {{ forloop.index }}">
+              <img src="{{ image | image_url: width: 200 }}" alt="{{ image.alt | default: product.title | escape }}" loading="lazy" width="80" height="80">
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ============ PRODUCT INFO ============ {%- endcomment -%}
+    <div class="product-info">
+      {%- if product.vendor != blank -%}
+        <p class="product-info__vendor">{{ product.vendor }}</p>
+      {%- endif -%}
+
+      <h1 class="product-info__title">{{ product.title }}</h1>
+
+      {%- if product.metafields.reviews.rating -%}
+        <div class="product-info__rating" aria-label="Rated {{ product.metafields.reviews.rating.value }} out of 5">
+          {%- for i in (1..5) -%}&#9733;{%- endfor -%}
+          <span class="product-info__rating-count">({{ product.metafields.reviews.rating_count }})</span>
+        </div>
+      {%- endif -%}
+
+      <div class="product-info__price" data-price-wrapper>
+        <span class="price price--large" data-product-price>{{ product.selected_or_first_available_variant.price | money }}</span>
+        {%- if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price -%}
+          <span class="price price--compare price--large" data-compare-price>{{ product.selected_or_first_available_variant.compare_at_price | money }}</span>
+          <span class="badge badge--save" data-save-badge>
+            Save {{ product.selected_or_first_available_variant.compare_at_price | minus: product.selected_or_first_available_variant.price | times: 100.0 | divided_by: product.selected_or_first_available_variant.compare_at_price | round }}%
+          </span>
+        {%- endif -%}
+      </div>
+
+      {%- if product.selected_or_first_available_variant.weight > 0 -%}
+        <p class="product-info__weight" data-variant-weight>
+          Gross Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}
+        </p>
+      {%- endif -%}
+
+      <div class="product-info__description rte">
+        {{ product.description }}
+      </div>
+
+      {%- form 'product', product, id: 'ProductForm', class: 'product-form' -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-selected-variant-id>
+
+        {%- unless product.has_only_default_variant -%}
+          {%- for option in product.options_with_values -%}
+            <div class="product-form__option" data-option-index="{{ forloop.index0 }}">
+              <label class="product-form__option-label" for="Option-{{ forloop.index0 }}">
+                {{ option.name }}: <span data-option-selected-value>{{ option.selected_value }}</span>
+              </label>
+              <div class="product-form__swatches" role="radiogroup" aria-label="{{ option.name }}">
+                {%- for value in option.values -%}
+                  <button
+                    type="button"
+                    class="swatch-btn{% if value == option.selected_value %} is-selected{% endif %}"
+                    data-option-value
+                    data-option-index="{{ forloop.parentloop.index0 }}"
+                    data-value="{{ value | escape }}"
+                    role="radio"
+                    aria-checked="{% if value == option.selected_value %}true{% else %}false{% endif %}">
+                    {{ value }}
+                  </button>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- endunless -%}
+
+        <div class="product-form__quantity">
+          <label for="Quantity">Quantity</label>
+          <div class="quantity-stepper">
+            <button type="button" class="quantity-stepper__btn" data-quantity-minus aria-label="Decrease quantity">&minus;</button>
+            <input type="number" id="Quantity" name="quantity" value="1" min="1" inputmode="numeric" data-quantity-input>
+            <button type="button" class="quantity-stepper__btn" data-quantity-plus aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <div class="product-form__buttons">
+          <button
+            type="submit"
+            name="add"
+            class="btn btn--maroon btn--full btn--large"
+            data-add-to-cart-btn
+            {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+            <span data-add-to-cart-text>
+              {%- if product.selected_or_first_available_variant.available -%}
+                Add to Cart &mdash; <span data-add-to-cart-price>{{ product.selected_or_first_available_variant.price | money }}</span>
+              {%- else -%}
+                Sold Out
+              {%- endif -%}
+            </span>
+          </button>
+          <button type="button" class="btn btn--outline-maroon btn--full" data-buy-now-btn>Buy It Now</button>
+        </div>
+      {%- endform -%}
+
+      <div class="product-info__trust-badges">
+        <div class="trust-badge"><span>&#10022;</span> BIS Hallmarked</div>
+        <div class="trust-badge"><span>&#10022;</span> Certificate of Authenticity</div>
+        <div class="trust-badge"><span>&#10022;</span> Free Insured Shipping</div>
+        <div class="trust-badge"><span>&#10022;</span> 15-Day Exchange</div>
+      </div>
+
+      {%- if product.tags contains 'sku' or product.variants.size > 0 -%}
+        <p class="product-info__sku">SKU: <span data-variant-sku>{{ product.selected_or_first_available_variant.sku }}</span></p>
+      {%- endif -%}
+
+      <details class="product-accordion" open>
+        <summary>Product Details</summary>
+        <div class="product-accordion__body">
+          <ul>
+            {%- if product.type != blank -%}<li>Category: {{ product.type }}</li>{%- endif -%}
+            {%- if product.selected_or_first_available_variant.weight > 0 -%}<li>Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}</li>{%- endif -%}
+            <li>Metal: Certified Gold (as per listing purity)</li>
+            <li>Care: Store in a dry box; avoid contact with perfume and chemicals</li>
+          </ul>
+        </div>
+      </details>
+      <details class="product-accordion">
+        <summary>Shipping &amp; Returns</summary>
+        <div class="product-accordion__body">
+          <p>Complimentary fully-insured shipping across India, dispatched within 3&ndash;5 business days. 15-day exchange window on unworn, tagged pieces.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  {%- comment -%} ============ RELATED PRODUCTS ============ {%- endcomment -%}
+  {%- assign related_collection = product.collections.first -%}
+  {%- if related_collection -%}
+    <section class="related-products">
+      <div class="section-heading">
+        <p class="section-heading__eyebrow">You May Also Like</p>
+        <h2 class="section-heading__title">Complete The Look</h2>
+      </div>
+      <div class="product-grid">
+        {%- assign related_count = 0 -%}
+        {%- for related in related_collection.products -%}
+          {%- if related.id != product.id and related_count < 4 -%}
+            {%- assign related_count = related_count | plus: 1 -%}
+            <div class="product-card">
+              <a href="{{ related.url }}" class="product-card__media">
+                {%- if related.featured_image -%}
+                  <img src="{{ related.featured_image | image_url: width: 700 }}" alt="{{ related.featured_image.alt | escape }}" loading="lazy">
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}
+                {%- endif -%}
+              </a>
+              <div class="product-card__info">
+                <h3 class="product-card__title"><a href="{{ related.url }}">{{ related.title }}</a></h3>
+                <div class="product-card__price"><span class="price">{{ related.price | money }}</span></div>
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </section>
+  {%- endif -%}
+</div>
+
+{%- comment -%} Embedded product + variant JSON for AJAX pricing / gallery sync in theme.js {%- endcomment -%}
+<script type="application/json" data-product-json>
+  {{ product | json }}
+</script>

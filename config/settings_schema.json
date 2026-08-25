@@ -1,0 +1,87 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Paavai Jewellery",
+    "theme_version": "1.0.0",
+    "theme_author": "PAAVAI JEWELLERY",
+    "theme_documentation_url": "https://github.com/",
+    "theme_support_url": "https://github.com/"
+  },
+  {
+    "name": "Logos & Favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Header logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Will be scaled down to 32 x 32px"
+      },
+      {
+        "type": "image_picker",
+        "id": "share_image",
+        "label": "Default social sharing image",
+        "info": "Used when a page has no featured image (1200 x 630px recommended)"
+      }
+    ]
+  },
+  {
+    "name": "Homepage",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "hero_image",
+        "label": "Hero banner image",
+        "info": "Recommended size: 2400 x 1350px"
+      }
+    ]
+  },
+  {
+    "name": "Social Media",
+    "settings": [
+      {
+        "type": "text",
+        "id": "social_instagram_link",
+        "label": "Instagram URL",
+        "info": "https://instagram.com/yourstore"
+      },
+      {
+        "type": "text",
+        "id": "social_facebook_link",
+        "label": "Facebook URL",
+        "info": "https://facebook.com/yourstore"
+      }
+    ]
+  },
+  {
+    "name": "Brand Colors",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Reference only — core palette is hardcoded in theme.css as CSS variables (--color-maroon, --color-gold, --color-pearl) for design consistency."
+      },
+      {
+        "type": "color",
+        "id": "color_maroon",
+        "label": "Royal Maroon",
+        "default": "#580820"
+      },
+      {
+        "type": "color",
+        "id": "color_gold",
+        "label": "Metallic Gold",
+        "default": "#D4AF37"
+      },
+      {
+        "type": "color",
+        "id": "color_pearl",
+        "label": "Pearl White",
+        "default": "#FBF8F3"
+      }
+    ]
+  }
+]

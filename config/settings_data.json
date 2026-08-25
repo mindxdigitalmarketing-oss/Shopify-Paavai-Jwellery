@@ -1,0 +1,18 @@
+{
+  "current": {
+    "social_instagram_link": "",
+    "social_facebook_link": "",
+    "color_maroon": "#580820",
+    "color_gold": "#D4AF37",
+    "color_pearl": "#FBF8F3"
+  },
+  "presets": {
+    "Default": {
+      "social_instagram_link": "",
+      "social_facebook_link": "",
+      "color_maroon": "#580820",
+      "color_gold": "#D4AF37",
+      "color_pearl": "#FBF8F3"
+    }
+  }
+}

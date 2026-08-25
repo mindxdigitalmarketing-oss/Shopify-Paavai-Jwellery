@@ -1,0 +1,194 @@
+{%- comment -%}
+  templates/index.liquid — PAAVAI JEWELLERY Homepage
+  Sections: Hero Banner / Best Sellers Grid / Brand Story / Category Strip / Testimonials
+{%- endcomment -%}
+
+<div class="home-page">
+
+  {%- comment -%} ============ HERO BANNER ============ {%- endcomment -%}
+  <section class="hero-banner" aria-label="Featured collection">
+    <div class="hero-banner__media">
+      {%- if settings.hero_image != blank -%}
+        <img
+          src="{{ settings.hero_image | image_url: width: 2000 }}"
+          srcset="{{ settings.hero_image | image_url: width: 800 }} 800w,
+                  {{ settings.hero_image | image_url: width: 1400 }} 1400w,
+                  {{ settings.hero_image | image_url: width: 2000 }} 2000w"
+          sizes="100vw"
+          alt="{{ settings.hero_image.alt | default: 'PAAVAI JEWELLERY hero' | escape }}"
+          width="{{ settings.hero_image.width }}"
+          height="{{ settings.hero_image.height }}"
+          loading="eager"
+          class="hero-banner__img">
+      {%- else -%}
+        <img
+          src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=2000&auto=format&fit=crop"
+          alt="PAAVAI JEWELLERY — heirloom gold and diamond jewellery"
+          class="hero-banner__img"
+          loading="eager">
+      {%- endif -%}
+      <div class="hero-banner__scrim"></div>
+    </div>
+
+    <div class="hero-banner__content container">
+      <p class="hero-banner__eyebrow">The Heirloom Edit &mdash; 2026</p>
+      <h1 class="hero-banner__title">Jewellery Woven With Legacy</h1>
+      <p class="hero-banner__subtitle">Handcrafted gold, diamonds, and South Indian bridal artistry, made to be passed down.</p>
+      <div class="hero-banner__actions">
+        <a href="/collections/bridal-sets" class="btn btn--gold">Shop Bridal Sets</a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-light">View All Jewellery</a>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ============ CATEGORY STRIP ============ {%- endcomment -%}
+  <section class="category-strip container" aria-label="Shop by category">
+    <a href="/collections/necklaces" class="category-card">
+      <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=900&auto=format&fit=crop" alt="Necklaces" loading="lazy">
+      <span class="category-card__label">Necklaces</span>
+    </a>
+    <a href="/collections/diamond-earrings" class="category-card">
+      <img src="https://images.unsplash.com/photo-1599459183200-59c7687a0275?q=80&w=900&auto=format&fit=crop" alt="Diamond Earrings" loading="lazy">
+      <span class="category-card__label">Diamond Earrings</span>
+    </a>
+    <a href="/collections/gold-bangles" class="category-card">
+      <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=900&auto=format&fit=crop" alt="Gold Bangles" loading="lazy">
+      <span class="category-card__label">Gold Bangles</span>
+    </a>
+    <a href="/collections/bridal-sets" class="category-card">
+      <img src="https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52?q=80&w=900&auto=format&fit=crop" alt="Bridal Sets" loading="lazy">
+      <span class="category-card__label">Bridal Sets</span>
+    </a>
+  </section>
+
+  {%- comment -%} ============ BEST SELLERS GRID ============ {%- endcomment -%}
+  <section class="best-sellers container" aria-labelledby="BestSellersHeading">
+    <div class="section-heading">
+      <p class="section-heading__eyebrow">Most Loved</p>
+      <h2 id="BestSellersHeading" class="section-heading__title">Best Sellers</h2>
+      <p class="section-heading__subtitle">Our most gifted pieces, chosen by discerning brides and everyday icons alike.</p>
+    </div>
+
+    {%- assign bestsellers_collection = collections['best-sellers'] -%}
+    {%- if bestsellers_collection == blank or bestsellers_collection.products.size == 0 -%}
+      {%- assign bestsellers_collection = collections.all -%}
+    {%- endif -%}
+
+    <div class="product-grid">
+      {%- for product in bestsellers_collection.products limit: 8 -%}
+        <div class="product-card">
+          <a href="{{ product.url }}" class="product-card__media">
+            {%- if product.featured_image -%}
+              <img
+                src="{{ product.featured_image | image_url: width: 700 }}"
+                srcset="{{ product.featured_image | image_url: width: 400 }} 400w, {{ product.featured_image | image_url: width: 700 }} 700w"
+                sizes="(min-width: 990px) 25vw, 50vw"
+                alt="{{ product.featured_image.alt | escape }}"
+                loading="lazy"
+                width="{{ product.featured_image.width }}"
+                height="{{ product.featured_image.height }}">
+              {%- if product.images.size > 1 -%}
+                <img
+                  src="{{ product.images[1] | image_url: width: 700 }}"
+                  alt=""
+                  loading="lazy"
+                  class="product-card__media-hover">
+              {%- endif -%}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}
+            {%- endif -%}
+            {%- if product.compare_at_price > product.price -%}
+              <span class="badge badge--sale">Sale</span>
+            {%- endif -%}
+          </a>
+          <div class="product-card__info">
+            <h3 class="product-card__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+            <div class="product-card__price">
+              <span class="price">{{ product.price | money }}</span>
+              {%- if product.compare_at_price > product.price -%}
+                <span class="price price--compare">{{ product.compare_at_price | money }}</span>
+              {%- endif -%}
+            </div>
+            {%- form 'product', product, class: 'product-card__form' -%}
+              <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+              <button
+                type="submit"
+                name="add"
+                class="btn btn--maroon btn--full btn--small"
+                {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+                {%- if product.selected_or_first_available_variant.available -%}
+                  Add to Cart
+                {%- else -%}
+                  Sold Out
+                {%- endif -%}
+              </button>
+            {%- endform -%}
+          </div>
+        </div>
+      {%- else -%}
+        {%- comment -%} Fallback sample cards render only when the store has zero products yet {%- endcomment -%}
+        {%- for i in (1..8) -%}
+          <div class="product-card product-card--placeholder">
+            <div class="product-card__media">{{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}</div>
+            <div class="product-card__info">
+              <h3 class="product-card__title">Sample Jewellery Piece</h3>
+              <div class="product-card__price"><span class="price">{{ 45000 | money }}</span></div>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="best-sellers__cta">
+      <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-maroon">Shop All Jewellery</a>
+    </div>
+  </section>
+
+  {%- comment -%} ============ BRAND STORY ============ {%- endcomment -%}
+  <section class="brand-story">
+    <div class="container brand-story__grid">
+      <div class="brand-story__media">
+        <img
+          src="https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?q=80&w=1200&auto=format&fit=crop"
+          alt="PAAVAI JEWELLERY artisans at work"
+          loading="lazy">
+      </div>
+      <div class="brand-story__content">
+        <p class="section-heading__eyebrow">Our Story</p>
+        <h2 class="brand-story__title">Crafted By Hand. Worn For Generations.</h2>
+        <p class="brand-story__text">
+          PAAVAI JEWELLERY was founded on a simple belief: that jewellery should carry meaning, not just shine.
+          Every necklace, bangle, and bridal set is hand-finished by master goldsmiths using traditional
+          South Indian techniques passed down across generations &mdash; then paired with modern, certified
+          craftsmanship so it can be worn every day, not just on your wedding day.
+        </p>
+        <p class="brand-story__text">
+          From temple-inspired motifs to contemporary diamond settings, each piece is designed to become
+          part of your story before it becomes part of the next generation's.
+        </p>
+        <a href="/pages/our-story" class="btn btn--outline-maroon">Read Our Full Story</a>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ============ TRUST / TESTIMONIAL STRIP ============ {%- endcomment -%}
+  <section class="trust-strip container">
+    <div class="trust-strip__item">
+      <span class="trust-strip__icon">&#10022;</span>
+      <p>BIS Hallmarked Gold</p>
+    </div>
+    <div class="trust-strip__item">
+      <span class="trust-strip__icon">&#10022;</span>
+      <p>Certified Diamonds</p>
+    </div>
+    <div class="trust-strip__item">
+      <span class="trust-strip__icon">&#10022;</span>
+      <p>Lifetime Exchange</p>
+    </div>
+    <div class="trust-strip__item">
+      <span class="trust-strip__icon">&#10022;</span>
+      <p>Insured Nationwide Shipping</p>
+    </div>
+  </section>
+
+</div>

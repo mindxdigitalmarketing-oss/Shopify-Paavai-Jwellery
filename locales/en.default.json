@@ -1,0 +1,22 @@
+{
+  "general": {
+    "search": {
+      "placeholder": "Search"
+    },
+    "cart": {
+      "title": "Your Bag",
+      "empty": "Your bag is empty.",
+      "subtotal": "Subtotal",
+      "checkout": "Checkout Securely"
+    }
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to Cart",
+      "sold_out": "Sold Out",
+      "unavailable": "Unavailable",
+      "quantity": "Quantity",
+      "buy_now": "Buy It Now"
+    }
+  }
+}
