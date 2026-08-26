@@ -1,0 +1,13 @@
+{%- comment -%}
+  snippets/quick-view-modal.liquid — global Quick View modal shell.
+  Rendered once from layout/theme.liquid. Populated dynamically by the
+  QuickView module in assets/theme.js using each product's /products/{handle}.js
+  endpoint, so it always reflects live catalog data (never fabricated).
+{%- endcomment -%}
+<div class="quick-view-modal" id="QuickViewModal" data-quick-view-modal hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="Quick view">
+  <div class="quick-view-modal__overlay" data-quick-view-close></div>
+  <div class="quick-view-modal__panel">
+    <button type="button" class="quick-view-modal__close" data-quick-view-close aria-label="Close quick view">&times;</button>
+    <div class="quick-view-modal__body" data-quick-view-body></div>
+  </div>
+</div>
