@@ -135,7 +135,10 @@
               <a href="/collections/rings" class="nav-list__link">Rings</a>
               {%- render 'mega-menu', title: 'Rings', url: '/collections/rings', handle: 'rings' -%}
             </li>
-            <li class="nav-list__item"><a href="/collections/gold-bangles" class="nav-list__link">Gold Bangles</a></li>
+            <li class="nav-list__item has-dropdown has-mega-menu">
+              <a href="/collections/gold-bangles" class="nav-list__link">Bangles</a>
+              {%- render 'mega-menu', title: 'Bangles', url: '/collections/gold-bangles', handle: 'gold-bangles' -%}
+            </li>
             <li class="nav-list__item"><a href="/pages/our-story" class="nav-list__link">Our Story</a></li>
           {%- endfor -%}
         </ul>
@@ -236,6 +239,7 @@
   </footer>
 
   {%- render 'cart-drawer' -%}
+  {%- render 'quick-view-modal' -%}
 
   <div class="drawer-overlay" data-drawer-overlay hidden></div>
 
