@@ -41,6 +41,24 @@
     ]
   },
   {
+    "name": "Cart & Shipping",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enable_free_shipping_bar",
+        "label": "Show free shipping progress bar in cart drawer",
+        "default": true
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping threshold (in your store's currency, no symbol)",
+        "info": "The cart drawer tells shoppers how much more they need to add to qualify. Set this to match your actual shipping policy.",
+        "default": 15000
+      }
+    ]
+  },
+  {
     "name": "Social Media",
     "settings": [
       {
@@ -79,8 +97,8 @@
       {
         "type": "color",
         "id": "color_pearl",
-        "label": "Pearl White",
-        "default": "#FBF8F3"
+        "label": "Warm Off-White",
+        "default": "#FDFBF7"
       }
     ]
   }
