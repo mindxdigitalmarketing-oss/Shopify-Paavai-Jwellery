@@ -695,6 +695,158 @@
   };
 
   /* ---------------------------------------------------------------------
+     Quick View modal — populated from Shopify's /products/{handle}.js
+     endpoint so it always reflects real, live product/variant data.
+     Add-to-cart inside the modal is handled by the existing Cart module
+     (the injected form carries the .product-form class it listens for).
+  --------------------------------------------------------------------- */
+  var QuickView = {
+    init: function () {
+      this.modal = qs('[data-quick-view-modal]');
+      if (!this.modal) { return; }
+      this.body = qs('[data-quick-view-body]', this.modal);
+
+      document.addEventListener('click', function (e) {
+        var trigger = e.target.closest('[data-quick-view-btn]');
+        if (trigger) {
+          e.preventDefault();
+          this.open(trigger.getAttribute('data-product-url'));
+          return;
+        }
+        var closeTarget = e.target.closest('[data-quick-view-close]');
+        if (closeTarget) { this.close(); }
+      }.bind(this));
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !this.modal.hidden) { this.close(); }
+      }.bind(this));
+
+      document.addEventListener('cart:updated', function () {
+        if (!this.modal.hidden) { this.close(); }
+      }.bind(this));
+    },
+
+    open: function (url) {
+      this.body.innerHTML = '<p class="quick-view-modal__loading">Loading&hellip;</p>';
+      this.modal.hidden = false;
+      requestAnimationFrame(function () {
+        this.modal.classList.add('is-open');
+        this.modal.setAttribute('aria-hidden', 'false');
+      }.bind(this));
+      document.body.style.overflow = 'hidden';
+
+      fetch(url, { headers: { Accept: 'application/json' } })
+        .then(function (res) { return res.json(); })
+        .then(function (product) { this.render(product); }.bind(this))
+        .catch(function () {
+          this.body.innerHTML = '<p class="quick-view-modal__loading">Could not load this product. <a href="' +
+            url.replace(/\.js$/, '') + '">View full details</a>.</p>';
+        }.bind(this));
+    },
+
+    close: function () {
+      this.modal.classList.remove('is-open');
+      this.modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      window.setTimeout(function () {
+        this.modal.hidden = true;
+        this.body.innerHTML = '';
+      }.bind(this), 300);
+    },
+
+    render: function (product) {
+      var variant = product.variants[0];
+      var hasRealOptions = !(product.options.length === 1 && product.options[0] === 'Title');
+      var optionsHtml = '';
+
+      if (hasRealOptions) {
+        product.options.forEach(function (optionName, i) {
+          var values = [];
+          product.variants.forEach(function (v) {
+            var val = v.options[i];
+            if (values.indexOf(val) === -1) { values.push(val); }
+          });
+          optionsHtml += '<div class="product-form__option" data-qv-option-index="' + i + '">' +
+            '<label class="product-form__option-label">' + escapeHtml(optionName) + ': <span data-qv-option-selected>' + escapeHtml(values[0]) + '</span></label>' +
+            '<div class="product-form__swatches" role="radiogroup" aria-label="' + escapeHtml(optionName) + '">' +
+            values.map(function (v, vi) {
+              return '<button type="button" class="swatch-btn' + (vi === 0 ? ' is-selected' : '') + '" data-qv-option-value data-qv-option-index="' + i + '" data-value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</button>';
+            }).join('') +
+            '</div></div>';
+        });
+      }
+
+      var imgSrc = product.featured_image || (product.images && product.images[0]) || '';
+      if (imgSrc) { imgSrc = imgSrc.replace(/(\.[a-zA-Z]{3,4})(\?|$)/, '_800x$1$2'); }
+
+      this.body.innerHTML =
+        '<div class="quick-view-modal__media">' +
+          (imgSrc ? '<img src="' + imgSrc + '" alt="' + escapeHtml(product.title) + '">' : '') +
+        '</div>' +
+        '<div class="quick-view-modal__info">' +
+          '<h2 class="quick-view-modal__title">' + escapeHtml(product.title) + '</h2>' +
+          '<span class="price price--large" data-qv-price>' + formatMoney(variant.price) + '</span>' +
+          '<form class="product-form quick-view-form" data-qv-form>' +
+            '<input type="hidden" name="id" value="' + variant.id + '" data-qv-variant-id>' +
+            optionsHtml +
+            '<div class="product-form__buttons">' +
+              '<button type="submit" name="add" class="btn btn--maroon btn--full btn--large" data-qv-add-btn' + (variant.available ? '' : ' disabled') + '>' +
+                '<span data-qv-add-text>' + (variant.available ? 'Add to Cart &mdash; ' + formatMoney(variant.price) : 'Sold Out') + '</span>' +
+              '</button>' +
+            '</div>' +
+          '</form>' +
+          '<a href="' + product.url + '" class="quick-view-modal__viewfull">View Full Details <span aria-hidden="true">&rarr;</span></a>' +
+        '</div>';
+
+      this._product = product;
+      this._selections = product.options.map(function (_, i) { return variant.options[i]; });
+
+      qsa('[data-qv-option-value]', this.body).forEach(function (btn) {
+        btn.addEventListener('click', this.handleOptionClick.bind(this));
+      }, this);
+    },
+
+    handleOptionClick: function (e) {
+      var btn = e.target.closest('[data-qv-option-value]');
+      var idx = parseInt(btn.getAttribute('data-qv-option-index'), 10);
+      var value = btn.getAttribute('data-value');
+      this._selections[idx] = value;
+
+      qsa('[data-qv-option-index="' + idx + '"] .swatch-btn', this.body).forEach(function (el) {
+        var isSelected = el.getAttribute('data-value') === value;
+        el.classList.toggle('is-selected', isSelected);
+      });
+      var label = qs('[data-qv-option-index="' + idx + '"] [data-qv-option-selected]', this.body);
+      if (label) { label.textContent = value; }
+
+      var selections = this._selections;
+      var variant = this._product.variants.find(function (v) {
+        return v.options.every(function (opt, i) { return opt === selections[i]; });
+      });
+
+      var priceEl = qs('[data-qv-price]', this.body);
+      var idInput = qs('[data-qv-variant-id]', this.body);
+      var addBtn = qs('[data-qv-add-btn]', this.body);
+      var addText = qs('[data-qv-add-text]', this.body);
+
+      if (!variant) {
+        if (addBtn) { addBtn.disabled = true; }
+        if (addText) { addText.textContent = 'Unavailable'; }
+        return;
+      }
+
+      if (idInput) { idInput.value = variant.id; }
+      if (priceEl) { priceEl.textContent = formatMoney(variant.price); }
+      if (addBtn) { addBtn.disabled = !variant.available; }
+      if (addText) {
+        addText.innerHTML = variant.available
+          ? 'Add to Cart &mdash; ' + formatMoney(variant.price)
+          : 'Sold Out';
+      }
+    }
+  };
+
+  /* ---------------------------------------------------------------------
      Init on DOM ready
   --------------------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -706,6 +858,7 @@
     FeaturedCarousel.init();
     ProductGallery.init();
     ProductVariants.init();
+    QuickView.init();
   });
 
   window.PaavaiTheme = {
@@ -713,6 +866,7 @@
     CartDrawer: CartDrawer,
     FeaturedCarousel: FeaturedCarousel,
     LiveSearch: LiveSearch,
+    QuickView: QuickView,
     formatMoney: formatMoney
   };
 })();
