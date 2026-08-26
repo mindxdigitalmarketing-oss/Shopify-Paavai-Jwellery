@@ -1,0 +1,38 @@
+{%- comment -%}
+  snippets/mega-menu.liquid — hover dropdown panel for one nav category.
+  Pulls real product thumbnails from the matching Shopify collection so nothing here
+  is fabricated: if the collection doesn't exist yet or is empty, the panel renders
+  gracefully with just a "Shop All" link and a quiet placeholder message.
+
+  Usage: {% render 'mega-menu', title: 'Necklaces', url: '/collections/necklaces', handle: 'necklaces' %}
+{%- endcomment -%}
+{%- assign menu_collection = collections[handle] -%}
+<div class="mega-menu" role="menu" aria-label="{{ title }} menu">
+  <div class="mega-menu__inner container">
+    <div class="mega-menu__links">
+      <p class="mega-menu__heading">{{ title }}</p>
+      {%- if menu_collection and menu_collection.description != blank -%}
+        <p class="mega-menu__blurb">{{ menu_collection.description | strip_html | truncate: 100 }}</p>
+      {%- endif -%}
+      <a href="{{ url }}" class="mega-menu__view-all" role="menuitem">Shop All {{ title }} <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="mega-menu__thumbs">
+      {%- if menu_collection and menu_collection.products.size > 0 -%}
+        {%- for product in menu_collection.products limit: 3 -%}
+          <a href="{{ product.url }}" class="mega-menu__thumb" role="menuitem">
+            <span class="mega-menu__thumb-img">
+              {%- if product.featured_image -%}
+                <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.featured_image.alt | default: product.title | escape }}" loading="lazy" width="300" height="360">
+              {%- else -%}
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </span>
+            <span class="mega-menu__thumb-title">{{ product.title }}</span>
+          </a>
+        {%- endfor -%}
+      {%- else -%}
+        <p class="mega-menu__empty">New arrivals coming soon.</p>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
