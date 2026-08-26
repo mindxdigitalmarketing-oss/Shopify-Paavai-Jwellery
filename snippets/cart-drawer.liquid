@@ -3,11 +3,38 @@
   Rendered globally from layout/theme.liquid. Controlled by assets/theme.js (CartDrawer module).
 {%- endcomment -%}
 
-<aside id="CartDrawer" class="cart-drawer" aria-hidden="true" aria-label="Shopping cart">
+<aside
+  id="CartDrawer"
+  class="cart-drawer"
+  aria-hidden="true"
+  aria-label="Shopping cart"
+  data-free-shipping-enabled="{{ settings.enable_free_shipping_bar | default: true }}"
+  data-free-shipping-threshold="{{ settings.free_shipping_threshold | default: 15000 | times: 100 }}">
   <div class="cart-drawer__header">
     <h2 class="cart-drawer__title">Your Bag <span data-cart-drawer-count>({{ cart.item_count }})</span></h2>
     <button type="button" class="cart-drawer__close" data-cart-drawer-close aria-label="Close cart">&times;</button>
   </div>
+
+  {%- if settings.enable_free_shipping_bar -%}
+    {%- assign fs_threshold_cents = settings.free_shipping_threshold | default: 15000 | times: 100 -%}
+    {%- if cart.total_price >= fs_threshold_cents -%}
+      {%- assign fs_percent = 100 -%}
+    {%- else -%}
+      {%- assign fs_percent = cart.total_price | times: 100.0 | divided_by: fs_threshold_cents | times: 100 | round -%}
+    {%- endif -%}
+    <div class="cart-drawer__shipping-bar" data-shipping-bar{% if cart.item_count == 0 %} hidden{% endif %}>
+      <p class="cart-drawer__shipping-bar-msg" data-shipping-bar-msg>
+        {%- if cart.total_price >= fs_threshold_cents -%}
+          &#10022; You&rsquo;ve unlocked Free Insured Delivery
+        {%- else -%}
+          Add <strong>{{ fs_threshold_cents | minus: cart.total_price | money }}</strong> more for Free Insured Delivery
+        {%- endif -%}
+      </p>
+      <div class="cart-drawer__shipping-track">
+        <div class="cart-drawer__shipping-fill" data-shipping-bar-fill style="width: {{ fs_percent }}%;"></div>
+      </div>
+    </div>
+  {%- endif -%}
 
   <div class="cart-drawer__body" data-cart-drawer-body>
     {%- if cart.item_count > 0 -%}
@@ -65,7 +92,26 @@
     </div>
     <p class="cart-drawer__shipping-note">Taxes and shipping calculated at checkout.</p>
     <a href="{{ routes.cart_url }}" class="btn btn--outline-maroon btn--full">View Bag</a>
-    <button type="button" class="btn btn--maroon btn--full" data-checkout-btn>Checkout Securely</button>
+    <button type="button" class="btn btn--checkout-gold btn--full" data-checkout-btn>
+      <span>Proceed to Checkout</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn--checkout-gold__arrow"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </button>
+    <div class="cart-drawer__trust-row" aria-label="Secure checkout">
+      <span class="cart-drawer__trust-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+        100% Secure SSL Checkout
+      </span>
+      <span class="cart-drawer__trust-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="6"></circle><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"></path></svg>
+        Certified Hallmarked Gold
+      </span>
+    </div>
+    <div class="cart-drawer__payment-icons" aria-label="Accepted payment methods">
+      <span class="payment-chip">UPI</span>
+      <span class="payment-chip">Cards</span>
+      <span class="payment-chip">NetBanking</span>
+      <span class="payment-chip">EMI</span>
+    </div>
   </div>
 </aside>
 
