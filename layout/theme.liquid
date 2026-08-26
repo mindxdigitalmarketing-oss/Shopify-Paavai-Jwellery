@@ -11,7 +11,7 @@
   <link rel="canonical" href="{{ canonical_url }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&amp;family=Montserrat:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&amp;family=Montserrat:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 
   {%- if settings.favicon != blank -%}
     <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
@@ -42,12 +42,12 @@
       --color-gold: #D4AF37;
       --color-gold-light: #E8C766;
       --color-gold-dark: #A8862A;
-      --color-pearl: #FBF8F3;
+      --color-pearl: #FDFBF7;
       --color-pearl-dark: #F2ECE1;
-      --color-ink: #201014;
-      --color-charcoal: #2E2429;
+      --color-ink: #1A1A1A;
+      --color-charcoal: #1A1A1A;
       --color-line: rgba(88, 8, 32, 0.14);
-      --font-heading: 'Cinzel', 'Georgia', serif;
+      --font-heading: 'Playfair Display', 'Georgia', serif;
       --font-body: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       --container-max: 1320px;
       --radius-sm: 2px;
@@ -97,32 +97,54 @@
       <nav class="site-header__nav" aria-label="Primary">
         <ul class="nav-list">
           {%- for link in linklists.main-menu.links -%}
-            <li class="nav-list__item{% if link.links.size > 0 %} has-dropdown{% endif %}">
-              <a href="{{ link.url }}" class="nav-list__link"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
-              {%- if link.links.size > 0 -%}
+            {%- if link.type == 'collection_link' -%}
+              <li class="nav-list__item has-dropdown has-mega-menu">
+                <a href="{{ link.url }}" class="nav-list__link"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
+                {%- render 'mega-menu', title: link.title, url: link.url, handle: link.object.handle -%}
+              </li>
+            {%- elsif link.links.size > 0 -%}
+              <li class="nav-list__item has-dropdown">
+                <a href="{{ link.url }}" class="nav-list__link"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
                 <ul class="nav-dropdown">
                   {%- for childlink in link.links -%}
                     <li><a href="{{ childlink.url }}">{{ childlink.title }}</a></li>
                   {%- endfor -%}
                 </ul>
-              {%- endif -%}
-            </li>
+              </li>
+            {%- else -%}
+              <li class="nav-list__item">
+                <a href="{{ link.url }}" class="nav-list__link"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
+              </li>
+            {%- endif -%}
           {%- else -%}
             <li class="nav-list__item"><a href="{{ routes.root_url }}" class="nav-list__link">Home</a></li>
             <li class="nav-list__item"><a href="{{ routes.all_products_collection_url }}" class="nav-list__link">Shop All</a></li>
-            <li class="nav-list__item"><a href="/collections/necklaces" class="nav-list__link">Necklaces</a></li>
-            <li class="nav-list__item"><a href="/collections/diamond-earrings" class="nav-list__link">Diamond Earrings</a></li>
+            <li class="nav-list__item has-dropdown has-mega-menu">
+              <a href="/collections/bridal-sets" class="nav-list__link">Bridal</a>
+              {%- render 'mega-menu', title: 'Bridal', url: '/collections/bridal-sets', handle: 'bridal-sets' -%}
+            </li>
+            <li class="nav-list__item has-dropdown has-mega-menu">
+              <a href="/collections/necklaces" class="nav-list__link">Necklaces</a>
+              {%- render 'mega-menu', title: 'Necklaces', url: '/collections/necklaces', handle: 'necklaces' -%}
+            </li>
+            <li class="nav-list__item has-dropdown has-mega-menu">
+              <a href="/collections/diamond-earrings" class="nav-list__link">Earrings</a>
+              {%- render 'mega-menu', title: 'Earrings', url: '/collections/diamond-earrings', handle: 'diamond-earrings' -%}
+            </li>
+            <li class="nav-list__item has-dropdown has-mega-menu">
+              <a href="/collections/rings" class="nav-list__link">Rings</a>
+              {%- render 'mega-menu', title: 'Rings', url: '/collections/rings', handle: 'rings' -%}
+            </li>
             <li class="nav-list__item"><a href="/collections/gold-bangles" class="nav-list__link">Gold Bangles</a></li>
-            <li class="nav-list__item"><a href="/collections/bridal-sets" class="nav-list__link">Bridal Sets</a></li>
             <li class="nav-list__item"><a href="/pages/our-story" class="nav-list__link">Our Story</a></li>
           {%- endfor -%}
         </ul>
       </nav>
 
       <div class="site-header__actions">
-        <a href="{{ routes.search_url }}" class="header-icon-btn" aria-label="Search">
+        <button type="button" class="header-icon-btn" data-search-toggle aria-label="Search" aria-expanded="false" aria-controls="SearchOverlay">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </a>
+        </button>
         <a href="{{ routes.account_url }}" class="header-icon-btn" aria-label="Account">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </a>
@@ -141,6 +163,18 @@
       </ul>
     </nav>
   </header>
+
+  <div class="search-overlay" id="SearchOverlay" data-search-overlay hidden aria-hidden="true">
+    <div class="search-overlay__inner container">
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search-overlay__form" data-search-form>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="search-overlay__icon"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="search" name="q" value="" placeholder="Search necklaces, bangles, earrings, rings&hellip;" autocomplete="off" data-search-input aria-label="Search products">
+        <input type="hidden" name="type" value="product">
+        <button type="button" class="search-overlay__close" data-search-close aria-label="Close search">&times;</button>
+      </form>
+      <div class="search-overlay__results" data-search-results aria-live="polite"></div>
+    </div>
+  </div>
 
   <main id="MainContent" class="main-content" role="main">
     {{ content_for_layout }}
