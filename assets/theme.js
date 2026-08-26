@@ -105,11 +105,16 @@
   var CartDrawer = {
     drawer: null,
     overlay: null,
+    freeShippingEnabled: false,
+    freeShippingThreshold: 0,
 
     init: function () {
       this.drawer = qs('#CartDrawer');
       this.overlay = qs('[data-drawer-overlay]');
       if (!this.drawer) { return; }
+
+      this.freeShippingEnabled = this.drawer.getAttribute('data-free-shipping-enabled') === 'true';
+      this.freeShippingThreshold = parseInt(this.drawer.getAttribute('data-free-shipping-threshold'), 10) || 0;
 
       qsa('[data-cart-drawer-toggle]').forEach(function (btn) {
         btn.addEventListener('click', this.open.bind(this));
@@ -197,9 +202,34 @@
       });
     },
 
+    updateShippingBar: function (cart) {
+      if (!this.freeShippingEnabled) { return; }
+      var bar = qs('[data-shipping-bar]', this.drawer);
+      if (!bar) { return; }
+
+      if (cart.item_count === 0) { bar.hidden = true; return; }
+      bar.hidden = false;
+
+      var msgEl = qs('[data-shipping-bar-msg]', bar);
+      var fillEl = qs('[data-shipping-bar-fill]', bar);
+      var threshold = this.freeShippingThreshold;
+      var remaining = threshold - cart.total_price;
+
+      if (remaining <= 0) {
+        if (msgEl) { msgEl.innerHTML = '&#10022; You&rsquo;ve unlocked Free Insured Delivery'; }
+        if (fillEl) { fillEl.style.width = '100%'; }
+      } else {
+        var percent = threshold > 0 ? Math.min(100, Math.round((cart.total_price / threshold) * 100)) : 0;
+        if (msgEl) { msgEl.innerHTML = 'Add <strong>' + formatMoney(remaining) + '</strong> more for Free Insured Delivery'; }
+        if (fillEl) { fillEl.style.width = percent + '%'; }
+      }
+    },
+
     render: function (cart) {
       var countEls = qsa('[data-cart-drawer-count]');
       countEls.forEach(function (el) { el.textContent = '(' + cart.item_count + ')'; });
+
+      this.updateShippingBar(cart);
 
       var body = qs('[data-cart-drawer-body]', this.drawer);
       var footer = qs('[data-cart-drawer-footer]', this.drawer);
@@ -322,6 +352,163 @@
   };
 
   /* ---------------------------------------------------------------------
+     Live Search (Shopify predictive search)
+  --------------------------------------------------------------------- */
+  var LiveSearch = {
+    init: function () {
+      this.overlay = qs('[data-search-overlay]');
+      this.toggleBtns = qsa('[data-search-toggle]');
+      if (!this.overlay || !this.toggleBtns.length) { return; }
+
+      this.input = qs('[data-search-input]', this.overlay);
+      this.results = qs('[data-search-results]', this.overlay);
+      this.closeBtn = qs('[data-search-close]', this.overlay);
+      this.debounceTimer = null;
+      this.currentRequest = 0;
+
+      this.toggleBtns.forEach(function (btn) {
+        btn.addEventListener('click', this.open.bind(this));
+      }, this);
+
+      if (this.closeBtn) { this.closeBtn.addEventListener('click', this.close.bind(this)); }
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && this.overlay.classList.contains('is-open')) { this.close(); }
+      }.bind(this));
+
+      if (this.input) {
+        this.input.addEventListener('input', function () {
+          var term = this.input.value.trim();
+          window.clearTimeout(this.debounceTimer);
+          if (term.length < 2) {
+            this.results.innerHTML = '';
+            return;
+          }
+          this.debounceTimer = window.setTimeout(function () {
+            this.fetchResults(term);
+          }.bind(this), 260);
+        }.bind(this));
+      }
+    },
+
+    open: function (e) {
+      if (e) { e.preventDefault(); }
+      if (CartDrawer.drawer && CartDrawer.drawer.classList.contains('is-open')) { CartDrawer.close(); }
+      var mobileNav = qs('.mobile-nav.is-open');
+      if (mobileNav) { mobileNav.classList.remove('is-open'); }
+      this.overlay.hidden = false;
+      requestAnimationFrame(function () {
+        this.overlay.classList.add('is-open');
+        this.overlay.setAttribute('aria-hidden', 'false');
+      }.bind(this));
+      this.toggleBtns.forEach(function (btn) { btn.setAttribute('aria-expanded', 'true'); });
+      if (this.input) { this.input.focus(); }
+    },
+
+    close: function () {
+      this.overlay.classList.remove('is-open');
+      this.overlay.setAttribute('aria-hidden', 'true');
+      this.toggleBtns.forEach(function (btn) { btn.setAttribute('aria-expanded', 'false'); });
+      window.setTimeout(function () { this.overlay.hidden = true; }.bind(this), 300);
+    },
+
+    fetchResults: function (term) {
+      var requestId = ++this.currentRequest;
+      this.results.innerHTML = '<p class="search-overlay__status">Searching&hellip;</p>';
+
+      var url = '/search/suggest.json?q=' + encodeURIComponent(term) +
+        '&resources[type]=product&resources[limit]=6&resources[options][unavailable_products]=last';
+
+      fetch(url, { headers: { Accept: 'application/json' } })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (requestId !== this.currentRequest) { return; }
+          var products = (data.resources && data.resources.results && data.resources.results.products) || [];
+          this.renderResults(term, products);
+        }.bind(this))
+        .catch(function () {
+          if (requestId !== this.currentRequest) { return; }
+          this.results.innerHTML = '<p class="search-overlay__status">Something went wrong. Try pressing Enter to see full results.</p>';
+        }.bind(this));
+    },
+
+    renderResults: function (term, products) {
+      if (!products.length) {
+        this.results.innerHTML = '<p class="search-overlay__status">No products found for &ldquo;' + escapeHtml(term) + '&rdquo;.</p>';
+        return;
+      }
+
+      var html = '<div class="search-results__grid">';
+      products.forEach(function (product) {
+        var imgSrc = product.image || product.featured_image || '';
+        html += '<a href="' + product.url + '" class="search-result-card">' +
+          '<span class="search-result-card__img">' + (imgSrc ? '<img src="' + imgSrc + '" alt="" loading="lazy">' : '') + '</span>' +
+          '<span class="search-result-card__text">' +
+            '<span class="search-result-card__title">' + escapeHtml(product.title) + '</span>' +
+            '<span class="search-result-card__price">' + (product.price || '') + '</span>' +
+          '</span>' +
+        '</a>';
+      });
+      html += '</div>';
+      html += '<a href="/search?q=' + encodeURIComponent(term) + '&type=product" class="search-overlay__viewall">View all results for &ldquo;' + escapeHtml(term) + '&rdquo; <span aria-hidden="true">&rarr;</span></a>';
+      this.results.innerHTML = html;
+    }
+  };
+
+  /* ---------------------------------------------------------------------
+     Sticky Header (glassmorphism on scroll)
+  --------------------------------------------------------------------- */
+  var StickyHeader = {
+    init: function () {
+      var header = qs('#SiteHeader');
+      if (!header) { return; }
+
+      var ticking = false;
+      function update() {
+        header.classList.toggle('is-scrolled', window.scrollY > 24);
+        ticking = false;
+      }
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          window.requestAnimationFrame(update);
+          ticking = true;
+        }
+      }, { passive: true });
+      update();
+    }
+  };
+
+  /* ---------------------------------------------------------------------
+     Featured Collection Carousel
+  --------------------------------------------------------------------- */
+  var FeaturedCarousel = {
+    init: function () {
+      qsa('[data-featured-carousel]').forEach(function (root) {
+        var track = qs('[data-carousel-track]', root);
+        var prev = qs('[data-carousel-prev]', root);
+        var next = qs('[data-carousel-next]', root);
+        if (!track) { return; }
+
+        function step() {
+          var slide = qs('[data-carousel-track] > *', root);
+          return slide ? slide.getBoundingClientRect().width + 20 : track.clientWidth * 0.8;
+        }
+
+        if (prev) {
+          prev.addEventListener('click', function () {
+            track.scrollBy({ left: -step(), behavior: 'smooth' });
+          });
+        }
+        if (next) {
+          next.addEventListener('click', function () {
+            track.scrollBy({ left: step(), behavior: 'smooth' });
+          });
+        }
+      });
+    }
+  };
+
+  /* ---------------------------------------------------------------------
      Product Gallery
   --------------------------------------------------------------------- */
   var ProductGallery = {
@@ -344,6 +531,27 @@
       var next = qs('[data-gallery-next]', gallery);
       if (prev) { prev.addEventListener('click', function () { this.show(this.current - 1); }.bind(this)); }
       if (next) { next.addEventListener('click', function () { this.show(this.current + 1); }.bind(this)); }
+
+      this.initZoom();
+    },
+
+    initZoom: function () {
+      var main = qs('.product-gallery__main', this.gallery);
+      if (!main || window.matchMedia('(hover: none)').matches) { return; }
+
+      main.addEventListener('mouseenter', function () { main.classList.add('is-zoomed'); });
+      main.addEventListener('mouseleave', function () {
+        main.classList.remove('is-zoomed');
+        main.style.setProperty('--zoom-x', '50%');
+        main.style.setProperty('--zoom-y', '50%');
+      });
+      main.addEventListener('mousemove', function (e) {
+        var rect = main.getBoundingClientRect();
+        var x = ((e.clientX - rect.left) / rect.width) * 100;
+        var y = ((e.clientY - rect.top) / rect.height) * 100;
+        main.style.setProperty('--zoom-x', x + '%');
+        main.style.setProperty('--zoom-y', y + '%');
+      });
     },
 
     show: function (index) {
@@ -491,8 +699,11 @@
   --------------------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
     MobileNav.init();
+    StickyHeader.init();
+    LiveSearch.init();
     CartDrawer.init();
     Cart.init();
+    FeaturedCarousel.init();
     ProductGallery.init();
     ProductVariants.init();
   });
@@ -500,6 +711,8 @@
   window.PaavaiTheme = {
     Cart: Cart,
     CartDrawer: CartDrawer,
+    FeaturedCarousel: FeaturedCarousel,
+    LiveSearch: LiveSearch,
     formatMoney: formatMoney
   };
 })();
