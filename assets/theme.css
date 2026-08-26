@@ -126,6 +126,8 @@ input, textarea, select {
 .btn--outline-light:hover { background-color: #fff; color: var(--color-maroon); }
 
 .btn--gold-outline {
+  position: relative;
+  overflow: hidden;
   background-color: transparent;
   color: var(--color-gold-light);
   border: 1px solid var(--color-gold);
@@ -136,6 +138,25 @@ input, textarea, select {
   color: var(--color-maroon-dark);
   border-color: var(--color-gold-light);
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.22);
+}
+.btn--gold-outline::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -60%;
+  width: 35%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: skewX(-20deg);
+  animation: goldShineSweep 3.4s ease-in-out infinite;
+  animation-delay: 1.2s;
+  pointer-events: none;
+}
+@keyframes goldShineSweep {
+  0% { left: -60%; }
+  55% { left: 130%; }
+  100% { left: 130%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn--gold-outline::after { animation: none; }
 }
 
 /* ---------- Badges / Price ---------- */
@@ -504,21 +525,20 @@ input, textarea, select {
   gap: 20px;
 }
 .category-card {
-  display: flex;
-  flex-direction: column;
+  display: block;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: rgba(253, 251, 247, 0.45);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
   backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  border: 1px solid var(--color-gold);
   box-shadow: var(--shadow-soft);
   transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 }
 .category-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-strong);
-  border-color: var(--color-gold);
+  border-color: var(--color-gold-light);
 }
 .category-card__image-wrap {
   position: relative;
@@ -526,27 +546,53 @@ input, textarea, select {
   aspect-ratio: 3 / 4;
   overflow: hidden;
 }
-.category-card__image-wrap img {
+.category-card__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 600ms ease;
 }
-.category-card:hover .category-card__image-wrap img { transform: scale(1.08); }
-.category-card__image-wrap::after {
-  content: "";
+.category-card:hover .category-card__img { transform: scale(1.1); }
+
+/* Dark gradient overlay + serif title, revealed on hover */
+.category-card__overlay {
   position: absolute;
   inset: 0;
-  box-shadow: inset 0 -40px 40px -20px rgba(61, 5, 22, 0.25);
+  background: linear-gradient(180deg, rgba(26, 26, 26, 0) 35%, rgba(26, 26, 26, 0.82) 100%);
+  opacity: 0.62;
+  transition: opacity var(--transition-base);
 }
+.category-card:hover .category-card__overlay { opacity: 1; }
+
 .category-card__title {
-  padding: 16px 12px;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 28px 12px 20px;
   text-align: center;
   font-family: var(--font-heading);
-  font-size: 1.05rem;
-  letter-spacing: 0.05em;
-  color: var(--color-maroon);
-  border-top: 1px solid rgba(212, 175, 55, 0.3);
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+  color: var(--color-pearl);
+  transform: translateY(6px);
+  transition: transform var(--transition-base);
+}
+.category-card__title::after {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 1px;
+  margin: 10px auto 0;
+  background-color: var(--color-gold);
+  opacity: 0;
+  transition: opacity var(--transition-base), width var(--transition-base);
+}
+.category-card:hover .category-card__title { transform: translateY(0); }
+.category-card:hover .category-card__title::after { opacity: 1; width: 44px; }
+
+@media (hover: none) {
+  .category-card__overlay { opacity: 0.85; }
+  .category-card__title { transform: translateY(0); }
+  .category-card__title::after { opacity: 1; width: 44px; }
 }
 
 /* ---------- Section heading ---------- */
@@ -688,6 +734,107 @@ input, textarea, select {
 /* Touch devices have no hover state — keep Quick Add reachable */
 @media (hover: none) {
   .product-card__quick-add-form { opacity: 1; transform: translateY(0); }
+}
+
+/* Quick View trigger — icon button, top-right of card media */
+.quick-view-btn {
+  position: absolute;
+  top: 12px; right: 12px;
+  z-index: 2;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background-color: rgba(253, 251, 247, 0.92);
+  color: var(--color-maroon-dark);
+  border: 1px solid var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(-6px);
+  backdrop-filter: blur(6px);
+  transition: opacity var(--transition-base), transform var(--transition-base), background-color var(--transition-base), color var(--transition-base);
+}
+.product-card__media:hover .quick-view-btn,
+.product-card__media:focus-within .quick-view-btn { opacity: 1; transform: translateY(0); }
+.quick-view-btn:hover { background-color: var(--color-gold); color: var(--color-maroon-dark); }
+@media (hover: none) {
+  .quick-view-btn { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Quick View modal ---------- */
+.quick-view-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 450;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.quick-view-modal[hidden] { display: none; }
+.quick-view-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(26, 26, 26, 0.6);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+.quick-view-modal.is-open .quick-view-modal__overlay { opacity: 1; }
+.quick-view-modal__panel {
+  position: relative;
+  z-index: 1;
+  background-color: var(--color-pearl);
+  border-radius: var(--radius-md);
+  width: 100%;
+  max-width: 900px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-strong);
+  transform: translateY(16px) scale(0.98);
+  opacity: 0;
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+.quick-view-modal.is-open .quick-view-modal__panel { transform: translateY(0) scale(1); opacity: 1; }
+.quick-view-modal__close {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 2;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background-color: rgba(253, 251, 247, 0.92);
+  color: var(--color-maroon);
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-line);
+  transition: background-color var(--transition-base), color var(--transition-base);
+}
+.quick-view-modal__close:hover { background-color: var(--color-gold); color: var(--color-maroon-dark); }
+.quick-view-modal__body { display: grid; grid-template-columns: 1fr; }
+.quick-view-modal__media { background-color: var(--color-pearl-dark); aspect-ratio: 4 / 5; overflow: hidden; }
+.quick-view-modal__media img { width: 100%; height: 100%; object-fit: cover; }
+.quick-view-modal__info { padding: 32px; }
+.quick-view-modal__title { font-size: clamp(1.3rem, 3vw, 1.6rem); margin-bottom: 12px; }
+.quick-view-modal__info .price--large { display: block; margin-bottom: 20px; }
+.quick-view-modal__loading { padding: 72px 24px; text-align: center; color: #6b5a60; }
+.quick-view-modal__loading a { color: var(--color-gold-dark); text-decoration: underline; }
+.quick-view-modal__viewfull {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+  border-bottom: 1px solid var(--color-gold);
+  padding-bottom: 2px;
+}
+
+@media (min-width: 700px) {
+  .quick-view-modal__body { grid-template-columns: 1fr 1fr; }
+  .quick-view-modal__media { aspect-ratio: auto; height: 100%; }
 }
 
 /* ---------- Brand story ---------- */
@@ -1082,7 +1229,7 @@ input, textarea, select {
 }
 
 @media (min-width: 700px) {
-  .category-grid__list { grid-template-columns: repeat(4, 1fr); }
+  .category-grid__list { grid-template-columns: repeat(3, 1fr); }
   .trust-strip__grid { grid-template-columns: repeat(4, 1fr); }
   .site-footer__grid { grid-template-columns: repeat(2, 1fr); }
   .search-results__grid { grid-template-columns: repeat(3, 1fr); }
@@ -1090,6 +1237,7 @@ input, textarea, select {
 
 @media (min-width: 900px) {
   .featured-carousel__slide { width: 31%; }
+  .category-grid__list { grid-template-columns: repeat(5, 1fr); }
 }
 
 @media (min-width: 990px) {
