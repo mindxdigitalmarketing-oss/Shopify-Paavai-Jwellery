@@ -141,6 +141,23 @@
         </div>
       {%- endform -%}
 
+      <div class="product-info__checkout-trust" aria-label="Secure checkout">
+        <span class="product-info__ssl">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+          100% Secure SSL Checkout
+        </span>
+        <span class="product-info__ssl">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="6"></circle><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"></path></svg>
+          Certified Hallmarked Gold
+        </span>
+        <div class="product-info__payment-icons">
+          <span class="payment-chip">UPI</span>
+          <span class="payment-chip">Cards</span>
+          <span class="payment-chip">NetBanking</span>
+          <span class="payment-chip">EMI</span>
+        </div>
+      </div>
+
       <div class="product-info__trust-badges">
         <div class="trust-badge"><span>&#10022;</span> BIS Hallmarked</div>
         <div class="trust-badge"><span>&#10022;</span> Certificate of Authenticity</div>
@@ -153,20 +170,28 @@
       {%- endif -%}
 
       <details class="product-accordion" open>
-        <summary>Product Details</summary>
+        <summary>Product Details &amp; Purity</summary>
         <div class="product-accordion__body">
           <ul>
             {%- if product.type != blank -%}<li>Category: {{ product.type }}</li>{%- endif -%}
-            {%- if product.selected_or_first_available_variant.weight > 0 -%}<li>Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}</li>{%- endif -%}
-            <li>Metal: Certified Gold (as per listing purity)</li>
-            <li>Care: Store in a dry box; avoid contact with perfume and chemicals</li>
+            {%- if product.selected_or_first_available_variant.weight > 0 -%}<li>Gross Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}</li>{%- endif -%}
+            {%- for option in product.options_with_values -%}
+              <li>{{ option.name }}: {{ option.selected_value }}</li>
+            {%- endfor -%}
+            <li>Care: Store in a dry, lined box; avoid contact with perfume, sweat and chemicals</li>
           </ul>
         </div>
       </details>
       <details class="product-accordion">
         <summary>Shipping &amp; Returns</summary>
         <div class="product-accordion__body">
-          <p>Complimentary fully-insured shipping across India, dispatched within 3&ndash;5 business days. 15-day exchange window on unworn, tagged pieces.</p>
+          <p>Complimentary fully-insured shipping across India, dispatched within 3&ndash;5 business days. 15-day exchange window on unworn, tagged pieces with original packaging and invoice.</p>
+        </div>
+      </details>
+      <details class="product-accordion">
+        <summary>Certification Info</summary>
+        <div class="product-accordion__body">
+          <p>Every gold piece ships with its purity hallmark and an accompanying certificate of authenticity issued at the time of crafting. Diamond and gemstone pieces, where applicable, include the relevant gemological documentation in the box. Reach out to our support team via <a href="/pages/contact-us">Contact Us</a> if you'd like a copy re-sent.</p>
         </div>
       </details>
     </div>
