@@ -1,96 +1,184 @@
 {%- comment -%}
   templates/index.liquid — PAAVAI JEWELLERY Homepage
-  Sections: Hero Banner / Shop By Category (glass cards) / Featured Collection (carousel) / Brand Story / Trust Badges
+
+  Order: Hero carousel / Gold rate board / Shop by edit / Featured collection /
+         Style quiz teaser / Brand story / Trust badges
+
+  LINK POLICY — read before changing any href here.
+  This store has exactly one real collection: `necklaces`. The handles this
+  page used to link to (bridal-sets, rings, gold-bangles, diamond-earrings)
+  do not exist and were returning 404s. Every category link below now uses
+  /collections/all/<tag> with tags that are actually present on the catalogue,
+  so each tile lands on real products. If you later create proper collections,
+  swap these for /collections/<handle> and delete this note.
 {%- endcomment -%}
+
+{%- comment -%}
+  Source the hero from real products so the slides always show live stock and
+  never go stale. Falls back to the whole catalogue if `necklaces` is empty.
+{%- endcomment -%}
+{%- assign hero_collection = collections['necklaces'] -%}
+{%- if hero_collection == blank or hero_collection.products.size == 0 -%}
+  {%- assign hero_collection = collections.all -%}
+{%- endif -%}
 
 <div class="home-page">
 
-  {%- comment -%} ============ HERO BANNER ============ {%- endcomment -%}
-  <section class="hero-banner" aria-label="Featured collection">
-    <div class="hero-banner__media">
-      {%- if settings.hero_image != blank -%}
-        <img
-          src="{{ settings.hero_image | image_url: width: 2000 }}"
-          srcset="{{ settings.hero_image | image_url: width: 800 }} 800w,
-                  {{ settings.hero_image | image_url: width: 1400 }} 1400w,
-                  {{ settings.hero_image | image_url: width: 2000 }} 2000w"
-          sizes="100vw"
-          alt="{{ settings.hero_image.alt | default: 'PAAVAI JEWELLERY hero' | escape }}"
-          width="{{ settings.hero_image.width }}"
-          height="{{ settings.hero_image.height }}"
-          loading="eager"
-          class="hero-banner__img">
-      {%- else -%}
-        <img
-          src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=2000&auto=format&fit=crop"
-          alt="PAAVAI JEWELLERY — heirloom gold and diamond jewellery"
-          class="hero-banner__img"
-          loading="eager">
+  {%- comment -%} ============ HERO CAROUSEL ============ {%- endcomment -%}
+  <section class="hero-carousel" data-hero-carousel aria-roledescription="carousel" aria-label="Featured collections">
+    <div class="hero-carousel__viewport" data-hero-viewport>
+
+      {%- assign hero_slides = 0 -%}
+      {%- for product in hero_collection.products limit: 12 -%}
+        {%- if product.featured_image and hero_slides < 3 -%}
+          {%- assign hero_slides = hero_slides | plus: 1 -%}
+
+          {%- comment -%} Frame each slide by what the piece actually is. {%- endcomment -%}
+          {%- if product.tags contains 'bridal' -%}
+            {%- assign slide_eyebrow = 'The Bridal Edit' -%}
+            {%- assign slide_title = 'For The Day<br>Everyone Remembers' -%}
+            {%- assign slide_link = '/collections/all/bridal' -%}
+          {%- elsif product.tags contains 'temple' -%}
+            {%- assign slide_eyebrow = 'Temple & Nakshi' -%}
+            {%- assign slide_title = 'Carved The Way<br>It Has Always Been' -%}
+            {%- assign slide_link = '/collections/all/temple' -%}
+          {%- else -%}
+            {%- assign slide_eyebrow = 'The Heirloom Edit' -%}
+            {%- assign slide_title = 'Jewellery Woven<br>With <em>Legacy</em>' -%}
+            {%- assign slide_link = hero_collection.url | default: routes.all_products_collection_url -%}
+          {%- endif -%}
+
+          <article
+            class="hero-slide{% if hero_slides == 1 %} is-active{% endif %}"
+            data-hero-slide
+            role="group"
+            aria-roledescription="slide"
+            aria-label="Slide {{ hero_slides }}"
+            {% if hero_slides != 1 %}aria-hidden="true"{% endif %}>
+            <div class="hero-slide__media">
+              <img
+                src="{{ product.featured_image | image_url: width: 2000 }}"
+                srcset="{{ product.featured_image | image_url: width: 800 }} 800w,
+                        {{ product.featured_image | image_url: width: 1400 }} 1400w,
+                        {{ product.featured_image | image_url: width: 2000 }} 2000w"
+                sizes="100vw"
+                alt="{{ product.featured_image.alt | default: product.title | escape }}"
+                class="hero-slide__img"
+                {% if hero_slides == 1 %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+              <div class="hero-slide__scrim" aria-hidden="true"></div>
+            </div>
+
+            <div class="hero-slide__content container">
+              <p class="hero-slide__eyebrow">{{ slide_eyebrow }}</p>
+              <h1 class="hero-slide__title">{{ slide_title }}</h1>
+
+              {%- comment -%} Anchor the slide to the actual piece on screen. {%- endcomment -%}
+              <p class="hero-slide__product">
+                <span class="hero-slide__product-name">{{ product.title }}</span>
+                <span class="hero-slide__product-price">{{ product.price | money }}</span>
+              </p>
+
+              <div class="hero-slide__actions">
+                <a href="{{ slide_link }}" class="btn btn--gold-outline">Explore Collection</a>
+                <a href="{{ product.url }}" class="btn btn--outline-light">View This Piece</a>
+              </div>
+            </div>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- comment -%} Static fallback only when the catalogue has no imagery yet. {%- endcomment -%}
+      {%- if hero_slides == 0 -%}
+        <article class="hero-slide is-active" data-hero-slide role="group" aria-label="Slide 1">
+          <div class="hero-slide__media">
+            <img
+              src="{{ settings.hero_image | image_url: width: 2000 | default: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=2000&auto=format&fit=crop' }}"
+              alt="PAAVAI JEWELLERY — heirloom gold and diamond jewellery"
+              class="hero-slide__img" loading="eager">
+            <div class="hero-slide__scrim" aria-hidden="true"></div>
+          </div>
+          <div class="hero-slide__content container">
+            <p class="hero-slide__eyebrow">The Heirloom Edit</p>
+            <h1 class="hero-slide__title">Jewellery Woven<br>With <em>Legacy</em></h1>
+            <div class="hero-slide__actions">
+              <a href="{{ routes.all_products_collection_url }}" class="btn btn--gold-outline">Explore Collection</a>
+            </div>
+          </div>
+        </article>
       {%- endif -%}
-      <div class="hero-banner__scrim"></div>
     </div>
 
-    <div class="hero-banner__content container">
-      <p class="hero-banner__eyebrow">The Heirloom Edit &mdash; 2026</p>
-      <h1 class="hero-banner__title">Jewellery Woven With <em>Legacy</em></h1>
-      <p class="hero-banner__subtitle">Handcrafted gold, diamonds, and South Indian bridal artistry, made to be passed down.</p>
-      <div class="hero-banner__actions">
-        <a href="/collections/bridal-sets" class="btn btn--gold-outline">Shop Bridal Sets</a>
-        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-light">View All Jewellery</a>
+    {%- if hero_slides > 1 -%}
+      <div class="hero-carousel__controls container">
+        <button type="button" class="hero-carousel__arrow" data-hero-prev aria-label="Previous slide">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="hero-carousel__dots" role="tablist" aria-label="Choose slide">
+          {%- for i in (1..hero_slides) -%}
+            <button type="button" class="hero-carousel__dot{% if forloop.first %} is-active{% endif %}"
+                    data-hero-dot="{{ forloop.index0 }}" role="tab"
+                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                    aria-label="Slide {{ forloop.index }}">
+              <span class="hero-carousel__dot-fill"></span>
+            </button>
+          {%- endfor -%}
+        </div>
+        <button type="button" class="hero-carousel__arrow" data-hero-next aria-label="Next slide">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
       </div>
-    </div>
+    {%- endif -%}
   </section>
 
-  {%- comment -%} ============ SHOP BY CATEGORY (glassmorphism cards) ============ {%- endcomment -%}
+  {%- comment -%} ============ GOLD RATE BOARD ============ {%- endcomment -%}
+  {%- render 'gold-rate-bar' -%}
+
+  {%- comment -%} ============ SHOP BY EDIT ============ {%- endcomment -%}
   <section class="category-grid" aria-labelledby="CategoryGridHeading">
     <div class="container">
       <div class="section-heading">
         <p class="section-heading__eyebrow">Curated Edits</p>
-        <h2 id="CategoryGridHeading" class="section-heading__title">Shop By Category</h2>
-        <p class="section-heading__subtitle">Four signature edits, each finished by hand.</p>
+        <h2 id="CategoryGridHeading" class="section-heading__title">Shop By Edit</h2>
+        <p class="section-heading__subtitle">Five houses of craft, each finished by hand.</p>
       </div>
 
+      {%- comment -%}
+        Grouped by CRAFT rather than by product type. The catalogue is entirely
+        necklaces today, so "Bangles / Earrings / Rings" tiles would have led to
+        empty pages. These five tags all resolve to real, stocked pieces.
+      {%- endcomment -%}
+      {%- assign edits = 'bridal,temple,jadau,victorian,choker' | split: ',' -%}
+      {%- assign edit_titles = 'Bridal Harams,Temple & Nakshi,Jadau & Polki,Victorian & Antique,Chokers' | split: ',' -%}
+
       <div class="category-grid__list">
-        <a href="/collections/necklaces" class="category-card">
-          <span class="category-card__image-wrap">
-            <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=900&auto=format&fit=crop" alt="Necklaces" loading="lazy" width="900" height="1200" class="category-card__img">
-            <span class="category-card__overlay" aria-hidden="true"></span>
-            <span class="category-card__title">Necklaces</span>
-          </span>
-        </a>
-        <a href="/collections/rings" class="category-card">
-          <span class="category-card__image-wrap">
-            <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=900&auto=format&fit=crop" alt="Rings" loading="lazy" width="900" height="1200" class="category-card__img">
-            <span class="category-card__overlay" aria-hidden="true"></span>
-            <span class="category-card__title">Rings</span>
-          </span>
-        </a>
-        <a href="/collections/diamond-earrings" class="category-card">
-          <span class="category-card__image-wrap">
-            <img src="https://images.unsplash.com/photo-1599459183200-59c7687a0275?q=80&w=900&auto=format&fit=crop" alt="Diamond Earrings" loading="lazy" width="900" height="1200" class="category-card__img">
-            <span class="category-card__overlay" aria-hidden="true"></span>
-            <span class="category-card__title">Earrings</span>
-          </span>
-        </a>
-        <a href="/collections/gold-bangles" class="category-card">
-          <span class="category-card__image-wrap">
-            <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=900&auto=format&fit=crop" alt="Gold Bangles" loading="lazy" width="900" height="1200" class="category-card__img">
-            <span class="category-card__overlay" aria-hidden="true"></span>
-            <span class="category-card__title">Bangles</span>
-          </span>
-        </a>
-        <a href="/collections/bridal-sets" class="category-card">
-          <span class="category-card__image-wrap">
-            <img src="https://images.unsplash.com/photo-1610694955371-d4a3e0ce4b52?q=80&w=900&auto=format&fit=crop" alt="Bridal Sets" loading="lazy" width="900" height="1200" class="category-card__img">
-            <span class="category-card__overlay" aria-hidden="true"></span>
-            <span class="category-card__title">Bridal</span>
-          </span>
-        </a>
+        {%- for tag in edits -%}
+          {%- assign tile_image = blank -%}
+          {%- for product in hero_collection.products -%}
+            {%- if product.tags contains tag and product.featured_image -%}
+              {%- assign tile_image = product.featured_image -%}
+              {%- break -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          <a href="/collections/all/{{ tag }}" class="category-card">
+            <span class="category-card__image-wrap">
+              {%- if tile_image != blank -%}
+                <img src="{{ tile_image | image_url: width: 900 }}"
+                     alt="{{ edit_titles[forloop.index0] }}"
+                     loading="lazy" width="900" height="1200" class="category-card__img">
+              {%- else -%}
+                <span class="category-card__img category-card__img--empty" aria-hidden="true"></span>
+              {%- endif -%}
+              <span class="category-card__overlay" aria-hidden="true"></span>
+              <span class="category-card__title">{{ edit_titles[forloop.index0] }}</span>
+            </span>
+          </a>
+        {%- endfor -%}
       </div>
     </div>
   </section>
 
-  {%- comment -%} ============ FEATURED COLLECTION (carousel / 4-col grid) ============ {%- endcomment -%}
+  {%- comment -%} ============ FEATURED COLLECTION ============ {%- endcomment -%}
   <section class="featured-collection container" aria-labelledby="FeaturedCollectionHeading">
     <div class="section-heading">
       <p class="section-heading__eyebrow">Most Loved</p>
@@ -100,7 +188,7 @@
 
     {%- assign bestsellers_collection = collections['best-sellers'] -%}
     {%- if bestsellers_collection == blank or bestsellers_collection.products.size == 0 -%}
-      {%- assign bestsellers_collection = collections.all -%}
+      {%- assign bestsellers_collection = hero_collection -%}
     {%- endif -%}
 
     <div class="featured-carousel" data-featured-carousel>
@@ -133,9 +221,29 @@
                   {{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}
                 {%- endif -%}
               </a>
+
+              {%- comment -%} Karat badge — the first thing a gold buyer checks. {%- endcomment -%}
+              {%- if product.tags contains '24kt-gold' -%}
+                <span class="badge badge--karat">24KT</span>
+              {%- elsif product.tags contains '22kt-gold' -%}
+                <span class="badge badge--karat">22KT</span>
+              {%- elsif product.tags contains '18kt-gold' -%}
+                <span class="badge badge--karat">18KT</span>
+              {%- endif -%}
+
               {%- if product.compare_at_price > product.price -%}
                 <span class="badge badge--sale">Sale</span>
               {%- endif -%}
+
+              <button
+                type="button"
+                class="wishlist-btn"
+                data-wishlist-toggle
+                data-product-handle="{{ product.handle }}"
+                aria-pressed="false"
+                aria-label="Save {{ product.title | escape }} to wishlist">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 0 0 0-7.8Z"></path></svg>
+              </button>
 
               <button
                 type="button"
@@ -181,7 +289,6 @@
             </div>
           </div>
         {%- else -%}
-          {%- comment -%} Fallback sample cards render only when the store has zero products yet {%- endcomment -%}
           {%- for i in (1..8) -%}
             <div class="product-card featured-carousel__slide product-card--placeholder">
               <div class="product-card__media">{{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}</div>
@@ -200,7 +307,33 @@
     </div>
 
     <div class="best-sellers__cta">
-      <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-maroon">Shop All Jewellery</a>
+      <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-primary">Shop All Jewellery</a>
+    </div>
+  </section>
+
+  {%- comment -%} ============ STYLE QUIZ TEASER ============ {%- endcomment -%}
+  <section class="quiz-teaser" aria-labelledby="QuizTeaserHeading">
+    <div class="container quiz-teaser__inner">
+      <div class="quiz-teaser__content">
+        <p class="section-heading__eyebrow">Not sure where to start?</p>
+        <h2 id="QuizTeaserHeading" class="quiz-teaser__title">Find Your Perfect Match<br>In 3 Questions</h2>
+        <p class="quiz-teaser__text">
+          Tell us the occasion, the metal, and the stones. We&rsquo;ll pull the
+          pieces from our collection that actually fit &mdash; no guesswork.
+        </p>
+        <button type="button" class="btn btn--gold" data-style-quiz-open>Take The Style Quiz</button>
+      </div>
+      <div class="quiz-teaser__decor" aria-hidden="true">
+        <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="0.6">
+          <circle cx="100" cy="100" r="78"></circle>
+          <circle cx="100" cy="100" r="60"></circle>
+          <circle cx="100" cy="100" r="42"></circle>
+          {%- comment -%} Eight-petal lotus — the motif carried through the catalogue. {%- endcomment -%}
+          {%- for i in (0..7) -%}
+            <ellipse cx="100" cy="100" rx="18" ry="52" transform="rotate({{ i | times: 45 }} 100 100)"></ellipse>
+          {%- endfor -%}
+        </svg>
+      </div>
     </div>
   </section>
 
@@ -218,15 +351,15 @@
         <h2 class="brand-story__title">Crafted By Hand. Worn For Generations.</h2>
         <p class="brand-story__text">
           PAAVAI JEWELLERY was founded on a simple belief: that jewellery should carry meaning, not just shine.
-          Every necklace, bangle, and bridal set is hand-finished by master goldsmiths using traditional
+          Every necklace, haram, and bridal set is hand-finished by master goldsmiths using traditional
           South Indian techniques passed down across generations &mdash; then paired with modern, certified
           craftsmanship so it can be worn every day, not just on your wedding day.
         </p>
         <p class="brand-story__text">
           From temple-inspired motifs to contemporary diamond settings, each piece is designed to become
-          part of your story before it becomes part of the next generation's.
+          part of your story before it becomes part of the next generation&rsquo;s.
         </p>
-        <a href="/pages/our-story" class="btn btn--outline-maroon">Read Our Full Story</a>
+        <a href="/pages/our-story" class="btn btn--outline-primary">Read Our Full Story</a>
       </div>
     </div>
   </section>
@@ -238,25 +371,25 @@
         <span class="trust-strip__icon" aria-hidden="true">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="9" r="6"></circle><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"></path></svg>
         </span>
-        <p>100% Hallmarked Gold</p>
-      </div>
-      <div class="trust-strip__item">
-        <span class="trust-strip__icon" aria-hidden="true">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M14.5 3.5 3.5 14.5a2 2 0 0 0 0 2.8l3.2 3.2a2 2 0 0 0 2.8 0L20.5 9.5"></path><path d="M12.5 5.5l6 6"></path><path d="M2 22l4-1-1.5-4.5L2 22Z"></path></svg>
-        </span>
-        <p>Traditional Craftsmanship</p>
+        <p>100% BIS Hallmarked Gold</p>
       </div>
       <div class="trust-strip__item">
         <span class="trust-strip__icon" aria-hidden="true">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5l-8-3Z"></path><path d="m9 12 2 2 4-4"></path></svg>
         </span>
-        <p>Insured Express Delivery</p>
+        <p>Insured Express Shipping Across India</p>
       </div>
       <div class="trust-strip__item">
         <span class="trust-strip__icon" aria-hidden="true">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3 12a9 9 0 0 1 15.3-6.4L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15.3 6.4L3 16"></path><path d="M3 21v-5h5"></path></svg>
         </span>
-        <p>Easy Returns</p>
+        <p>Easy 15-Day Returns &amp; Exchange</p>
+      </div>
+      <div class="trust-strip__item">
+        <span class="trust-strip__icon" aria-hidden="true">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        </span>
+        <p>Lifetime Buyback Guarantee</p>
       </div>
     </div>
   </section>

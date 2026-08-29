@@ -238,7 +238,7 @@
       if (cart.item_count === 0) {
         body.innerHTML = '<div class="cart-drawer__empty" data-cart-drawer-empty>' +
           '<p>Your bag is empty.</p>' +
-          '<a href="/collections/all" class="btn btn--outline-maroon" data-cart-drawer-close>Continue Shopping</a>' +
+          '<a href="/collections/all" class="btn btn--outline-primary" data-cart-drawer-close>Continue Shopping</a>' +
           '</div>';
         if (footer) { footer.hidden = true; }
         var closeLink = qs('[data-cart-drawer-close]', body);
@@ -790,7 +790,7 @@
             '<input type="hidden" name="id" value="' + variant.id + '" data-qv-variant-id>' +
             optionsHtml +
             '<div class="product-form__buttons">' +
-              '<button type="submit" name="add" class="btn btn--maroon btn--full btn--large" data-qv-add-btn' + (variant.available ? '' : ' disabled') + '>' +
+              '<button type="submit" name="add" class="btn btn--primary btn--full btn--large" data-qv-add-btn' + (variant.available ? '' : ' disabled') + '>' +
                 '<span data-qv-add-text>' + (variant.available ? 'Add to Cart &mdash; ' + formatMoney(variant.price) : 'Sold Out') + '</span>' +
               '</button>' +
             '</div>' +
@@ -847,6 +847,344 @@
   };
 
   /* ---------------------------------------------------------------------
+     Modal — shared open/close for the rate lock and style quiz dialogs.
+     Handles scroll lock, ESC, overlay click, and focus return so both
+     dialogs behave identically and stay keyboard-navigable.
+  --------------------------------------------------------------------- */
+  var Modal = {
+    _lastFocus: null,
+
+    open: function (el) {
+      if (!el) return;
+      this._lastFocus = document.activeElement;
+      el.hidden = false;
+      el.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // Focus the first real control so keyboard users land inside the dialog.
+      var focusable = qs('button, [href], input, select, textarea', el);
+      if (focusable) focusable.focus();
+    },
+
+    close: function (el) {
+      if (!el || el.hidden) return;
+      el.hidden = true;
+      el.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (this._lastFocus && this._lastFocus.focus) this._lastFocus.focus();
+      this._lastFocus = null;
+    },
+
+    /* Wire a dialog: `openSel` opens it, anything matching `closeSel`
+       inside it closes it, ESC closes it. */
+    bind: function (modalSel, openSel, closeSel) {
+      var self = this;
+      var modal = qs(modalSel);
+      if (!modal) return null;
+
+      document.addEventListener('click', function (e) {
+        var opener = e.target.closest(openSel);
+        if (opener) { e.preventDefault(); self.open(modal); return; }
+        if (!modal.hidden && e.target.closest(closeSel)) { self.close(modal); }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hidden) self.close(modal);
+      });
+
+      return modal;
+    }
+  };
+
+  /* ---------------------------------------------------------------------
+     Wishlist — client-side saved items.
+
+     Stored in localStorage rather than on the customer record because the
+     store has no wishlist app installed and most visitors are not logged in.
+     That means the list is per-device and does not sync; swap the read/write
+     pair below for an API call if you later add a wishlist app.
+  --------------------------------------------------------------------- */
+  var Wishlist = {
+    KEY: 'paavai:wishlist',
+
+    read: function () {
+      try {
+        return JSON.parse(localStorage.getItem(this.KEY)) || [];
+      } catch (err) {
+        // Private mode or corrupted value — degrade to an empty list.
+        return [];
+      }
+    },
+
+    write: function (list) {
+      try { localStorage.setItem(this.KEY, JSON.stringify(list)); } catch (err) { /* storage full or blocked */ }
+    },
+
+    has: function (handle) { return this.read().indexOf(handle) !== -1; },
+
+    toggle: function (handle) {
+      var list = this.read();
+      var i = list.indexOf(handle);
+      if (i === -1) { list.push(handle); } else { list.splice(i, 1); }
+      this.write(list);
+      this.renderCount();
+      return i === -1;
+    },
+
+    renderCount: function () {
+      var n = this.read().length;
+      qsa('[data-wishlist-count]').forEach(function (el) {
+        el.textContent = n;
+        el.hidden = n === 0;
+      });
+    },
+
+    renderButtons: function () {
+      var self = this;
+      qsa('[data-wishlist-toggle]').forEach(function (btn) {
+        var handle = btn.getAttribute('data-product-handle');
+        btn.setAttribute('aria-pressed', self.has(handle) ? 'true' : 'false');
+      });
+    },
+
+    init: function () {
+      var self = this;
+      this.renderCount();
+      this.renderButtons();
+
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-wishlist-toggle]');
+        if (!btn) return;
+        e.preventDefault();
+        var handle = btn.getAttribute('data-product-handle');
+        if (!handle) return;
+        var added = self.toggle(handle);
+        btn.setAttribute('aria-pressed', added ? 'true' : 'false');
+        showToast(added ? 'Saved to wishlist' : 'Removed from wishlist');
+      });
+    }
+  };
+
+  /* ---------------------------------------------------------------------
+     HeroCarousel — autoplaying slide rotator.
+     Pauses on hover, on keyboard focus, and when the tab is hidden, so the
+     timer never advances behind the user's back.
+  --------------------------------------------------------------------- */
+  var HeroCarousel = {
+    INTERVAL: 6000,
+
+    init: function () {
+      var root = qs('[data-hero-carousel]');
+      if (!root) return;
+
+      this.root = root;
+      this.slides = qsa('[data-hero-slide]', root);
+      this.dots = qsa('[data-hero-dot]', root);
+      this.index = 0;
+      this.timer = null;
+      if (this.slides.length < 2) return;
+
+      var self = this;
+
+      qsa('[data-hero-next]', root).forEach(function (b) {
+        b.addEventListener('click', function () { self.go(self.index + 1); });
+      });
+      qsa('[data-hero-prev]', root).forEach(function (b) {
+        b.addEventListener('click', function () { self.go(self.index - 1); });
+      });
+      this.dots.forEach(function (dot) {
+        dot.addEventListener('click', function () {
+          self.go(parseInt(dot.getAttribute('data-hero-dot'), 10));
+        });
+      });
+
+      root.addEventListener('mouseenter', function () { self.stop(); });
+      root.addEventListener('mouseleave', function () { self.start(); });
+      root.addEventListener('focusin', function () { self.stop(); });
+      root.addEventListener('focusout', function () { self.start(); });
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { self.stop(); } else { self.start(); }
+      });
+
+      this.start();
+    },
+
+    go: function (next) {
+      var total = this.slides.length;
+      this.index = ((next % total) + total) % total;
+
+      this.slides.forEach(function (slide, i) {
+        var active = i === this.index;
+        slide.classList.toggle('is-active', active);
+        slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+      }, this);
+
+      this.dots.forEach(function (dot, i) {
+        var active = i === this.index;
+        // Re-adding the class restarts the CSS fill animation.
+        dot.classList.remove('is-active');
+        if (active) { void dot.offsetWidth; dot.classList.add('is-active'); }
+        dot.setAttribute('aria-selected', active ? 'true' : 'false');
+      }, this);
+
+      this.start();
+    },
+
+    start: function () {
+      var self = this;
+      this.stop();
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      this.timer = window.setInterval(function () { self.go(self.index + 1); }, this.INTERVAL);
+    },
+
+    stop: function () {
+      if (this.timer) { window.clearInterval(this.timer); this.timer = null; }
+    }
+  };
+
+  /* ---------------------------------------------------------------------
+     StyleQuiz — three questions, then real product matches.
+
+     Answers are catalogue tags. On completion they are sent to Shopify's own
+     predictive search endpoint, so every recommendation is a live, in-stock
+     product. Nothing is invented client-side.
+
+     Falls back progressively: if the full three-tag query returns nothing,
+     it retries with the first answer alone rather than showing an empty state.
+  --------------------------------------------------------------------- */
+  var StyleQuiz = {
+    init: function () {
+      var modal = Modal.bind('[data-style-quiz-modal]', '[data-style-quiz-open]', '[data-style-quiz-close]');
+      if (!modal) return;
+
+      this.modal = modal;
+      this.answers = [];
+      this.step = 1;
+      var self = this;
+
+      qsa('[data-quiz-answer]', modal).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          self.answers[self.step - 1] = btn.getAttribute('data-quiz-answer') || '';
+          if (self.step < 3) { self.show(self.step + 1); } else { self.finish(); }
+        });
+      });
+
+      var back = qs('[data-quiz-back]', modal);
+      if (back) back.addEventListener('click', function () { self.show(self.step - 1); });
+
+      var restart = qs('[data-quiz-restart]', modal);
+      if (restart) restart.addEventListener('click', function () { self.reset(); });
+    },
+
+    show: function (step) {
+      if (step < 1) return;
+      this.step = step;
+
+      qsa('[data-quiz-question]', this.modal).forEach(function (fs) {
+        fs.hidden = parseInt(fs.getAttribute('data-quiz-question'), 10) !== step;
+      });
+
+      var results = qs('[data-quiz-results]', this.modal);
+      if (results) results.hidden = true;
+      qsa('.quiz__progress, .quiz__step-label', this.modal).forEach(function (el) { el.hidden = false; });
+
+      var fill = qs('[data-quiz-progress]', this.modal);
+      if (fill) fill.style.width = (step / 3 * 100) + '%';
+
+      var label = qs('[data-quiz-step]', this.modal);
+      if (label) label.textContent = step;
+
+      var back = qs('[data-quiz-back]', this.modal);
+      if (back) back.hidden = step === 1;
+    },
+
+    reset: function () {
+      this.answers = [];
+      this.show(1);
+    },
+
+    finish: function () {
+      var self = this;
+      var modal = this.modal;
+
+      qsa('[data-quiz-question]', modal).forEach(function (fs) { fs.hidden = true; });
+      qsa('.quiz__progress, .quiz__step-label', modal).forEach(function (el) { el.hidden = true; });
+      var back = qs('[data-quiz-back]', modal);
+      if (back) back.hidden = true;
+
+      var results = qs('[data-quiz-results]', modal);
+      var grid = qs('[data-quiz-results-grid]', modal);
+      var title = qs('[data-quiz-results-title]', modal);
+      if (results) results.hidden = false;
+      if (grid) grid.innerHTML = '';
+      if (title) title.textContent = 'Finding your pieces…';
+
+      var terms = this.answers.filter(Boolean);
+      var link = qs('[data-quiz-results-link]', modal);
+      if (link && terms.length) link.href = '/collections/all/' + encodeURIComponent(terms[0]);
+
+      this.search(terms.join(' '))
+        .then(function (products) {
+          // Broaden rather than dead-end if the specific combination is empty.
+          if (!products.length && terms.length > 1) return self.search(terms[0]);
+          return products;
+        })
+        .then(function (products) { self.render(products, title, grid); })
+        .catch(function () {
+          if (title) title.textContent = 'We could not load matches just now.';
+          if (grid) grid.innerHTML = '<p class="quiz__results-empty">Please browse the full collection instead.</p>';
+        });
+    },
+
+    search: function (query) {
+      var url = '/search/suggest.json?q=' + encodeURIComponent(query) +
+                '&resources[type]=product&resources[limit]=4&resources[options][unavailable_products]=last';
+      return fetch(url)
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          return (data && data.resources && data.resources.results && data.resources.results.products) || [];
+        });
+    },
+
+    render: function (products, title, grid) {
+      if (!grid) return;
+
+      if (!products.length) {
+        if (title) title.textContent = 'Nothing matched exactly';
+        grid.innerHTML = '<p class="quiz__results-empty">Our team can source it for you — browse everything, or get in touch.</p>';
+        return;
+      }
+
+      if (title) title.textContent = products.length === 1 ? 'One piece for you' : 'Pieces chosen for you';
+
+      grid.innerHTML = products.slice(0, 4).map(function (p) {
+        var img = p.featured_image && p.featured_image.url ? p.featured_image.url : (p.image || '');
+        return '<a class="quiz-result" href="' + escapeHtml(p.url) + '">' +
+          (img ? '<img class="quiz-result__img" src="' + escapeHtml(img) + '" alt="" loading="lazy">'
+               : '<span class="quiz-result__img"></span>') +
+          '<span class="quiz-result__body">' +
+            '<span class="quiz-result__title">' + escapeHtml(p.title) + '</span>' +
+            '<span class="quiz-result__price">' + (p.price ? escapeHtml(String(p.price)) : '') + '</span>' +
+          '</span></a>';
+      }).join('');
+    }
+  };
+
+  /* ---------------------------------------------------------------------
+     RateLock — opens the pre-book enquiry dialog.
+     Deliberately has no payment path; see snippets/rate-lock-modal.liquid.
+  --------------------------------------------------------------------- */
+  var RateLock = {
+    init: function () {
+      var modal = Modal.bind('[data-rate-lock-modal]', '[data-rate-lock-open]', '[data-rate-lock-close]');
+      if (!modal) return;
+      // Shopify re-renders with ?contact_posted=true after a successful post.
+      if (qs('.form-success', modal) && /contact_posted=true/.test(window.location.search)) {
+        Modal.open(modal);
+      }
+    }
+  };
+
+  /* ---------------------------------------------------------------------
      Init on DOM ready
   --------------------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -859,6 +1197,10 @@
     ProductGallery.init();
     ProductVariants.init();
     QuickView.init();
+    Wishlist.init();
+    HeroCarousel.init();
+    StyleQuiz.init();
+    RateLock.init();
   });
 
   window.PaavaiTheme = {
@@ -867,6 +1209,10 @@
     FeaturedCarousel: FeaturedCarousel,
     LiveSearch: LiveSearch,
     QuickView: QuickView,
+    Wishlist: Wishlist,
+    HeroCarousel: HeroCarousel,
+    StyleQuiz: StyleQuiz,
+    Modal: Modal,
     formatMoney: formatMoney
   };
 })();

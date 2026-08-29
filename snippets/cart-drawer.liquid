@@ -77,7 +77,7 @@
     {%- else -%}
       <div class="cart-drawer__empty" data-cart-drawer-empty>
         <p>Your bag is empty.</p>
-        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-maroon" data-cart-drawer-close>Continue Shopping</a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-primary" data-cart-drawer-close>Continue Shopping</a>
       </div>
     {%- endif -%}
   </div>
@@ -90,8 +90,53 @@
       <span>Subtotal</span>
       <span data-cart-drawer-subtotal>{{ cart.total_price | money }}</span>
     </div>
+    {%- comment -%}
+      Price breakdown.
+
+      This DISCLOSES what is already inside the subtotal rather than adding to
+      it. Metal value and making charges sum back to the subtotal exactly, so
+      this panel can never contradict the number above it or the amount Shopify
+      charges at checkout.
+
+      GST is shown as an estimate only. Shopify calculates the real tax at
+      checkout from the delivery address, so it sits outside the subtotal and
+      is never totalled here. 3% is the Indian GST rate on gold jewellery.
+    {%- endcomment -%}
+    {%- if cart.item_count > 0 -%}
+      {%- assign making_pct = settings.making_charge_percent | default: 14 -%}
+      {%- assign making_value = cart.total_price | times: making_pct | divided_by: 100 -%}
+      {%- assign metal_value = cart.total_price | minus: making_value -%}
+      {%- assign gst_estimate = cart.total_price | times: 3 | divided_by: 100 -%}
+
+      <details class="cart-drawer__breakdown" data-cart-breakdown>
+        <summary class="cart-drawer__breakdown-toggle">What&rsquo;s in this price?</summary>
+        <dl class="cart-drawer__breakdown-list">
+          <div class="cart-drawer__breakdown-row">
+            <dt>Metal &amp; stone value</dt>
+            <dd>{{ metal_value | money }}</dd>
+          </div>
+          <div class="cart-drawer__breakdown-row">
+            <dt>Making charges <span class="cart-drawer__breakdown-pct">({{ making_pct }}%)</span></dt>
+            <dd>{{ making_value | money }}</dd>
+          </div>
+          <div class="cart-drawer__breakdown-row cart-drawer__breakdown-row--muted">
+            <dt>BIS hallmarking</dt>
+            <dd>Included</dd>
+          </div>
+          <div class="cart-drawer__breakdown-row cart-drawer__breakdown-row--muted">
+            <dt>GST @ 3% <span class="cart-drawer__breakdown-pct">(estimated)</span></dt>
+            <dd>+ {{ gst_estimate | money }}</dd>
+          </div>
+        </dl>
+        <p class="cart-drawer__breakdown-note">
+          Making charges are already included in the subtotal. GST is confirmed
+          at checkout against your delivery address.
+        </p>
+      </details>
+    {%- endif -%}
+
     <p class="cart-drawer__shipping-note">Taxes and shipping calculated at checkout.</p>
-    <a href="{{ routes.cart_url }}" class="btn btn--outline-maroon btn--full">View Bag</a>
+    <a href="{{ routes.cart_url }}" class="btn btn--outline-primary btn--full">View Bag</a>
     <button type="button" class="btn btn--checkout-gold btn--full" data-checkout-btn>
       <span>Proceed to Checkout</span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn--checkout-gold__arrow"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>

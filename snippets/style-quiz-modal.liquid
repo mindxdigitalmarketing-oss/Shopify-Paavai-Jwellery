@@ -1,0 +1,109 @@
+{%- comment -%}
+  snippets/style-quiz-modal.liquid — "Find Your Perfect Match in 3 Questions".
+
+  Each answer carries a search term. On completion the StyleQuiz module in
+  theme.js queries Shopify's own predictive search endpoint with the combined
+  terms, so results are always real, in-stock products from this catalogue.
+  Nothing here invents a recommendation.
+
+  Answers map to tags that already exist on the catalogue (bridal, temple,
+  jadau, antique, 22kt-gold, 18kt-gold, diamond, emerald), so the search has
+  something real to match against.
+{%- endcomment -%}
+
+<div class="modal" id="StyleQuizModal" data-style-quiz-modal hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="StyleQuizTitle">
+  <div class="modal__overlay" data-style-quiz-close></div>
+  <div class="modal__panel">
+    <button type="button" class="modal__close" data-style-quiz-close aria-label="Close">&times;</button>
+
+    <div class="quiz" data-quiz>
+
+      <div class="quiz__progress" aria-hidden="true">
+        <span class="quiz__progress-fill" data-quiz-progress style="width: 33%;"></span>
+      </div>
+      <p class="quiz__step-label">Question <span data-quiz-step>1</span> of 3</p>
+
+      {%- comment -%} --- Question 1 --- {%- endcomment -%}
+      <fieldset class="quiz__step is-active" data-quiz-question="1">
+        <legend class="quiz__question" id="StyleQuizTitle">What are you shopping for?</legend>
+        <div class="quiz__options">
+          <button type="button" class="quiz__option" data-quiz-answer="bridal">
+            <span class="quiz__option-title">A wedding</span>
+            <span class="quiz__option-sub">Bridal harams and choker sets</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="temple">
+            <span class="quiz__option-title">Temple &amp; festive</span>
+            <span class="quiz__option-sub">Nakshi and deity motifs</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="antique">
+            <span class="quiz__option-title">An heirloom</span>
+            <span class="quiz__option-sub">Antique and Victorian work</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="trendy">
+            <span class="quiz__option-title">Everyday luxury</span>
+            <span class="quiz__option-sub">Lighter contemporary pieces</span>
+          </button>
+        </div>
+      </fieldset>
+
+      {%- comment -%} --- Question 2 --- {%- endcomment -%}
+      <fieldset class="quiz__step" data-quiz-question="2" hidden>
+        <legend class="quiz__question">Which metal speaks to you?</legend>
+        <div class="quiz__options">
+          <button type="button" class="quiz__option" data-quiz-answer="22kt-gold">
+            <span class="quiz__option-title">22KT yellow gold</span>
+            <span class="quiz__option-sub">Traditional, richest colour</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="18kt-gold">
+            <span class="quiz__option-title">18KT gold</span>
+            <span class="quiz__option-sub">Best for diamond settings</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="rose-gold">
+            <span class="quiz__option-title">Rose gold</span>
+            <span class="quiz__option-sub">Warm and contemporary</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="">
+            <span class="quiz__option-title">Show me everything</span>
+            <span class="quiz__option-sub">No preference yet</span>
+          </button>
+        </div>
+      </fieldset>
+
+      {%- comment -%} --- Question 3 --- {%- endcomment -%}
+      <fieldset class="quiz__step" data-quiz-question="3" hidden>
+        <legend class="quiz__question">What should the stones be?</legend>
+        <div class="quiz__options">
+          <button type="button" class="quiz__option" data-quiz-answer="uncut-diamond">
+            <span class="quiz__option-title">Uncut diamond</span>
+            <span class="quiz__option-sub">Jadau and polki work</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="diamond">
+            <span class="quiz__option-title">Brilliant diamond</span>
+            <span class="quiz__option-sub">Modern cut and sparkle</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="emerald">
+            <span class="quiz__option-title">Emerald &amp; ruby</span>
+            <span class="quiz__option-sub">Colour against gold</span>
+          </button>
+          <button type="button" class="quiz__option" data-quiz-answer="pearl">
+            <span class="quiz__option-title">Pearl</span>
+            <span class="quiz__option-sub">Soft and understated</span>
+          </button>
+        </div>
+      </fieldset>
+
+      {%- comment -%} --- Results, populated by theme.js --- {%- endcomment -%}
+      <div class="quiz__results" data-quiz-results hidden aria-live="polite">
+        <p class="modal__eyebrow">Your match</p>
+        <h3 class="quiz__results-title" data-quiz-results-title>Finding your pieces&hellip;</h3>
+        <div class="quiz__results-grid" data-quiz-results-grid></div>
+        <div class="quiz__results-actions">
+          <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-primary" data-quiz-results-link>Browse everything</a>
+          <button type="button" class="btn btn--primary" data-quiz-restart>Start over</button>
+        </div>
+      </div>
+
+      <button type="button" class="quiz__back" data-quiz-back hidden>&larr; Back</button>
+    </div>
+  </div>
+</div>

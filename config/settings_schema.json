@@ -80,25 +80,75 @@
     "settings": [
       {
         "type": "header",
-        "content": "Reference only — core palette is hardcoded in theme.css as CSS variables (--color-maroon, --color-gold, --color-pearl) for design consistency."
+        "content": "Reference only — core palette is hardcoded in theme.css as CSS variables (--color-primary, --color-gold, --color-canvas) for design consistency."
       },
       {
         "type": "color",
-        "id": "color_maroon",
-        "label": "Royal Maroon",
-        "default": "#580820"
+        "id": "color_primary",
+        "label": "Deep Emerald",
+        "default": "#0A2E23"
       },
       {
         "type": "color",
         "id": "color_gold",
-        "label": "Metallic Gold",
+        "label": "Regal Gold",
         "default": "#D4AF37"
       },
       {
         "type": "color",
-        "id": "color_pearl",
+        "id": "color_canvas",
         "label": "Warm Off-White",
-        "default": "#FDFBF7"
+        "default": "#FBFAF7"
+      }
+    ]
+  },
+  {
+    "name": "Gold Rate Board",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Leave the 22KT rate at 0 to hide the rate board entirely. Never publish a rate you have not checked today - it is a price claim to your customers."
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_gold_rate_bar",
+        "label": "Show gold rate board",
+        "default": true
+      },
+      {
+        "type": "number",
+        "id": "gold_rate_22k",
+        "label": "22KT rate (INR per gram)",
+        "default": 0
+      },
+      {
+        "type": "number",
+        "id": "gold_rate_24k",
+        "label": "24KT rate (INR per gram)",
+        "default": 0
+      },
+      {
+        "type": "number",
+        "id": "gold_rate_18k",
+        "label": "18KT rate (INR per gram)",
+        "default": 0
+      },
+      {
+        "type": "text",
+        "id": "gold_rate_updated",
+        "label": "Last updated label",
+        "info": "e.g. today, 9:00 AM"
+      },
+      {
+        "type": "range",
+        "id": "making_charge_percent",
+        "label": "Making charge share of price",
+        "unit": "%",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "default": 14,
+        "info": "Shown in the cart breakdown as a portion of the price, not added on top."
       }
     ]
   }

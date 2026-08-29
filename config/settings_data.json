@@ -11,21 +11,33 @@
   "current": {
     "social_instagram_link": "",
     "social_facebook_link": "",
-    "color_maroon": "#580820",
+    "color_primary": "#0A2E23",
     "color_gold": "#D4AF37",
-    "color_pearl": "#FDFBF7",
+    "color_canvas": "#FBFAF7",
     "enable_free_shipping_bar": true,
-    "free_shipping_threshold": 15000
+    "free_shipping_threshold": 15000,
+    "enable_gold_rate_bar": true,
+    "gold_rate_22k": 0,
+    "gold_rate_24k": 0,
+    "gold_rate_18k": 0,
+    "gold_rate_updated": "",
+    "making_charge_percent": 14
   },
   "presets": {
     "Default": {
       "social_instagram_link": "",
       "social_facebook_link": "",
-      "color_maroon": "#580820",
+      "color_primary": "#0A2E23",
       "color_gold": "#D4AF37",
-      "color_pearl": "#FDFBF7",
+      "color_canvas": "#FBFAF7",
       "enable_free_shipping_bar": true,
-      "free_shipping_threshold": 15000
+      "free_shipping_threshold": 15000,
+      "enable_gold_rate_bar": true,
+      "gold_rate_22k": 0,
+      "gold_rate_24k": 0,
+      "gold_rate_18k": 0,
+      "gold_rate_updated": "",
+      "making_charge_percent": 14
     }
   }
 }

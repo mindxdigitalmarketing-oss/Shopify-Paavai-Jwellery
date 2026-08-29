@@ -126,7 +126,7 @@
           <button
             type="submit"
             name="add"
-            class="btn btn--maroon btn--full btn--large"
+            class="btn btn--primary btn--full btn--large"
             data-add-to-cart-btn
             {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
             <span data-add-to-cart-text>
@@ -137,7 +137,7 @@
               {%- endif -%}
             </span>
           </button>
-          <button type="button" class="btn btn--outline-maroon btn--full" data-buy-now-btn>Buy It Now</button>
+          <button type="button" class="btn btn--outline-primary btn--full" data-buy-now-btn>Buy It Now</button>
         </div>
       {%- endform -%}
 

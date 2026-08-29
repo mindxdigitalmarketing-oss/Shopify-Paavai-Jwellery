@@ -1,0 +1,85 @@
+{%- comment -%}
+  snippets/rate-lock-modal.liquid — "Lock Price / Pre-book" enquiry.
+
+  Deliberately NOT a payment step. A rate lock is a commitment to hold today's
+  gold price, which is a conversation with the store, not a checkout. Taking a
+  token payment here would mean handling money outside Shopify Checkout, so
+  this captures an enquiry through Shopify's native contact form instead and
+  the store follows up. Real money always goes through Shopify Checkout.
+
+  Submissions land in Shopify admin under Customers -> and are emailed to the
+  store contact address, tagged so they can be filtered from general enquiries.
+{%- endcomment -%}
+
+<div class="modal" id="RateLockModal" data-rate-lock-modal hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="RateLockTitle">
+  <div class="modal__overlay" data-rate-lock-close></div>
+  <div class="modal__panel modal__panel--narrow">
+    <button type="button" class="modal__close" data-rate-lock-close aria-label="Close">&times;</button>
+
+    <p class="modal__eyebrow">Pre-book</p>
+    <h2 id="RateLockTitle" class="modal__title">Lock Today&rsquo;s Rate</h2>
+    <p class="modal__intro">
+      Hold today&rsquo;s gold rate against your order. Our team confirms your
+      lock by phone, and the rate is honoured even if gold moves up before you
+      take delivery.
+    </p>
+
+    {%- if settings.gold_rate_22k > 0 -%}
+      <div class="rate-lock__snapshot" aria-label="Rate being locked">
+        <span class="rate-lock__snapshot-label">Locking 22KT at</span>
+        <span class="rate-lock__snapshot-value">{{ settings.gold_rate_22k | times: 100 | money_without_trailing_zeros }}<span class="gold-rate-bar__unit">/g</span></span>
+      </div>
+    {%- endif -%}
+
+    {%- form 'contact', id: 'RateLockForm', class: 'rate-lock__form' -%}
+      {%- if form.posted_successfully? -%}
+        <p class="form-success" role="status">
+          Thank you. Your rate lock request is in &mdash; we&rsquo;ll call to confirm shortly.
+        </p>
+      {%- else -%}
+        {%- if form.errors -%}
+          <p class="form-error" role="alert">{{ form.errors | default_errors }}</p>
+        {%- endif -%}
+
+        <input type="hidden" name="contact[tags]" value="rate-lock">
+        {%- if settings.gold_rate_22k > 0 -%}
+          <input type="hidden" name="contact[Rate quoted]" value="{{ settings.gold_rate_22k }} per gram (22KT)">
+        {%- endif -%}
+
+        <div class="form-field">
+          <label for="RateLockName">Your name</label>
+          <input type="text" id="RateLockName" name="contact[name]" required autocomplete="name">
+        </div>
+
+        <div class="form-field">
+          <label for="RateLockPhone">Phone number</label>
+          <input type="tel" id="RateLockPhone" name="contact[phone]" required autocomplete="tel" inputmode="tel" placeholder="+91">
+        </div>
+
+        <div class="form-field">
+          <label for="RateLockEmail">Email</label>
+          <input type="email" id="RateLockEmail" name="contact[email]" required autocomplete="email">
+        </div>
+
+        <div class="form-field">
+          <label for="RateLockDuration">Hold the rate for</label>
+          <select id="RateLockDuration" name="contact[Lock duration]">
+            <option value="24 hours">24 hours</option>
+            <option value="7 days" selected>7 days</option>
+            <option value="15 days">15 days</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="RateLockNote">Piece you have in mind <span class="form-field__optional">(optional)</span></label>
+          <textarea id="RateLockNote" name="contact[body]" rows="2" placeholder="e.g. Nakshi temple haram, around 40g"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn--gold btn--full">Request Rate Lock</button>
+        <p class="modal__fineprint">
+          No payment is taken now. A team member calls you to confirm the lock.
+        </p>
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+</div>
