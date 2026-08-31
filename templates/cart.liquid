@@ -1,0 +1,89 @@
+{%- comment -%}
+  templates/cart.liquid — full cart page.
+
+  The slide-out drawer covers most journeys, but this page must exist: the
+  drawer links to it, Shopify redirects here on some flows, and customers who
+  land on /cart directly need something to render.
+
+  The checkout button posts to Shopify Checkout. Payment is never handled in
+  the theme.
+{%- endcomment -%}
+
+<div class="cart-page container">
+  <h1 class="cart-page__title">Your Bag</h1>
+
+  {%- if cart.item_count > 0 -%}
+    <form action="{{ routes.cart_url }}" method="post" novalidate class="cart-page__form">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th scope="col">Piece</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for item in cart.items -%}
+            <tr class="cart-table__row">
+              <td class="cart-table__product">
+                <a href="{{ item.url }}" class="cart-table__media">
+                  {%- if item.image -%}
+                    <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.image.alt | escape }}" width="90" height="90" loading="lazy">
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  {%- endif -%}
+                </a>
+                <div class="cart-table__details">
+                  <a href="{{ item.url }}" class="cart-table__title">{{ item.product.title }}</a>
+                  {%- unless item.variant.title == 'Default Title' -%}
+                    <p class="cart-table__variant">{{ item.variant.title }}</p>
+                  {%- endunless -%}
+                  <a href="{{ item.url_to_remove }}" class="cart-table__remove">Remove</a>
+                </div>
+              </td>
+              <td data-label="Price">{{ item.original_price | money }}</td>
+              <td data-label="Quantity">
+                <label for="CartQty-{{ forloop.index }}" class="visually-hidden">Quantity for {{ item.product.title }}</label>
+                <input type="number" id="CartQty-{{ forloop.index }}" name="updates[]"
+                       value="{{ item.quantity }}" min="0" class="cart-table__qty">
+              </td>
+              <td data-label="Total">{{ item.final_line_price | money }}</td>
+            </tr>
+          {%- endfor -%}
+        </tbody>
+      </table>
+
+      <div class="cart-page__footer">
+        <div class="cart-page__notes">
+          <label for="CartNote">Order note <span class="form-field__optional">(optional)</span></label>
+          <textarea id="CartNote" name="note" rows="3" placeholder="Sizing, delivery date, or anything we should know">{{ cart.note }}</textarea>
+        </div>
+
+        <div class="cart-page__summary">
+          <div class="cart-page__subtotal">
+            <span>Subtotal</span>
+            <span>{{ cart.total_price | money }}</span>
+          </div>
+          <p class="cart-page__tax-note">
+            Making charges are included. GST and insured shipping are confirmed
+            at checkout against your delivery address.
+          </p>
+          <button type="submit" name="update" class="btn btn--outline-primary btn--full">Update Bag</button>
+          <button type="submit" name="checkout" class="btn btn--gold btn--full">Proceed to Checkout</button>
+          <p class="cart-page__secure">Secure checkout &mdash; UPI, cards, net banking and EMI</p>
+        </div>
+      </div>
+    </form>
+
+  {%- else -%}
+    <div class="collection-empty">
+      <h2>Your bag is empty</h2>
+      <p>Nothing saved yet. Start with the bridal harams, or take the style quiz.</p>
+      <div class="collection-empty__actions">
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Browse everything</a>
+        <button type="button" class="btn btn--outline-primary" data-style-quiz-open>Take the style quiz</button>
+      </div>
+    </div>
+  {%- endif -%}
+</div>

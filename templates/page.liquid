@@ -1,0 +1,17 @@
+{%- comment -%}
+  templates/page.liquid — static pages.
+  Needed for /pages/our-story, /pages/contact-us, /pages/store-locator and the
+  policy pages the footer links to.
+{%- endcomment -%}
+
+<div class="container static-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ page.title }}</span>
+  </nav>
+  <h1 class="static-page__title">{{ page.title }}</h1>
+  <div class="static-page__content rte">
+    {{ page.content }}
+  </div>
+</div>

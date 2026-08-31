@@ -1,0 +1,71 @@
+{%- comment -%}
+  snippets/gold-rate-bar.liquid — Daily gold rate board.
+
+  Modelled on the physical rate boards jewellers post each morning, which is
+  the number this whole trade runs on.
+
+  IMPORTANT — why rates are blank by default:
+  Publishing a gold rate is a price claim. An out-of-date or invented figure on
+  a live storefront misleads customers and, in India, gold rate advertising is
+  regulated. So this bar renders NOTHING until the merchant enters a real rate
+  in Theme Editor -> Gold Rate Board. There is deliberately no hardcoded
+  fallback price.
+
+  To automate: have your rate feed PATCH these theme settings each morning, or
+  replace the markup below with a fetch in the GoldRate module in theme.js.
+  The module already re-renders from a `gold-rate:updated` event.
+{%- endcomment -%}
+
+{%- assign rate_22k = settings.gold_rate_22k -%}
+{%- assign rate_24k = settings.gold_rate_24k -%}
+{%- assign rate_18k = settings.gold_rate_18k -%}
+
+{%- if settings.enable_gold_rate_bar and rate_22k > 0 -%}
+  <section
+    class="gold-rate-bar"
+    data-gold-rate-bar
+    aria-labelledby="GoldRateHeading"
+    data-rate-22k="{{ rate_22k }}"
+    data-rate-24k="{{ rate_24k }}"
+    data-rate-18k="{{ rate_18k }}">
+    <div class="container gold-rate-bar__inner">
+
+      <div class="gold-rate-bar__lead">
+        <span class="gold-rate-bar__pulse" aria-hidden="true"></span>
+        <h2 id="GoldRateHeading" class="gold-rate-bar__heading">
+          Today&rsquo;s Gold Rate
+          {%- if settings.gold_rate_updated != blank -%}
+            <span class="gold-rate-bar__stamp">Updated {{ settings.gold_rate_updated }}</span>
+          {%- endif -%}
+        </h2>
+      </div>
+
+      <dl class="gold-rate-bar__rates">
+        <div class="gold-rate-bar__rate gold-rate-bar__rate--feature">
+          <dt>22KT</dt>
+          <dd><span class="gold-rate-bar__value">{{ rate_22k | times: 100 | money_without_trailing_zeros }}</span><span class="gold-rate-bar__unit">/g</span></dd>
+        </div>
+        {%- if rate_24k > 0 -%}
+          <div class="gold-rate-bar__rate">
+            <dt>24KT</dt>
+            <dd><span class="gold-rate-bar__value">{{ rate_24k | times: 100 | money_without_trailing_zeros }}</span><span class="gold-rate-bar__unit">/g</span></dd>
+          </div>
+        {%- endif -%}
+        {%- if rate_18k > 0 -%}
+          <div class="gold-rate-bar__rate">
+            <dt>18KT</dt>
+            <dd><span class="gold-rate-bar__value">{{ rate_18k | times: 100 | money_without_trailing_zeros }}</span><span class="gold-rate-bar__unit">/g</span></dd>
+          </div>
+        {%- endif -%}
+      </dl>
+
+      <div class="gold-rate-bar__action">
+        <button type="button" class="btn btn--gold-outline btn--compact" data-rate-lock-open>
+          Lock Price / Pre-book
+        </button>
+        <p class="gold-rate-bar__disclaimer">Indicative rate, exclusive of making &amp; GST.</p>
+      </div>
+
+    </div>
+  </section>
+{%- endif -%}
