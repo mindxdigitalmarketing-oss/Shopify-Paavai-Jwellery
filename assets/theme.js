@@ -1185,6 +1185,24 @@
   };
 
   /* ---------------------------------------------------------------------
+     CollectionSort — reloads the collection with the chosen sort_by.
+     Preserves any active tag filter because that lives in the path, not
+     the query string.
+  --------------------------------------------------------------------- */
+  var CollectionSort = {
+    init: function () {
+      var select = qs('[data-collection-sort]');
+      if (!select) return;
+      select.addEventListener('change', function () {
+        var url = new URL(window.location.href);
+        url.searchParams.set('sort_by', select.value);
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+      });
+    }
+  };
+
+  /* ---------------------------------------------------------------------
      Init on DOM ready
   --------------------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -1201,6 +1219,7 @@
     HeroCarousel.init();
     StyleQuiz.init();
     RateLock.init();
+    CollectionSort.init();
   });
 
   window.PaavaiTheme = {

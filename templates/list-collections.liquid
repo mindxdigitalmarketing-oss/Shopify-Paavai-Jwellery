@@ -1,0 +1,34 @@
+{%- comment -%}
+  templates/list-collections.liquid — /collections index.
+{%- endcomment -%}
+
+<div class="container collection-page">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">Collections</span>
+  </nav>
+  <h1 class="collection-hero__title">Collections</h1>
+
+  <div class="category-grid__list">
+    {%- for collection in collections -%}
+      {%- unless collection.handle contains 'asset-pack' or collection.handle == 'frontpage' -%}
+        <a href="{{ collection.url }}" class="category-card">
+          <span class="category-card__image-wrap">
+            {%- if collection.featured_image -%}
+              <img src="{{ collection.featured_image | image_url: width: 900 }}" alt="{{ collection.title | escape }}"
+                   loading="lazy" width="900" height="1200" class="category-card__img">
+            {%- elsif collection.products.first.featured_image -%}
+              <img src="{{ collection.products.first.featured_image | image_url: width: 900 }}" alt="{{ collection.title | escape }}"
+                   loading="lazy" width="900" height="1200" class="category-card__img">
+            {%- else -%}
+              <span class="category-card__img category-card__img--empty" aria-hidden="true"></span>
+            {%- endif -%}
+            <span class="category-card__overlay" aria-hidden="true"></span>
+            <span class="category-card__title">{{ collection.title }}</span>
+          </span>
+        </a>
+      {%- endunless -%}
+    {%- endfor -%}
+  </div>
+</div>

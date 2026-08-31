@@ -1,0 +1,81 @@
+{%- comment -%}
+  templates/search.liquid — search results.
+  Previously missing, so the header search box submitted to a page that could
+  not render.
+{%- endcomment -%}
+
+<div class="collection-page">
+  <header class="collection-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Search</span>
+      </nav>
+
+      <h1 class="collection-hero__title">
+        {%- if search.performed -%}
+          {{ search.results_count }} {% if search.results_count == 1 %}result{% else %}results{% endif %}
+        {%- else -%}
+          Search
+        {%- endif -%}
+      </h1>
+
+      {%- if search.performed -%}
+        <p class="collection-hero__count">for &ldquo;{{ search.terms | escape }}&rdquo;</p>
+      {%- endif -%}
+
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search-page__form">
+        <label for="SearchPageInput" class="visually-hidden">Search products</label>
+        <input type="search" id="SearchPageInput" name="q" value="{{ search.terms | escape }}"
+               placeholder="Search harams, chokers, jadau&hellip;" autocomplete="off">
+        <input type="hidden" name="type" value="product">
+        <button type="submit" class="btn btn--primary">Search</button>
+      </form>
+    </div>
+  </header>
+
+  <div class="container collection-body">
+    {%- paginate search.results by 24 -%}
+      {%- if search.performed and search.results_count > 0 -%}
+        <div class="product-grid">
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {%- render 'product-card', product: item -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="pagination" aria-label="Pagination">
+            {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}" class="pagination__link" rel="prev">&larr; Previous</a>{%- endif -%}
+            <span class="pagination__pages">
+              {%- for part in paginate.parts -%}
+                {%- if part.is_link -%}
+                  <a href="{{ part.url }}" class="pagination__page">{{ part.title }}</a>
+                {%- else -%}
+                  <span class="pagination__page is-current" aria-current="page">{{ part.title }}</span>
+                {%- endif -%}
+              {%- endfor -%}
+            </span>
+            {%- if paginate.next -%}<a href="{{ paginate.next.url }}" class="pagination__link" rel="next">Next &rarr;</a>{%- endif -%}
+          </nav>
+        {%- endif -%}
+
+      {%- elsif search.performed -%}
+        <div class="collection-empty">
+          <h2>No matches for &ldquo;{{ search.terms | escape }}&rdquo;</h2>
+          <p>Try a craft name &mdash; jadau, nakshi, temple, victorian &mdash; or browse the full collection.</p>
+          <div class="collection-empty__actions">
+            <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Browse everything</a>
+          </div>
+        </div>
+      {%- else -%}
+        <div class="collection-empty">
+          <h2>What are you looking for?</h2>
+          <p>Search by craft, metal, or stone &mdash; jadau, nakshi, temple, 22KT, emerald.</p>
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>

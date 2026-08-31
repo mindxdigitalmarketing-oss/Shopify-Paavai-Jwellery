@@ -1,0 +1,18 @@
+{%- comment -%}
+  templates/404.liquid — not found.
+  Previously missing. Any bad URL had no page to render, which matters here
+  because several old navigation links pointed at collections that do not exist.
+{%- endcomment -%}
+
+<div class="container collection-empty collection-empty--page">
+  <p class="modal__eyebrow">404</p>
+  <h1>This piece has moved</h1>
+  <p>
+    The page you asked for isn&rsquo;t here. It may have been renamed, or the
+    link that brought you here is out of date.
+  </p>
+  <div class="collection-empty__actions">
+    <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Browse everything</a>
+    <a href="{{ routes.root_url }}" class="btn btn--outline-primary">Back to home</a>
+  </div>
+</div>

@@ -1,0 +1,143 @@
+{%- comment -%}
+  templates/collection.liquid — product listing page.
+
+  This template did not exist before. Without it, every /collections/* URL had
+  nothing to render, which meant none of the 52 products could be browsed from
+  the storefront. It also serves /collections/all/<tag>, which is what the
+  header navigation and homepage category tiles link to.
+
+  Handles three cases:
+    /collections/necklaces          -> the collection
+    /collections/all/bridal         -> the whole catalogue filtered by tag
+    /collections/necklaces/temple   -> that collection filtered by tag
+{%- endcomment -%}
+
+<div class="collection-page">
+
+  <header class="collection-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a>
+        <span aria-hidden="true">/</span>
+        {%- if current_tags -%}
+          <a href="{{ collection.url }}">{{ collection.title }}</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{{ current_tags | join: ', ' }}</span>
+        {%- else -%}
+          <span aria-current="page">{{ collection.title }}</span>
+        {%- endif -%}
+      </nav>
+
+      <h1 class="collection-hero__title">
+        {%- if current_tags -%}
+          {{ current_tags | join: ' + ' | capitalize }}
+        {%- else -%}
+          {{ collection.title }}
+        {%- endif -%}
+      </h1>
+
+      {%- if collection.description != blank and current_tags == empty -%}
+        <div class="collection-hero__description rte">{{ collection.description }}</div>
+      {%- endif -%}
+
+      <p class="collection-hero__count">
+        {{ collection.products_count }} {% if collection.products_count == 1 %}piece{% else %}pieces{% endif %}
+      </p>
+    </div>
+  </header>
+
+  <div class="container collection-body">
+
+    {%- comment -%}
+      Filter and sort bar.
+
+      Tags are hardcoded to the craft families that actually exist on the
+      catalogue rather than looping collection.all_tags, because the catalogue
+      carries 30+ tags and dumping all of them produces an unusable wall of
+      chips. Update this list when the range changes.
+    {%- endcomment -%}
+    <div class="collection-toolbar">
+      <div class="collection-filters" role="group" aria-label="Filter by craft">
+        {%- assign filter_tags = 'bridal,temple,jadau,victorian,antique,choker,haram' | split: ',' -%}
+        {%- assign filter_labels = 'Bridal,Temple,Jadau,Victorian,Antique,Chokers,Harams' | split: ',' -%}
+
+        <a href="{{ collection.url }}"
+           class="filter-chip{% if current_tags == empty %} is-active{% endif %}">All</a>
+
+        {%- for tag in filter_tags -%}
+          {%- if collection.all_tags contains tag -%}
+            {%- if current_tags contains tag -%}
+              <a href="{{ collection.url }}" class="filter-chip is-active" aria-current="true">
+                {{ filter_labels[forloop.index0] }}
+                <span aria-hidden="true">&times;</span>
+              </a>
+            {%- else -%}
+              <a href="{{ collection.url }}/{{ tag }}" class="filter-chip">{{ filter_labels[forloop.index0] }}</a>
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="collection-sort">
+        <label for="SortBy" class="visually-hidden">Sort by</label>
+        <select id="SortBy" data-collection-sort>
+          {%- assign sort = collection.sort_by | default: collection.default_sort_by -%}
+          <option value="manual"{% if sort == 'manual' %} selected{% endif %}>Featured</option>
+          <option value="best-selling"{% if sort == 'best-selling' %} selected{% endif %}>Best selling</option>
+          <option value="title-ascending"{% if sort == 'title-ascending' %} selected{% endif %}>A &ndash; Z</option>
+          <option value="title-descending"{% if sort == 'title-descending' %} selected{% endif %}>Z &ndash; A</option>
+          <option value="price-ascending"{% if sort == 'price-ascending' %} selected{% endif %}>Price, low to high</option>
+          <option value="price-descending"{% if sort == 'price-descending' %} selected{% endif %}>Price, high to low</option>
+          <option value="created-descending"{% if sort == 'created-descending' %} selected{% endif %}>Newest first</option>
+        </select>
+      </div>
+    </div>
+
+    {%- paginate collection.products by 24 -%}
+      {%- if collection.products.size > 0 -%}
+        <div class="product-grid">
+          {%- for product in collection.products -%}
+            {%- render 'product-card', product: product -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="pagination" aria-label="Pagination">
+            {%- if paginate.previous -%}
+              <a href="{{ paginate.previous.url }}" class="pagination__link" rel="prev">&larr; Previous</a>
+            {%- endif -%}
+
+            <span class="pagination__pages">
+              {%- for part in paginate.parts -%}
+                {%- if part.is_link -%}
+                  <a href="{{ part.url }}" class="pagination__page">{{ part.title }}</a>
+                {%- elsif part.title == paginate.current_page | append: '' -%}
+                  <span class="pagination__page is-current" aria-current="page">{{ part.title }}</span>
+                {%- else -%}
+                  <span class="pagination__page">{{ part.title }}</span>
+                {%- endif -%}
+              {%- endfor -%}
+            </span>
+
+            {%- if paginate.next -%}
+              <a href="{{ paginate.next.url }}" class="pagination__link" rel="next">Next &rarr;</a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+
+      {%- else -%}
+        <div class="collection-empty">
+          <h2>Nothing here yet</h2>
+          <p>
+            We don&rsquo;t have pieces under this filter right now. Our team can
+            source or commission a piece to order.
+          </p>
+          <div class="collection-empty__actions">
+            <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Browse everything</a>
+            <a href="/pages/contact-us" class="btn btn--outline-primary">Talk to us</a>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
