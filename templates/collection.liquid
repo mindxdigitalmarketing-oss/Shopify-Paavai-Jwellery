@@ -108,13 +108,21 @@
             {%- endif -%}
 
             <span class="pagination__pages">
+              {%- comment -%}
+                Liquid does not allow filters inside a conditional expression,
+                so the current-page test has to be a nested if rather than an
+                elsif with a filter on the right-hand side. Shopify rejects the
+                whole file if you try it.
+              {%- endcomment -%}
               {%- for part in paginate.parts -%}
                 {%- if part.is_link -%}
                   <a href="{{ part.url }}" class="pagination__page">{{ part.title }}</a>
-                {%- elsif part.title == paginate.current_page | append: '' -%}
-                  <span class="pagination__page is-current" aria-current="page">{{ part.title }}</span>
                 {%- else -%}
-                  <span class="pagination__page">{{ part.title }}</span>
+                  {%- if part.title == paginate.current_page -%}
+                    <span class="pagination__page is-current" aria-current="page">{{ part.title }}</span>
+                  {%- else -%}
+                    <span class="pagination__page">{{ part.title }}</span>
+                  {%- endif -%}
                 {%- endif -%}
               {%- endfor -%}
             </span>
