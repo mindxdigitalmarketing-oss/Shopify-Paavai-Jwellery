@@ -1,0 +1,158 @@
+{%- comment -%}
+  templates/search.liquid — PAAVAI JEWELLERY search results
+
+  The header already has a search overlay. This is the results page it
+  posts to, and the page a shopper reaches from a bookmarked or shared
+  search URL.
+
+  Searches products, pages and articles, then renders products as cards and
+  everything else as a short link list underneath.
+{%- endcomment -%}
+
+{%- liquid
+  assign terms = search.terms | strip
+-%}
+
+{%- paginate search.results by 24 -%}
+
+  <div class="search-page container">
+
+    <header class="page-header">
+      <p class="page-header__eyebrow">Search</p>
+      {%- if search.performed -%}
+        <h1 class="page-header__title">
+          {%- if search.results_count > 0 -%}
+            {{ search.results_count }} result{% if search.results_count != 1 %}s{% endif %}
+          {%- else -%}
+            No results
+          {%- endif -%}
+        </h1>
+        {%- if terms != blank -%}
+          <p class="page-header__count">for &ldquo;{{ terms | escape }}&rdquo;</p>
+        {%- endif -%}
+      {%- else -%}
+        <h1 class="page-header__title">Find your piece</h1>
+      {%- endif -%}
+    </header>
+
+    {%- comment -%} ============ SEARCH FORM ============ {%- endcomment -%}
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search-form">
+      <label class="visually-hidden" for="SearchPageInput">Search the collection</label>
+      <input type="search"
+             id="SearchPageInput"
+             name="q"
+             value="{{ terms | escape }}"
+             placeholder="Try &ldquo;temple haram&rdquo; or &ldquo;22KT choker&rdquo;"
+             autocomplete="off"
+             class="search-form__input">
+      <input type="hidden" name="options[prefix]" value="last">
+      <button type="submit" class="btn btn--maroon">Search</button>
+    </form>
+
+    {%- if search.performed -%}
+
+      {%- if search.results_count > 0 -%}
+
+        {%- comment -%}
+          Split the mixed result set: products become cards, pages and
+          articles become a link list. Rendering a blog post as a product
+          card with no price is confusing.
+        {%- endcomment -%}
+        <div class="product-grid">
+          {%- for item in search.results -%}
+            {%- if item.object_type == 'product' -%}
+              {%- render 'product-card', product: item -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- assign has_content = false -%}
+        {%- for item in search.results -%}
+          {%- unless item.object_type == 'product' -%}
+            {%- assign has_content = true -%}
+            {%- break -%}
+          {%- endunless -%}
+        {%- endfor -%}
+
+        {%- if has_content -%}
+          <section class="search-content" aria-labelledby="SearchContentHeading">
+            <h2 id="SearchContentHeading" class="search-content__heading">Also found</h2>
+            <ul class="search-content__list">
+              {%- for item in search.results -%}
+                {%- unless item.object_type == 'product' -%}
+                  <li>
+                    <a href="{{ item.url }}">
+                      <span class="search-content__title">{{ item.title }}</span>
+                      <span class="search-content__type">{{ item.object_type | capitalize }}</span>
+                    </a>
+                  </li>
+                {%- endunless -%}
+              {%- endfor -%}
+            </ul>
+          </section>
+        {%- endif -%}
+
+      {%- else -%}
+
+        <div class="empty-state">
+          <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
+          <h2 class="empty-state__title">Nothing matched that</h2>
+          <p class="empty-state__text">
+            Try a shorter phrase, a metal purity like &ldquo;22KT&rdquo;, or a style
+            such as &ldquo;nakshi&rdquo;, &ldquo;jadau&rdquo; or &ldquo;victorian&rdquo;.
+          </p>
+          <div class="empty-state__actions">
+            <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse everything</a>
+          </div>
+        </div>
+
+      {%- endif -%}
+
+    {%- else -%}
+
+      {%- comment -%} Landing state — give them somewhere to go. {%- endcomment -%}
+      <div class="search-suggest">
+        <p class="search-suggest__label">Popular searches</p>
+        <div class="collection-filters">
+          <a href="{{ routes.search_url }}?q=temple" class="filter-chip">Temple</a>
+          <a href="{{ routes.search_url }}?q=jadau" class="filter-chip">Jadau</a>
+          <a href="{{ routes.search_url }}?q=nakshi" class="filter-chip">Nakshi</a>
+          <a href="{{ routes.search_url }}?q=victorian" class="filter-chip">Victorian</a>
+          <a href="{{ routes.search_url }}?q=choker" class="filter-chip">Chokers</a>
+          <a href="{{ routes.search_url }}?q=haram" class="filter-chip">Harams</a>
+          <a href="{{ routes.search_url }}?q=bridal" class="filter-chip">Bridal</a>
+        </div>
+      </div>
+
+    {%- endif -%}
+
+    {%- if paginate.pages > 1 -%}
+      <nav class="pagination" aria-label="Pagination">
+        {%- if paginate.previous -%}
+          <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--arrow" rel="prev">&#10094; Previous</a>
+        {%- endif -%}
+        <ol class="pagination__list">
+          {%- for part in paginate.parts -%}
+            {%- comment -%}
+              Three kinds of part: a link, the current page, and the gap
+              Shopify emits between distant page ranges. The gap is the only
+              non-link whose title is not the current page number.
+            {%- endcomment -%}
+            {%- if part.is_link -%}
+              <li><a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a></li>
+            {%- elsif part.title == paginate.current_page -%}
+              <li><span class="pagination__link is-current" aria-current="page">{{ part.title }}</span></li>
+            {%- else -%}
+              <li><span class="pagination__gap" aria-hidden="true">&hellip;</span></li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ol>
+        {%- if paginate.next -%}
+          <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--arrow" rel="next">Next &#10095;</a>
+        {%- endif -%}
+      </nav>
+    {%- endif -%}
+
+  </div>
+
+{%- endpaginate -%}

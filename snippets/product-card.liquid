@@ -1,0 +1,113 @@
+{%- comment -%}
+  snippets/product-card.liquid — the single product card used everywhere.
+
+  Extracted verbatim from templates/index.liquid so the homepage, collection
+  pages and search results cannot drift apart. Change the card here and it
+  changes everywhere.
+
+  Two deliberate differences from the version it was extracted from:
+
+  1. No-image products render the house monogram (paavai-placeholder)
+     rather than Shopify's grey camera icon.
+  2. The quick-add button no longer says "Sold Out". Every product is now
+     set to continue selling when out of stock, so `available` is true
+     across the catalogue and that branch was dead code that only ever
+     fired during the window where inventory was mis-set. If a product is
+     genuinely unavailable later, the button still disables itself and
+     reads "Unavailable" — an honest state, not a phantom one.
+
+  Usage:
+    {%- render 'product-card', product: product -%}
+    {%- render 'product-card', product: product, extra_class: 'featured-carousel__slide' -%}
+    {%- render 'product-card', product: product, eager: true -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign img_loading = 'lazy'
+  if eager
+    assign img_loading = 'eager'
+  endif
+  assign variant = product.selected_or_first_available_variant
+-%}
+
+<div class="product-card{% if extra_class %} {{ extra_class }}{% endif %}">
+  <div class="product-card__media">
+    <a href="{{ product.url }}" class="product-card__media-link" aria-label="{{ product.title | escape }}">
+      {%- if product.featured_image -%}
+        <img
+          src="{{ product.featured_image | image_url: width: 700 }}"
+          srcset="{{ product.featured_image | image_url: width: 400 }} 400w, {{ product.featured_image | image_url: width: 700 }} 700w"
+          sizes="(min-width: 990px) 25vw, 70vw"
+          alt="{{ product.featured_image.alt | default: product.title | escape }}"
+          loading="{{ img_loading }}"
+          width="{{ product.featured_image.width }}"
+          height="{{ product.featured_image.height }}">
+        {%- if product.images.size > 1 -%}
+          <img
+            src="{{ product.images[1] | image_url: width: 700 }}"
+            alt=""
+            loading="lazy"
+            class="product-card__media-hover">
+        {%- endif -%}
+      {%- else -%}
+        {%- render 'paavai-placeholder', title: product.title -%}
+      {%- endif -%}
+    </a>
+
+    {%- comment -%} Karat badge — the first thing a gold buyer checks. {%- endcomment -%}
+    {%- if product.tags contains '24kt-gold' -%}
+      <span class="badge badge--karat">24KT</span>
+    {%- elsif product.tags contains '22kt-gold' -%}
+      <span class="badge badge--karat">22KT</span>
+    {%- elsif product.tags contains '18kt-gold' -%}
+      <span class="badge badge--karat">18KT</span>
+    {%- endif -%}
+
+    {%- if product.compare_at_price > product.price -%}
+      <span class="badge badge--sale">Sale</span>
+    {%- endif -%}
+
+    <button
+      type="button"
+      class="quick-view-btn"
+      data-quick-view-btn
+      data-product-url="{{ product.url }}.js"
+      aria-label="Quick view {{ product.title | escape }}">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    </button>
+
+    {%- form 'product', product, class: 'product-card__form product-card__quick-add-form' -%}
+      <input type="hidden" name="id" value="{{ variant.id }}">
+      <button
+        type="submit"
+        name="add"
+        class="quick-add-btn"
+        {% unless variant.available %}disabled{% endunless %}>
+        {%- if variant.available -%}
+          <span>Quick Add</span>
+        {%- else -%}
+          <span>Unavailable</span>
+        {%- endif -%}
+      </button>
+    {%- endform -%}
+  </div>
+
+  <div class="product-card__info">
+    {%- assign rating = product.metafields.reviews.rating.value -%}
+    {%- if rating -%}
+      <div class="product-card__rating" aria-label="Rated {{ rating }} out of 5 stars">
+        <span class="stars" style="--rating: {{ rating }};" aria-hidden="true"></span>
+        {%- if product.metafields.reviews.rating_count.value -%}
+          <span class="product-card__rating-count">({{ product.metafields.reviews.rating_count.value }})</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    <h3 class="product-card__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+    <div class="product-card__price">
+      <span class="price">{{ product.price | money }}</span>
+      {%- if product.compare_at_price > product.price -%}
+        <span class="price price--compare">{{ product.compare_at_price | money }}</span>
+      {%- endif -%}
+    </div>
+  </div>
+</div>

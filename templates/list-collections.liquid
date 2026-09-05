@@ -1,0 +1,60 @@
+{%- comment -%}
+  templates/list-collections.liquid — every collection, as round tiles.
+
+  Matches the "Shop By Edit" tiles on the homepage so the two feel like
+  one system. Empty collections are skipped rather than shown as dead
+  tiles the shopper will bounce off.
+{%- endcomment -%}
+
+<div class="collections-page container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="{{ routes.root_url }}">Home</a></li>
+      <li aria-current="page">Collections</li>
+    </ol>
+  </nav>
+
+  <header class="page-header">
+    <p class="page-header__eyebrow">Curated Edits</p>
+    <h1 class="page-header__title">All Collections</h1>
+    <p class="page-header__description">
+      Five houses of craft, each finished by hand.
+    </p>
+  </header>
+
+  {%- assign shown = 0 -%}
+  <div class="category-grid__list category-grid__list--page">
+    {%- for collection in collections -%}
+      {%- if collection.all_products_count > 0 -%}
+        {%- assign shown = shown | plus: 1 -%}
+        <a href="{{ collection.url }}" class="category-card">
+          <span class="category-card__image-wrap">
+            {%- if collection.featured_image -%}
+              <img src="{{ collection.featured_image | image_url: width: 900 }}"
+                   alt="{{ collection.featured_image.alt | default: collection.title | escape }}"
+                   loading="lazy" width="900" height="1200" class="category-card__img">
+            {%- else -%}
+              {%- render 'paavai-placeholder', title: collection.title -%}
+            {%- endif -%}
+            <span class="category-card__overlay" aria-hidden="true"></span>
+            <span class="category-card__title">{{ collection.title }}</span>
+          </span>
+          <span class="category-card__count">
+            {{ collection.all_products_count }} {% if collection.all_products_count == 1 %}piece{% else %}pieces{% endif %}
+          </span>
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  {%- if shown == 0 -%}
+    <div class="empty-state">
+      <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
+      <h2 class="empty-state__title">No collections yet</h2>
+      <p class="empty-state__text">Browse the full catalogue while we group things up.</p>
+      <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse everything</a>
+    </div>
+  {%- endif -%}
+
+</div>

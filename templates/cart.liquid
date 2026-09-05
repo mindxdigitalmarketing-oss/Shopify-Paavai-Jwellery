@@ -1,0 +1,188 @@
+{%- comment -%}
+  templates/cart.liquid — PAAVAI JEWELLERY cart page
+
+  The theme already has a slide-out drawer (snippets/cart-drawer.liquid).
+  This is the full page a shopper lands on from /cart, from the drawer's
+  "View cart" link, or when JavaScript is unavailable.
+
+  Everything here is a plain <form> post to /cart. Quantity changes and
+  removals work without JavaScript, so a failed script never traps someone
+  with an uneditable cart between them and checkout.
+{%- endcomment -%}
+
+<div class="cart-page container">
+
+  <header class="page-header">
+    <p class="page-header__eyebrow">Your selection</p>
+    <h1 class="page-header__title">Shopping Bag</h1>
+  </header>
+
+  {%- if cart.item_count > 0 -%}
+
+    <form action="{{ routes.cart_url }}" method="post" novalidate class="cart-form">
+
+      <div class="cart-layout">
+
+        {%- comment -%} ============ LINE ITEMS ============ {%- endcomment -%}
+        <div class="cart-items">
+
+          <div class="cart-items__head" aria-hidden="true">
+            <span>Piece</span>
+            <span>Quantity</span>
+            <span>Total</span>
+          </div>
+
+          {%- for item in cart.items -%}
+            <div class="cart-item">
+
+              <a href="{{ item.url }}" class="cart-item__media" aria-hidden="true" tabindex="-1">
+                {%- if item.image -%}
+                  <img src="{{ item.image | image_url: width: 260 }}"
+                       alt="{{ item.image.alt | default: item.product.title | escape }}"
+                       loading="lazy" width="130" height="163">
+                {%- else -%}
+                  {%- render 'paavai-placeholder', title: item.product.title -%}
+                {%- endif -%}
+              </a>
+
+              <div class="cart-item__detail">
+                <h2 class="cart-item__title">
+                  <a href="{{ item.url }}">{{ item.product.title }}</a>
+                </h2>
+
+                {%- unless item.product.has_only_default_variant -%}
+                  <p class="cart-item__variant">{{ item.variant.title }}</p>
+                {%- endunless -%}
+
+                {%- if item.selling_plan_allocation -%}
+                  <p class="cart-item__variant">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+                {%- endif -%}
+
+                {%- comment -%} Line-level discounts, e.g. from an automatic promotion. {%- endcomment -%}
+                {%- if item.line_level_discount_allocations.size > 0 -%}
+                  <ul class="cart-item__discounts">
+                    {%- for allocation in item.line_level_discount_allocations -%}
+                      <li>{{ allocation.discount_application.title }} (&minus;{{ allocation.amount | money }})</li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+
+                <p class="cart-item__unit">{{ item.original_price | money }} each</p>
+              </div>
+
+              <div class="cart-item__quantity">
+                <label class="visually-hidden" for="CartQty-{{ forloop.index }}">
+                  Quantity for {{ item.product.title | escape }}
+                </label>
+                <div class="quantity-stepper">
+                  <button type="submit" name="updates[]" value="{{ item.quantity | minus: 1 }}"
+                          class="quantity-stepper__btn"
+                          aria-label="Decrease quantity of {{ item.product.title | escape }}"
+                          {% if item.quantity <= 1 %}disabled{% endif %}>&minus;</button>
+                  <input type="number"
+                         id="CartQty-{{ forloop.index }}"
+                         name="updates[]"
+                         value="{{ item.quantity }}"
+                         min="0"
+                         inputmode="numeric"
+                         data-cart-quantity
+                         data-line="{{ forloop.index }}">
+                  <button type="submit" name="updates[]" value="{{ item.quantity | plus: 1 }}"
+                          class="quantity-stepper__btn"
+                          aria-label="Increase quantity of {{ item.product.title | escape }}">+</button>
+                </div>
+
+                <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&amp;quantity=0"
+                   class="cart-item__remove"
+                   aria-label="Remove {{ item.product.title | escape }} from your bag">Remove</a>
+              </div>
+
+              <div class="cart-item__total">
+                {%- if item.original_line_price != item.final_line_price -%}
+                  <span class="price price--compare">{{ item.original_line_price | money }}</span>
+                {%- endif -%}
+                <span class="price">{{ item.final_line_price | money }}</span>
+              </div>
+
+            </div>
+          {%- endfor -%}
+
+          <noscript>
+            <button type="submit" name="update" class="btn btn--outline-maroon btn--small">Update bag</button>
+          </noscript>
+        </div>
+
+        {%- comment -%} ============ SUMMARY ============ {%- endcomment -%}
+        <aside class="cart-summary" aria-label="Order summary">
+
+          <h2 class="cart-summary__title">Order Summary</h2>
+
+          <div class="cart-summary__row">
+            <span>Subtotal</span>
+            <span>{{ cart.total_price | money }}</span>
+          </div>
+
+          {%- if cart.cart_level_discount_applications.size > 0 -%}
+            {%- for discount in cart.cart_level_discount_applications -%}
+              <div class="cart-summary__row cart-summary__row--discount">
+                <span>{{ discount.title }}</span>
+                <span>&minus;{{ discount.total_allocated_amount | money }}</span>
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+
+          <div class="cart-summary__row">
+            <span>Shipping</span>
+            <span class="cart-summary__free">Complimentary, insured</span>
+          </div>
+
+          <div class="cart-summary__row cart-summary__row--total">
+            <span>Total</span>
+            <span>{{ cart.total_price | money }}</span>
+          </div>
+
+          <p class="cart-summary__tax">Taxes calculated at checkout.</p>
+
+          <label class="cart-note" for="CartNote">
+            <span>Add a note or gifting instruction</span>
+            <textarea id="CartNote" name="note" rows="3"
+                      placeholder="e.g. gift wrap, engraving, delivery date">{{ cart.note }}</textarea>
+          </label>
+
+          <button type="submit" name="checkout" class="btn btn--maroon btn--full btn--large">
+            Proceed to Checkout
+          </button>
+
+          <a href="{{ routes.all_products_collection_url }}" class="cart-summary__continue">
+            Continue shopping
+          </a>
+
+          <ul class="cart-summary__trust">
+            <li>&#10022; BIS Hallmarked Gold</li>
+            <li>&#10022; Fully insured delivery</li>
+            <li>&#10022; 15-day exchange</li>
+          </ul>
+
+        </aside>
+
+      </div>
+    </form>
+
+  {%- else -%}
+
+    <div class="empty-state">
+      <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
+      <h2 class="empty-state__title">Your bag is empty</h2>
+      <p class="empty-state__text">
+        Every Paavai piece is hallmarked, insured in transit and backed by a lifetime exchange.
+        Start with the bridal edit, or browse the full collection.
+      </p>
+      <div class="empty-state__actions">
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse the collection</a>
+        <a href="/collections/all/bridal" class="btn btn--outline-maroon">Bridal edit</a>
+      </div>
+    </div>
+
+  {%- endif -%}
+
+</div>

@@ -60,7 +60,15 @@
 
   {{ 'theme.css' | asset_url | stylesheet_tag }}
 
+  {%- comment -%}
+    Styles for the storefront pages theme.css never covered — collection,
+    cart, search, page, 404 and the collections index. Loaded second so it
+    wins on equal specificity. Same maroon tokens, no new colours.
+  {%- endcomment -%}
+  {{ 'paavai-pages.css' | asset_url | stylesheet_tag }}
+
   <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'paavai-pages.js' | asset_url }}" defer="defer"></script>
 
   {%- render 'social-meta-tags' -%}
 </head>
