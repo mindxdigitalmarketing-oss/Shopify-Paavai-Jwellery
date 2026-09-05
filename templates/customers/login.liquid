@@ -1,0 +1,70 @@
+{%- comment -%}
+  templates/customers/login.liquid — sign in + recover password
+
+  Both forms live here. Shopify's convention is to toggle to the recover
+  view via #recover in the URL; paavai-luxury.js handles that swap, and
+  with no JS both panels are simply visible one after the other.
+{%- endcomment -%}
+
+<div class="auth-page container">
+
+  <div class="auth-card" data-auth-panel="login">
+    {%- if form.posted_successfully? -%}
+      <div class="form-banner form-banner--ok" role="status">
+        {%- render 'paavai-icon', icon: 'check-circle', size: 18 -%}
+        <p>If that email is registered, a reset link is on its way.</p>
+      </div>
+    {%- endif -%}
+
+    <div class="auth-card__head">
+      <p class="pv-eyebrow">Paavai Circle</p>
+      <h1 class="auth-card__title">Sign in</h1>
+      <p class="auth-card__sub">Track orders, save pieces, and reorder in a tap.</p>
+    </div>
+
+    {%- form 'customer_login', class: 'auth-form' -%}
+      {%- if form.errors -%}
+        <div class="form-banner form-banner--error" role="alert">
+          {%- render 'paavai-icon', icon: 'x', size: 18 -%}
+          <p>{{ form.errors.messages.form | default: 'Those details did not match. Please try again.' }}</p>
+        </div>
+      {%- endif -%}
+
+      <label class="form-field">
+        <span class="form-field__label">Email</span>
+        <input type="email" name="customer[email]" required autocomplete="email" spellcheck="false">
+      </label>
+
+      <label class="form-field">
+        <span class="form-field__label">Password</span>
+        <input type="password" name="customer[password]" required autocomplete="current-password">
+      </label>
+
+      <button type="submit" class="btn btn--primary btn--full btn--large">Sign in</button>
+
+      <div class="auth-form__foot">
+        <a href="#recover" data-auth-show="recover">Forgotten your password?</a>
+        <a href="{{ routes.account_register_url }}">Create an account</a>
+      </div>
+    {%- endform -%}
+  </div>
+
+  <div class="auth-card" id="recover" data-auth-panel="recover">
+    <div class="auth-card__head">
+      <h2 class="auth-card__title">Reset your password</h2>
+      <p class="auth-card__sub">We will email you a link to set a new one.</p>
+    </div>
+
+    {%- form 'recover_customer_password', class: 'auth-form' -%}
+      <label class="form-field">
+        <span class="form-field__label">Email</span>
+        <input type="email" name="email" required autocomplete="email" spellcheck="false">
+      </label>
+      <button type="submit" class="btn btn--outline-primary btn--full">Send reset link</button>
+      <div class="auth-form__foot">
+        <a href="#login" data-auth-show="login">Back to sign in</a>
+      </div>
+    {%- endform -%}
+  </div>
+
+</div>

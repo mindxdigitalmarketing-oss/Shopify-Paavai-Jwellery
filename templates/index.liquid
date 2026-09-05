@@ -224,6 +224,140 @@
     </div>
   </section>
 
+  {%- comment -%}
+    ============ EXQUISITE NECKLACES COLLECTION ============
+
+    Four necklace houses. Each tile resolves to a real collection when one
+    exists with that handle, and otherwise falls back to the tag route —
+    /collections/all/<tag> — which is how the rest of this homepage links,
+    because only the `necklaces` collection exists today.
+
+    Tile art comes from the collection image, then the first product's
+    image, then the house monogram. No tile can render blank.
+  {%- endcomment -%}
+  <section class="necklace-edit" aria-labelledby="NecklaceEditHeading">
+    <div class="container">
+      <header class="necklace-edit__head">
+        <p class="pv-eyebrow">The necklace houses</p>
+        <h2 id="NecklaceEditHeading" class="necklace-edit__title">Exquisite Necklaces</h2>
+      </header>
+
+      {%- assign nk_handles = 'chokers,temple-necklaces,bridal-haram,solitaire-sets' | split: ',' -%}
+      {%- assign nk_tags = 'choker,temple,bridal,solitaire' | split: ',' -%}
+      {%- assign nk_names = 'Chokers,Temple Necklaces,Bridal Haram,Solitaire Sets' | split: ',' -%}
+
+      <ul class="necklace-grid">
+        {%- for handle in nk_handles -%}
+          {%- liquid
+            assign i = forloop.index0
+            assign tag = nk_tags[i]
+            assign nk = collections[handle]
+
+            if nk != blank and nk.all_products_count > 0
+              assign nk_url = nk.url
+              assign nk_count = nk.all_products_count
+              assign nk_image = nk.featured_image
+            else
+              assign nk_url = '/collections/all/' | append: tag
+              assign nk_count = 0
+              assign nk_image = blank
+            endif
+
+            # No collection for this house yet — find a representative
+            # image and a count from the tag instead.
+            if nk_image == blank
+              for p in collections.all.products
+                if p.tags contains tag
+                  assign nk_count = nk_count | plus: 1
+                  if nk_image == blank and p.featured_image
+                    assign nk_image = p.featured_image
+                  endif
+                endif
+              endfor
+            endif
+          -%}
+
+          <li>
+            <a class="necklace-tile" href="{{ nk_url }}">
+              {%- if nk_image != blank -%}
+                <img src="{{ nk_image | image_url: width: 700 }}"
+                     alt="" loading="lazy" width="350" height="466">
+              {%- else -%}
+                {%- render 'paavai-placeholder', title: nk_names[i] -%}
+              {%- endif -%}
+              <span class="necklace-tile__veil" aria-hidden="true"></span>
+              <span class="necklace-tile__body">
+                <span class="necklace-tile__name">{{ nk_names[i] }}</span>
+                {%- if nk_count > 0 -%}
+                  <span class="necklace-tile__count">
+                    {{ nk_count }} {% if nk_count == 1 %}piece{% else %}pieces{% endif %}
+                  </span>
+                {%- else -%}
+                  <span class="necklace-tile__count">Explore</span>
+                {%- endif -%}
+              </span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </section>
+
+  {%- comment -%}
+    ============ TRY AT HOME ============
+
+    Links to the consultation page rather than promising a booking here —
+    there is no scheduling backend, and a second entry point that behaved
+    differently from the real form would only confuse.
+  {%- endcomment -%}
+  <section class="tryhome" aria-labelledby="TryHomeHeading">
+    <div class="container tryhome__inner">
+      <div>
+        <p class="pv-eyebrow">Try at Home</p>
+        <h2 id="TryHomeHeading" class="tryhome__title">
+          See it on you,<br><em>before you decide</em>
+        </h2>
+        <p class="tryhome__text">
+          A haram photographs beautifully and still sits differently on every neck.
+          Book a consultation and we will bring a selection to you — or walk you
+          through them on video if that is easier.
+        </p>
+
+        <div class="tryhome__actions">
+          <a href="/pages/contact" class="btn btn--gold">Book a consultation</a>
+          <a href="/pages/our-story" class="btn btn--outline-light">Our story</a>
+        </div>
+
+        <ul class="tryhome__chips">
+          <li class="pv-glass">{%- render 'paavai-icon', icon: 'shield', size: 14 -%} Fully insured</li>
+          <li class="pv-glass">{%- render 'paavai-icon', icon: 'gem', size: 14 -%} No obligation</li>
+          <li class="pv-glass">{%- render 'paavai-icon', icon: 'map-pin', size: 14 -%} Across Tamil Nadu</li>
+        </ul>
+      </div>
+
+      <ol class="tryhome__steps">
+        <li class="tryhome__step">
+          <div>
+            <p class="tryhome__step-title">Tell us what you are after</p>
+            <p class="tryhome__step-text">Occasion, budget and the style you have in mind.</p>
+          </div>
+        </li>
+        <li class="tryhome__step">
+          <div>
+            <p class="tryhome__step-title">Pick a time</p>
+            <p class="tryhome__step-text">In-store at the flagship, or a video consultation.</p>
+          </div>
+        </li>
+        <li class="tryhome__step">
+          <div>
+            <p class="tryhome__step-title">Try, then decide</p>
+            <p class="tryhome__step-text">Live gold rates and itemised making charges, in front of you.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
   {%- comment -%} ============ STYLE QUIZ TEASER ============ {%- endcomment -%}
   <section class="quiz-teaser" aria-labelledby="QuizTeaserHeading">
     <div class="container quiz-teaser__inner">

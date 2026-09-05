@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no,viewport-fit=cover">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="theme-color" content="#0A2E23">
+  <meta name="theme-color" content="#492359">
   <meta name="robots" content="index, follow">
   <meta name="description" content="{% if page_description %}{{ page_description | escape }}{% else %}PAAVAI JEWELLERY — Timeless South Indian bridal jewellery, gold bangles, diamond earrings and necklaces crafted for the modern heirloom.{% endif %}">
 
@@ -42,39 +42,60 @@
         them, so the pickers had no effect; they are now wired up. The literals
         are fallbacks for when a setting is blank.
       {%- endcomment -%}
-      /* Deep Emerald — primary brand ground. */
-      --color-primary: {{ settings.color_primary | default: '#0A2E23' }};
-      --color-primary-dark: #061C15;
-      --color-primary-light: #14513C;
+      /* Deep Royal Purple — primary brand ground. 12.1:1 on ivory. */
+      --color-primary: {{ settings.color_primary | default: '#492359' }};
+      --color-primary-dark: #331840;
+      --color-primary-light: #6B3480;
+      /* Plum, for hover states and sale prices. 8.1:1 on white — still
+         safe for text, unlike the gold below. */
+      --color-plum: {{ settings.color_plum | default: '#8B2671' }};
 
-      /* Regal Gold — accent only. See contrast note below. */
+      /* Champagne Gold — accent only. See contrast note below. */
       --color-gold: {{ settings.color_gold | default: '#D4AF37' }};
       --color-gold-light: #E8C766;
       /* Deepened from #A8862A so gold-toned TEXT clears WCAG AA on ivory.
          #D4AF37 on white is ~1.9:1 and must never carry text on a light
-         ground; use --color-gold-dark there, or put gold on emerald. */
+         ground; use --color-gold-dark there, or put gold on purple. */
       --color-gold-dark: #8F6F1E;
 
-      --color-canvas: {{ settings.color_canvas | default: '#FBFAF7' }};
-      --color-canvas-dark: #EFEBE1;
-      --color-ink: #1A1A1A;
-      --color-charcoal: #1A1A1A;
-      --color-line: rgba(10, 46, 35, 0.14);
+      /* Warm Ivory */
+      --color-canvas: {{ settings.color_canvas | default: '#FAF8F5' }};
+      --color-canvas-dark: #F0EBE4;
+      /* Crisp dark charcoal, carrying a trace of the brand purple so body
+         copy sits with the palette rather than reading as pure black. */
+      --color-ink: #24222A;
+      --color-charcoal: #24222A;
+      --color-muted: #6E6675;
+      --color-line: rgba(73, 35, 89, 0.14);
 
       --font-heading: 'Bodoni Moda', 'Didot', 'Georgia', serif;
       --font-body: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       --container-max: 1320px;
       --radius-sm: 2px;
       --radius-md: 6px;
-      --shadow-soft: 0 10px 30px rgba(6, 28, 21, 0.08);
-      --shadow-strong: 0 20px 50px rgba(6, 28, 21, 0.18);
+      /* Softer radii for the redesigned surfaces — cards, portal panels,
+         booking widgets. The 2px/6px above stay for legacy components. */
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 10px 30px rgba(43, 26, 51, 0.08);
+      --shadow-strong: 0 20px 50px rgba(43, 26, 51, 0.18);
+      --shadow-card: 0 1px 2px rgba(43, 26, 51, 0.04), 0 6px 20px rgba(43, 26, 51, 0.07);
+      --shadow-lift: 0 4px 10px rgba(43, 26, 51, 0.07), 0 18px 40px rgba(43, 26, 51, 0.12);
       --transition-base: 280ms cubic-bezier(0.4, 0, 0.2, 1);
     }
   </style>
 
   {{ 'theme.css' | asset_url | stylesheet_tag }}
 
+  {%- comment -%}
+    Luxury redesign layer: brand story, consultation booking, customer
+    portal and the homepage additions. Loaded second so it wins on equal
+    specificity. Restates no colour — it reads the tokens above.
+  {%- endcomment -%}
+  {{ 'paavai-luxury.css' | asset_url | stylesheet_tag }}
+
   <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'paavai-luxury.js' | asset_url }}" defer="defer"></script>
 
   {%- render 'social-meta-tags' -%}
 </head>

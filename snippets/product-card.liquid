@@ -30,7 +30,7 @@
             class="product-card__media-hover">
         {%- endif -%}
       {%- else -%}
-        {{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}
+        {%- render 'paavai-placeholder', title: product.title -%}
       {%- endif -%}
     </a>
 
