@@ -1,15 +1,19 @@
 {%- comment -%}
   templates/page.our-story.liquid — Brand Story
 
-  Assign this template to a page in Shopify admin:
-    Online Store → Pages → Our Story → Theme template → "our-story"
+  Reached from three places, all pointing at /pages/our-story:
+    templates/index.liquid  "Read Our Full Story"  (brand story band)
+    templates/index.liquid  "Our story"            (Try at Home band)
+    layout/theme.liquid     "Our Story"            (main navigation)
 
-  The page's own body content, if any, renders in the Heritage section, so
-  the copy stays editable in admin. The literals below are fallbacks that
-  make the page presentable before anyone writes anything.
+  The copy below is the brand's own, held in the template rather than in
+  the page body so its structure survives — the pillars, the atelier steps
+  and the pull quote each need their own markup, and a rich-text field in
+  admin would flatten all three into plain paragraphs.
 
-  Timeline markers are a semantic <ol> — this is a sequence, and a screen
-  reader should hear it as one.
+  To edit the words: change them here. Anything typed into the page body in
+  admin renders as an extra passage after the introduction, so admin edits
+  are additive rather than a silent override.
 {%- endcomment -%}
 
 <div class="story-page">
@@ -17,106 +21,143 @@
   {%- comment -%} ============ HERO ============ {%- endcomment -%}
   <section class="story-hero">
     <div class="story-hero__inner container">
-      <p class="pv-eyebrow">Est. in the temple towns of Tamil Nadu</p>
-      <h1 class="story-hero__title">
-        Jewellery that remembers<br><em>where it came from</em>
-      </h1>
-      <p class="story-hero__lede">
-        Every Paavai piece begins the same way it did generations ago — with a sheet of
-        hallmarked gold, a steel stylus, and an artisan who learned the craft from the
-        person sitting beside them.
-      </p>
+      <p class="pv-eyebrow">Our story</p>
+      <h1 class="story-hero__title">Jewellery Woven With <em>Legacy</em></h1>
+      <p class="story-hero__kicker">Crafted By Hand. Worn For Generations.</p>
     </div>
     <span class="story-hero__rule" aria-hidden="true"></span>
   </section>
 
-  {%- comment -%} ============ HERITAGE ============ {%- endcomment -%}
-  <section class="story-section container" aria-labelledby="StoryHeritage">
-    <div class="story-section__grid">
-      <div class="story-section__body">
-        <p class="pv-eyebrow">Our heritage</p>
-        <h2 id="StoryHeritage" class="story-section__title">A craft passed hand to hand</h2>
+  {%- comment -%} ============ INTRODUCTION ============ {%- endcomment -%}
+  <section class="story-intro container" aria-labelledby="StoryIntro">
+    <h2 id="StoryIntro" class="visually-hidden">About Paavai Jewellery</h2>
+    <p class="story-intro__lead">
+      PAAVAI JEWELLERY was founded on a simple yet profound belief: that fine jewellery
+      should carry deep emotional meaning, cultural heritage, and personal pride&mdash;not
+      just shine.
+    </p>
+    <p class="story-intro__body">
+      Born out of a deep reverence for South Indian goldsmithing, Paavai bridges the gap
+      between sacred, time-honored temple heirlooms and the modern bride&rsquo;s desire for
+      versatile, certified luxury. Every necklace, haram, choker, and bridal set in our
+      house is hand-finished by master artisans whose skills have been passed down across
+      generations.
+    </p>
 
-        {%- if page.content != blank -%}
-          <div class="rte">{{ page.content }}</div>
-        {%- else -%}
-          <p>
-            Paavai grew out of a workshop where nakshi work, temple motifs and jadau setting
-            were never treated as heritage techniques to be preserved — just the way things
-            were done. The Lakshmi on a haram, the peacock on a choker, the uncut diamond
-            held in a bed of gold foil: each of these carries a vocabulary that predates the
-            brand by centuries.
-          </p>
-          <p>
-            We work with goldsmiths who still finish by hand. A single temple haram can take
-            a month, because the nakshi detailing on the reverse — the side no one sees —
-            gets the same attention as the front. That is not romanticism. It is how a piece
-            survives being worn by a granddaughter.
-          </p>
-          <p>
-            What we have changed is everything around the craft: transparent gold rates,
-            honest making charges, certification you can verify, and the ability to see a
-            piece on your own neck before you commit to it.
-          </p>
-        {%- endif -%}
-      </div>
-
-      <figure class="story-section__media">
-        {%- if page.metafields.custom.story_image -%}
-          <img src="{{ page.metafields.custom.story_image | image_url: width: 900 }}"
-               alt="{{ page.metafields.custom.story_image.alt | default: 'A Paavai artisan at work' | escape }}"
-               loading="lazy" width="450" height="560">
-        {%- else -%}
-          {%- render 'paavai-placeholder', title: 'Our workshop' -%}
-        {%- endif -%}
-      </figure>
-    </div>
+    {%- if page.content != blank -%}
+      <div class="story-intro__body rte">{{ page.content }}</div>
+    {%- endif -%}
   </section>
 
-  {%- comment -%} ============ TIMELINE MARKERS ============ {%- endcomment -%}
-  <section class="story-timeline" aria-labelledby="StoryTimeline">
+  {%- comment -%} ============ PILLARS OF EXCELLENCE ============ {%- endcomment -%}
+  <section class="story-timeline" aria-labelledby="StoryPillars">
     <div class="container">
       <header class="story-timeline__head">
-        <p class="pv-eyebrow">How a piece is made</p>
-        <h2 id="StoryTimeline" class="story-section__title">From ore to heirloom</h2>
+        <p class="pv-eyebrow">What we stand on</p>
+        <h2 id="StoryPillars" class="story-section__title">Our Pillars of Excellence</h2>
       </header>
 
-      <ol class="story-timeline__list">
-        <li class="story-marker">
+      <ul class="story-timeline__list story-timeline__list--pillars">
+        <li class="story-marker story-marker--pillar">
           <span class="story-marker__dot" aria-hidden="true">
             {%- render 'paavai-icon', icon: 'award', size: 22 -%}
           </span>
-          <h3 class="story-marker__title">Heritage Craftsmanship</h3>
+          <h3 class="story-marker__title">Artisanal Heritage</h3>
           <p class="story-marker__text">
-            Nakshi, temple and jadau techniques worked by goldsmiths who trained under
-            the previous generation. Motifs drawn from the same iconography that fills
-            the gopurams a few streets away.
+            From hand-carved Nakshi motifs depicting Goddess Lakshmi and graceful peacocks
+            to intricate Jadau, Polki, and Victorian antique emerald drops, our designs pay
+            homage to India&rsquo;s richest artistic traditions.
           </p>
         </li>
 
-        <li class="story-marker">
-          <span class="story-marker__dot" aria-hidden="true">
-            {%- render 'paavai-icon', icon: 'hammer', size: 22 -%}
-          </span>
-          <h3 class="story-marker__title">Handcrafted Precision</h3>
-          <p class="story-marker__text">
-            Every stone is set by hand, one at a time. Gemstones are ethically sourced
-            and traceable to their supplier, and each diamond piece leaves with its
-            gemological documentation in the box.
-          </p>
-        </li>
-
-        <li class="story-marker">
+        <li class="story-marker story-marker--pillar">
           <span class="story-marker__dot" aria-hidden="true">
             {%- render 'paavai-icon', icon: 'shield', size: 22 -%}
           </span>
-          <h3 class="story-marker__title">Modern Design Standards</h3>
+          <h3 class="story-marker__title">100% Certified Purity</h3>
           <p class="story-marker__text">
-            BIS hallmarking on every gold piece, published making charges, and a
-            lifetime exchange. Traditional form, contemporary accountability.
+            We believe beauty starts with trust. Every single piece is crafted using 100%
+            BIS Hallmarked Gold (18KT &amp; 22KT) and certified gemstones, ensuring complete
+            peace of mind.
           </p>
         </li>
-      </ol>
+
+        <li class="story-marker story-marker--pillar">
+          <span class="story-marker__dot" aria-hidden="true">
+            {%- render 'paavai-icon', icon: 'refresh', size: 22 -%}
+          </span>
+          <h3 class="story-marker__title">Complete Transparency</h3>
+          <p class="story-marker__text">
+            No hidden fees or surprises. We provide itemized making charges, live gold rate
+            locking options, and a Lifetime Buyback &amp; Exchange Guarantee on all our
+            creations.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  {%- comment -%} ============ FROM ATELIER TO HEIRLOOM ============ {%- endcomment -%}
+  <section class="story-section container" aria-labelledby="StoryAtelier">
+    <header class="story-atelier__head">
+      <p class="pv-eyebrow">How a piece is made</p>
+      <h2 id="StoryAtelier" class="story-section__title">From Our Atelier to Your Family Heirloom</h2>
+      <p class="story-atelier__lede">
+        A Paavai piece does not begin in a factory; it begins with a hand-drawn sketch
+        inspired by South Indian temple architecture, natural flora, and royal heritage.
+      </p>
+    </header>
+
+    <ol class="story-timeline__list">
+      <li class="story-marker">
+        <span class="story-marker__dot" aria-hidden="true">
+          {%- render 'paavai-icon', icon: 'gem', size: 22 -%}
+        </span>
+        <h3 class="story-marker__title">Selection</h3>
+        <p class="story-marker__text">
+          Uncut diamonds, natural emeralds, rubies, and South Sea pearls are individually
+          hand-picked for clarity and color.
+        </p>
+      </li>
+
+      <li class="story-marker">
+        <span class="story-marker__dot" aria-hidden="true">
+          {%- render 'paavai-icon', icon: 'hammer', size: 22 -%}
+        </span>
+        <h3 class="story-marker__title">Craftsmanship</h3>
+        <p class="story-marker__text">
+          Master goldsmiths spend dozens of hours hand-pouring gold, setting stones, and
+          carving fine details.
+        </p>
+      </li>
+
+      <li class="story-marker">
+        <span class="story-marker__dot" aria-hidden="true">
+          {%- render 'paavai-icon', icon: 'check-circle', size: 22 -%}
+        </span>
+        <h3 class="story-marker__title">Hallmarking &amp; Certification</h3>
+        <p class="story-marker__text">
+          Every completed piece undergoes strict quality checks and official hallmarking
+          before it enters our collection.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  {%- comment -%} ============ A NOTE TO OUR PATRONS ============ {%- endcomment -%}
+  <section class="story-quote" aria-labelledby="StoryPatrons">
+    <div class="container story-quote__inner">
+      <p class="pv-eyebrow">A Note to Our Patrons</p>
+      <h2 id="StoryPatrons" class="visually-hidden">A note to our patrons</h2>
+      <blockquote class="story-quote__body">
+        <p>
+          When you wear a piece from Paavai, you are not just wearing gold&mdash;you are
+          wearing hours of devotion, centuries of tradition, and a memory waiting to be
+          created. We design each creation so that it becomes a cherished part of your
+          story today, before it becomes a prized heirloom for the next generation.
+        </p>
+      </blockquote>
+      <p class="story-quote__attrib">Paavai Jewellery</p>
     </div>
   </section>
 

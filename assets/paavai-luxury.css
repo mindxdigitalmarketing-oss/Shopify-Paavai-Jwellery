@@ -1017,3 +1017,99 @@
   .necklace-tile:hover { transform: none; }
   .necklace-tile:hover img { transform: none; }
 }
+
+/* --------------------------------------------------------------------------
+   9. BRAND STORY — additions for the full narrative page
+   -------------------------------------------------------------------------- */
+.story-hero__kicker {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(0.82rem, 1.5vw, 1rem);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-gold-light);
+}
+
+.story-intro {
+  max-width: 74ch;
+  padding: clamp(48px, 7vw, 88px) 0 clamp(8px, 2vw, 24px);
+  text-align: center;
+}
+.story-intro__lead {
+  margin: 0 0 22px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.15rem, 2.1vw, 1.55rem);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-primary);
+}
+.story-intro__body {
+  margin: 0 auto;
+  max-width: 68ch;
+  font-size: 0.97rem;
+  line-height: 1.85;
+  color: #4a4350;
+}
+.story-intro__body + .story-intro__body { margin-top: 1.15em; }
+
+/* Pillars reuse the marker card but carry an icon rather than a number. */
+.story-marker--pillar::before { content: none; }
+.story-timeline__list--pillars { counter-reset: none; }
+
+.story-atelier__head { text-align: center; margin-bottom: clamp(32px, 4vw, 56px); }
+.story-atelier__lede {
+  max-width: 62ch;
+  margin: 16px auto 0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-muted);
+}
+
+.story-quote {
+  background-color: var(--color-canvas-dark);
+  padding: clamp(52px, 8vw, 96px) 0;
+}
+.story-quote__inner { max-width: 72ch; text-align: center; }
+
+.story-quote__body {
+  position: relative;
+  margin: 18px 0 0;
+  padding: 0;
+}
+/* Opening quotation mark, set as decoration behind the text. */
+.story-quote__body::before {
+  content: '\201C';
+  display: block;
+  font-family: var(--font-heading);
+  font-size: clamp(3.4rem, 7vw, 5.4rem);
+  line-height: 0.7;
+  color: var(--color-gold);
+  opacity: 0.55;
+  margin-bottom: 10px;
+}
+.story-quote__body p {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: clamp(1.12rem, 2.2vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--color-primary);
+}
+.story-quote__attrib {
+  margin: 22px 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+}
+.story-quote__attrib::before {
+  content: '';
+  display: block;
+  width: 42px;
+  height: 1.5px;
+  margin: 0 auto 16px;
+  background-color: var(--color-gold);
+}
