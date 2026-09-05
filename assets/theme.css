@@ -1,6 +1,6 @@
 /* ==========================================================================
    PAAVAI JEWELLERY — theme.css
-   Design language: Deep Emerald (#0A2E23) + Regal Gold (#D4AF37) + Ivory
+   Design language: Deep Royal Purple (#492359) + Champagne Gold (#D4AF37) + Warm Ivory
    ========================================================================== */
 
 *,
@@ -1422,10 +1422,10 @@ input, textarea, select {
   position: absolute; inset: 0;
   /* Directional so the type side stays legible without dimming the piece. */
   background: linear-gradient(100deg,
-    rgba(6, 28, 21, 0.92) 0%,
-    rgba(6, 28, 21, 0.72) 38%,
-    rgba(6, 28, 21, 0.18) 72%,
-    rgba(6, 28, 21, 0.35) 100%);
+    rgba(51, 24, 64, 0.92) 0%,
+    rgba(51, 24, 64, 0.72) 38%,
+    rgba(51, 24, 64, 0.18) 72%,
+    rgba(51, 24, 64, 0.35) 100%);
 }
 .hero-slide__content { position: relative; z-index: 2; max-width: 640px; padding-top: 60px; padding-bottom: 60px; }
 .hero-slide__eyebrow {
@@ -1496,7 +1496,7 @@ input, textarea, select {
    ===================================================================== */
 .modal { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .modal[hidden] { display: none; }
-.modal__overlay { position: absolute; inset: 0; background: rgba(6, 28, 21, 0.62); backdrop-filter: blur(3px); }
+.modal__overlay { position: absolute; inset: 0; background: rgba(51, 24, 64, 0.62); backdrop-filter: blur(3px); }
 .modal__panel {
   position: relative; z-index: 2;
   width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto;

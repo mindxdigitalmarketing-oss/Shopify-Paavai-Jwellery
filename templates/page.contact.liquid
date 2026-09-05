@@ -1,0 +1,258 @@
+{%- comment -%}
+  templates/page.contact.liquid — Contact & Consultation booking
+
+  Assign in admin: Pages → Contact → Theme template → "contact"
+
+  Built on Shopify's {% form 'contact' %}, so submissions land in the store's
+  email inbox like any other contact form. The appointment fields ride along
+  as contact[...] attributes and appear in that email.
+
+  Two things worth knowing:
+
+  1. This BOOKS A REQUEST, it does not reserve a slot. There is no calendar
+     backend behind it — nothing checks whether that Tuesday 4pm is already
+     taken. The confirmation wording says "we will confirm within one working
+     day" rather than implying the slot is held, because implying otherwise
+     would have people turning up to a shop that isn't expecting them.
+
+  2. The confirmation modal shows after a real round-trip. Shopify redirects
+     back with ?contact_posted=true, and form.posted_successfully? is what
+     opens it — not an optimistic client-side guess. If the post fails, the
+     shopper sees errors instead of a false confirmation.
+{%- endcomment -%}
+
+<div class="contact-page">
+
+  <header class="page-header container">
+    <p class="pv-eyebrow">Consultation</p>
+    <h1 class="page-header__title">Book time with us</h1>
+    <p class="page-header__description">
+      Tell us what you are looking for and pick a time. We will confirm by email
+      within one working day.
+    </p>
+  </header>
+
+  <div class="container contact-layout">
+
+    {%- comment -%} ============ FORM ============ {%- endcomment -%}
+    <div class="contact-form-wrap">
+      {%- form 'contact', id: 'ConsultationForm', class: 'contact-form' -%}
+
+        {%- if form.errors -%}
+          <div class="form-banner form-banner--error" role="alert" tabindex="-1" data-form-error>
+            {%- render 'paavai-icon', icon: 'x', size: 18 -%}
+            <div>
+              <p class="form-banner__title">We could not send that</p>
+              <ul class="form-banner__list">
+                {%- for field in form.errors -%}
+                  <li>
+                    {%- if field == 'form' -%}
+                      {{ form.errors.messages[field] }}
+                    {%- else -%}
+                      {{ form.errors.translated_fields[field] | capitalize }} — {{ form.errors.messages[field] }}
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          </div>
+        {%- endif -%}
+
+        <fieldset class="form-fieldset">
+          <legend class="form-fieldset__legend">
+            {%- render 'paavai-icon', icon: 'user', size: 18 -%} About you
+          </legend>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-field__label">Name <abbr title="required">*</abbr></span>
+              <input type="text" name="contact[name]" required autocomplete="name"
+                     value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}">
+            </label>
+
+            <label class="form-field">
+              <span class="form-field__label">Email <abbr title="required">*</abbr></span>
+              <input type="email" name="contact[email]" required autocomplete="email" spellcheck="false"
+                     value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}">
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-field__label">Phone number</span>
+              <input type="tel" name="contact[phone]" autocomplete="tel"
+                     inputmode="tel" placeholder="+91 ">
+            </label>
+
+            <label class="form-field">
+              <span class="form-field__label">Budget range</span>
+              <div class="form-select">
+                <select name="contact[budget]">
+                  <option value="">Prefer not to say</option>
+                  <option value="Under ₹50,000">Under ₹50,000</option>
+                  <option value="₹50,000 – ₹1,50,000">₹50,000 – ₹1,50,000</option>
+                  <option value="₹1,50,000 – ₹5,00,000">₹1,50,000 – ₹5,00,000</option>
+                  <option value="₹5,00,000 – ₹10,00,000">₹5,00,000 – ₹10,00,000</option>
+                  <option value="Above ₹10,00,000">Above ₹10,00,000</option>
+                </select>
+                {%- render 'paavai-icon', icon: 'chevron-down', size: 16 -%}
+              </div>
+            </label>
+          </div>
+
+          <label class="form-field">
+            <span class="form-field__label">What are you looking for?</span>
+            <textarea name="contact[body]" rows="4"
+                      placeholder="e.g. a bridal haram for a December wedding, 22KT, temple work — or a redesign of an existing piece">{{ form.body }}</textarea>
+          </label>
+        </fieldset>
+
+        {%- comment -%} ============ SCHEDULER ============ {%- endcomment -%}
+        <fieldset class="form-fieldset">
+          <legend class="form-fieldset__legend">
+            {%- render 'paavai-icon', icon: 'calendar', size: 18 -%} Preferred appointment
+          </legend>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-field__label">Date</span>
+              {%- comment -%}
+                min is set by JS to tomorrow — we cannot know the shopper's
+                timezone in Liquid, and a hardcoded date would go stale.
+              {%- endcomment -%}
+              <input type="date" name="contact[preferred_date]" data-booking-date>
+            </label>
+
+            <label class="form-field">
+              <span class="form-field__label">Time slot</span>
+              <div class="form-select">
+                <select name="contact[preferred_time]" data-booking-time>
+                  <option value="">Any time</option>
+                  <option value="10:00 – 11:30 AM">10:00 – 11:30 AM</option>
+                  <option value="11:30 AM – 1:00 PM">11:30 AM – 1:00 PM</option>
+                  <option value="2:00 – 3:30 PM">2:00 – 3:30 PM</option>
+                  <option value="3:30 – 5:00 PM">3:30 – 5:00 PM</option>
+                  <option value="5:00 – 6:30 PM">5:00 – 6:30 PM</option>
+                </select>
+                {%- render 'paavai-icon', icon: 'chevron-down', size: 16 -%}
+              </div>
+            </label>
+          </div>
+
+          <span class="form-field__label">Meeting type</span>
+          <div class="meeting-choice" role="radiogroup" aria-label="Meeting type">
+            <label class="meeting-option">
+              <input type="radio" name="contact[meeting_type]" value="In-Store Visit at Branch"
+                     checked data-booking-type data-booking-type-label="In-store visit">
+              <span class="meeting-option__card">
+                <span class="meeting-option__icon">{%- render 'paavai-icon', icon: 'store', size: 22 -%}</span>
+                <span class="meeting-option__title">In-Store Visit</span>
+                <span class="meeting-option__text">See and try pieces at our flagship branch</span>
+              </span>
+            </label>
+
+            <label class="meeting-option">
+              <input type="radio" name="contact[meeting_type]" value="Virtual Video Consultation"
+                     data-booking-type data-booking-type-label="Video consultation">
+              <span class="meeting-option__card">
+                <span class="meeting-option__icon">{%- render 'paavai-icon', icon: 'video', size: 22 -%}</span>
+                <span class="meeting-option__title">Video Consultation</span>
+                <span class="meeting-option__text">A guided walkthrough on a video call</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn--primary btn--large btn--full">
+          Request appointment
+        </button>
+        <p class="contact-form__note">
+          This sends a request. We will confirm your slot by email within one working day.
+        </p>
+
+      {%- endform -%}
+    </div>
+
+    {%- comment -%} ============ ASIDE ============ {%- endcomment -%}
+    <aside class="contact-aside" aria-label="Other ways to reach us">
+      <div class="contact-card">
+        <h2 class="contact-card__title">Visit the flagship</h2>
+        <ul class="contact-card__list">
+          <li>
+            {%- render 'paavai-icon', icon: 'map-pin', size: 18 -%}
+            <span>{{ shop.address.summary | default: 'Tamil Nadu, India' }}</span>
+          </li>
+          <li>
+            {%- render 'paavai-icon', icon: 'clock', size: 18 -%}
+            <span>Monday to Saturday, 10:00 AM – 7:00 PM</span>
+          </li>
+          {%- if shop.phone != blank -%}
+            <li>
+              {%- render 'paavai-icon', icon: 'phone', size: 18 -%}
+              <a href="tel:{{ shop.phone | remove: ' ' }}">{{ shop.phone }}</a>
+            </li>
+          {%- endif -%}
+          <li>
+            {%- render 'paavai-icon', icon: 'mail', size: 18 -%}
+            <a href="mailto:{{ shop.email }}">{{ shop.email }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="contact-card contact-card--tint">
+        <h2 class="contact-card__title">What to expect</h2>
+        <ul class="contact-card__perks">
+          <li>{%- render 'paavai-icon', icon: 'check-circle', size: 16 -%} A private consultation, not a sales floor</li>
+          <li>{%- render 'paavai-icon', icon: 'check-circle', size: 16 -%} Live gold rates and itemised making charges</li>
+          <li>{%- render 'paavai-icon', icon: 'check-circle', size: 16 -%} Try pieces on before deciding</li>
+          <li>{%- render 'paavai-icon', icon: 'check-circle', size: 16 -%} No obligation to buy on the day</li>
+        </ul>
+      </div>
+    </aside>
+
+  </div>
+
+  {%- comment -%}
+    ============ CONFIRMATION MODAL ============
+    Rendered only after a genuine successful post. Shopify appends
+    ?contact_posted=true on the redirect and form.posted_successfully? reads
+    it, so this cannot show for a submission that never landed.
+  {%- endcomment -%}
+  {%- if form.posted_successfully? -%}
+    <div class="pv-modal is-open" data-booking-modal role="dialog" aria-modal="true"
+         aria-labelledby="BookingConfirmTitle">
+      <div class="pv-modal__overlay" data-booking-close></div>
+      <div class="pv-modal__panel booking-confirm" role="document">
+        <button type="button" class="pv-modal__close" data-booking-close aria-label="Close confirmation">
+          {%- render 'paavai-icon', icon: 'x', size: 20 -%}
+        </button>
+
+        <span class="booking-confirm__mark" aria-hidden="true">
+          {%- render 'paavai-icon', icon: 'check-circle', size: 34 -%}
+        </span>
+
+        <h2 id="BookingConfirmTitle" class="booking-confirm__title">Request received</h2>
+        <p class="booking-confirm__text">
+          Thank you. Your consultation request is with our team, and we will confirm
+          the slot by email within one working day.
+        </p>
+
+        {%- comment -%}
+          The summary card is filled by JS from the values that were submitted,
+          which it stashed just before the post. Liquid cannot see them here —
+          the redirect drops the form body.
+        {%- endcomment -%}
+        <dl class="booking-summary" data-booking-summary hidden>
+          <div><dt>Date</dt><dd data-summary-date>—</dd></div>
+          <div><dt>Time</dt><dd data-summary-time>—</dd></div>
+          <div><dt>Type</dt><dd data-summary-type>—</dd></div>
+        </dl>
+
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary btn--full">
+          Browse while you wait
+        </a>
+      </div>
+    </div>
+  {%- endif -%}
+
+</div>

@@ -1,0 +1,184 @@
+{%- comment -%}
+  templates/customers/order.liquid — single order detail
+
+  Same status derivation as the account page, kept in step deliberately: a
+  shopper who sees "In Transit" on the list and "Delivered" here would not
+  know which to believe.
+{%- endcomment -%}
+
+{%- liquid
+  assign status_label = 'Processing'
+  assign status_key = 'processing'
+
+  if order.cancelled
+    assign status_label = 'Cancelled'
+    assign status_key = 'cancelled'
+  elsif order.fulfillment_status == 'fulfilled'
+    assign status_label = 'In Transit'
+    assign status_key = 'transit'
+    for f in order.fulfillments
+      if f.delivered_at
+        assign status_label = 'Delivered'
+        assign status_key = 'delivered'
+        break
+      endif
+    endfor
+  elsif order.fulfillment_status == 'partial'
+    assign status_label = 'Part-shipped'
+    assign status_key = 'transit'
+  elsif order.financial_status == 'paid'
+    assign status_label = 'Confirmed'
+    assign status_key = 'confirmed'
+  endif
+-%}
+
+<div class="order-detail container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="{{ routes.account_url }}">My account</a></li>
+      <li aria-current="page">Order {{ order.name }}</li>
+    </ol>
+  </nav>
+
+  <header class="order-detail__head">
+    <div>
+      <p class="pv-eyebrow">Order {{ order.name }}</p>
+      <h1 class="order-detail__title">
+        {{ order.created_at | date: '%d %B %Y' }}
+      </h1>
+    </div>
+    <span class="status-badge status-badge--{{ status_key }}">
+      {%- case status_key -%}
+        {%- when 'delivered' -%}{%- render 'paavai-icon', icon: 'check-circle', size: 14 -%}
+        {%- when 'transit' -%}{%- render 'paavai-icon', icon: 'truck', size: 14 -%}
+        {%- when 'cancelled' -%}{%- render 'paavai-icon', icon: 'x', size: 14 -%}
+        {%- else -%}{%- render 'paavai-icon', icon: 'package', size: 14 -%}
+      {%- endcase -%}
+      {{ status_label }}
+    </span>
+  </header>
+
+  {%- if order.cancelled -%}
+    <div class="form-banner form-banner--error" role="status">
+      {%- render 'paavai-icon', icon: 'x', size: 18 -%}
+      <p>
+        Cancelled on {{ order.cancelled_at | date: '%d %B %Y' }}.
+        {%- if order.cancel_reason %} Reason: {{ order.cancel_reason_label }}.{% endif -%}
+      </p>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Tracking, when the courier gave us a link. {%- endcomment -%}
+  {%- for f in order.fulfillments -%}
+    <div class="tracking-strip">
+      <span class="tracking-strip__icon">{%- render 'paavai-icon', icon: 'truck', size: 20 -%}</span>
+      <div>
+        <p class="tracking-strip__title">
+          Shipment {{ forloop.index }}
+          {%- if f.tracking_company != blank %} &middot; {{ f.tracking_company }}{% endif -%}
+        </p>
+        <p class="tracking-strip__meta">
+          {%- if f.delivered_at -%}
+            Delivered {{ f.delivered_at | date: '%d %B %Y' }}
+          {%- elsif f.estimated_delivery_at -%}
+            Estimated {{ f.estimated_delivery_at | date: '%d %B %Y' }}
+          {%- else -%}
+            Dispatched {{ f.created_at | date: '%d %B %Y' }}
+          {%- endif -%}
+          {%- if f.tracking_number != blank %} &middot; {{ f.tracking_number }}{% endif -%}
+        </p>
+      </div>
+      {%- if f.tracking_url -%}
+        <a href="{{ f.tracking_url }}" class="btn btn--outline-primary btn--small"
+           target="_blank" rel="noopener">Track parcel</a>
+      {%- endif -%}
+    </div>
+  {%- endfor -%}
+
+  <div class="order-detail__grid">
+
+    <div class="order-detail__items">
+      <table class="order-table">
+        <caption class="visually-hidden">Items in order {{ order.name }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Piece</th>
+            <th scope="col">Qty</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for line in order.line_items -%}
+            <tr>
+              <td>
+                <div class="order-line">
+                  <span class="order-line__media" aria-hidden="true">
+                    {%- if line.image -%}
+                      <img src="{{ line.image | image_url: width: 200 }}" alt="" loading="lazy" width="64" height="80">
+                    {%- else -%}
+                      {%- render 'paavai-placeholder', title: line.title -%}
+                    {%- endif -%}
+                  </span>
+                  <div class="order-line__detail">
+                    <p class="order-line__title">
+                      {%- if line.product -%}
+                        <a href="{{ line.product.url }}">{{ line.title }}</a>
+                      {%- else -%}
+                        {{ line.title }}
+                      {%- endif -%}
+                    </p>
+                    {%- unless line.variant.title contains 'Default' -%}
+                      <p class="order-line__meta">{{ line.variant.title }}</p>
+                    {%- endunless -%}
+                    {%- if line.sku != blank -%}
+                      <p class="order-line__meta">SKU {{ line.sku }}</p>
+                    {%- endif -%}
+                  </div>
+                </div>
+              </td>
+              <td>{{ line.quantity }}</td>
+              <td>{{ line.final_line_price | money }}</td>
+            </tr>
+          {%- endfor -%}
+        </tbody>
+      </table>
+    </div>
+
+    <aside class="order-detail__side">
+      <div class="profile-card">
+        <h2 class="profile-card__title">Summary</h2>
+        <dl class="profile-dl">
+          <div><dt>Subtotal</dt><dd>{{ order.line_items_subtotal_price | money }}</dd></div>
+          {%- for discount in order.discount_applications -%}
+            <div><dt>{{ discount.title }}</dt><dd>&minus;{{ discount.total_allocated_amount | money }}</dd></div>
+          {%- endfor -%}
+          <div><dt>Shipping</dt><dd>{{ order.shipping_price | money }}</dd></div>
+          {%- if order.tax_price > 0 -%}
+            <div><dt>Tax</dt><dd>{{ order.tax_price | money }}</dd></div>
+          {%- endif -%}
+          <div class="profile-dl__total"><dt>Total</dt><dd>{{ order.total_price | money }}</dd></div>
+        </dl>
+      </div>
+
+      {%- if order.shipping_address -%}
+        <div class="profile-card">
+          <h2 class="profile-card__title">Delivery address</h2>
+          <p class="address-card__body">{{ order.shipping_address | format_address }}</p>
+        </div>
+      {%- endif -%}
+
+      {%- if order.billing_address -%}
+        <div class="profile-card">
+          <h2 class="profile-card__title">Billing address</h2>
+          <p class="address-card__body">{{ order.billing_address | format_address }}</p>
+        </div>
+      {%- endif -%}
+
+      <a href="{{ routes.account_url }}" class="btn btn--outline-primary btn--full btn--small">
+        Back to my account
+      </a>
+    </aside>
+
+  </div>
+</div>

@@ -1,0 +1,227 @@
+{%- comment -%}
+  templates/customers/addresses.liquid — manage saved delivery addresses
+
+  Add / edit / delete, all through Shopify's own address forms.
+
+  The edit form for each address is rendered inline and hidden. Without
+  JavaScript every form is simply visible and still submits correctly —
+  paavai-luxury.js collapses them and wires the Edit toggles.
+
+  Delete uses Shopify's data-confirm-message, so a shopper cannot remove an
+  address with one stray tap.
+{%- endcomment -%}
+
+<div class="addresses-page container">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="{{ routes.account_url }}">My account</a></li>
+      <li aria-current="page">Addresses</li>
+    </ol>
+  </nav>
+
+  <header class="page-header">
+    <p class="pv-eyebrow">Delivery</p>
+    <h1 class="page-header__title">Saved addresses</h1>
+  </header>
+
+  {%- paginate customer.addresses by 10 -%}
+
+    {%- comment -%} ============ ADD NEW ============ {%- endcomment -%}
+    <div class="address-new">
+      <button type="button" class="btn btn--primary" data-address-toggle="new"
+              aria-expanded="false" aria-controls="AddressNew">
+        {%- render 'paavai-icon', icon: 'map-pin', size: 16 -%} Add a new address
+      </button>
+
+      <div class="address-form-wrap" id="AddressNew" data-address-form="new">
+        {%- form 'customer_address', customer.new_address, class: 'auth-form' -%}
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-field__label">First name</span>
+              <input type="text" name="address[first_name]" autocomplete="given-name" value="{{ form.first_name }}">
+            </label>
+            <label class="form-field">
+              <span class="form-field__label">Last name</span>
+              <input type="text" name="address[last_name]" autocomplete="family-name" value="{{ form.last_name }}">
+            </label>
+          </div>
+
+          <label class="form-field">
+            <span class="form-field__label">Address</span>
+            <input type="text" name="address[address1]" autocomplete="address-line1" value="{{ form.address1 }}">
+          </label>
+
+          <label class="form-field">
+            <span class="form-field__label">Apartment, suite, etc.</span>
+            <input type="text" name="address[address2]" autocomplete="address-line2" value="{{ form.address2 }}">
+          </label>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-field__label">City</span>
+              <input type="text" name="address[city]" autocomplete="address-level2" value="{{ form.city }}">
+            </label>
+            <label class="form-field">
+              <span class="form-field__label">PIN code</span>
+              <input type="text" name="address[zip]" autocomplete="postal-code" inputmode="numeric" value="{{ form.zip }}">
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="form-field">
+              <span class="form-field__label">Country</span>
+              <div class="form-select">
+                <select name="address[country]" data-address-country data-default="{{ form.country }}">
+                  {{ country_option_tags }}
+                </select>
+                {%- render 'paavai-icon', icon: 'chevron-down', size: 16 -%}
+              </div>
+            </label>
+            <label class="form-field" data-address-province-wrap>
+              <span class="form-field__label">State</span>
+              <div class="form-select">
+                <select name="address[province]" data-address-province data-default="{{ form.province }}"></select>
+                {%- render 'paavai-icon', icon: 'chevron-down', size: 16 -%}
+              </div>
+            </label>
+          </div>
+
+          <label class="form-field">
+            <span class="form-field__label">Phone</span>
+            <input type="tel" name="address[phone]" autocomplete="tel" value="{{ form.phone }}">
+          </label>
+
+          <label class="form-check">
+            {{ form.set_as_default_checkbox }}
+            <span>Set as my default delivery address</span>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Save address</button>
+            <button type="button" class="btn btn--outline-primary" data-address-cancel="new">Cancel</button>
+          </div>
+        {%- endform -%}
+      </div>
+    </div>
+
+    {%- comment -%} ============ EXISTING ============ {%- endcomment -%}
+    {%- if customer.addresses.size > 0 -%}
+      <ul class="address-list address-list--manage">
+        {%- for address in customer.addresses -%}
+          <li class="address-card{% if address.id == customer.default_address.id %} is-default{% endif %}">
+            {%- if address.id == customer.default_address.id -%}
+              <span class="address-card__flag">Default</span>
+            {%- endif -%}
+
+            <p class="address-card__name">{{ address.first_name }} {{ address.last_name }}</p>
+            <p class="address-card__body">{{ address | format_address }}</p>
+            {%- if address.phone != blank -%}
+              <p class="address-card__phone">{{ address.phone }}</p>
+            {%- endif -%}
+
+            <div class="address-card__actions">
+              <button type="button" class="btn btn--outline-primary btn--small"
+                      data-address-toggle="{{ address.id }}"
+                      aria-expanded="false" aria-controls="Address{{ address.id }}">Edit</button>
+
+              {%- form 'customer_address', address -%}
+                <button type="submit" class="btn btn--ghost-danger btn--small"
+                        data-confirm-message="Remove this address permanently?">Delete</button>
+                <input type="hidden" name="_method" value="delete">
+              {%- endform -%}
+            </div>
+
+            <div class="address-form-wrap" id="Address{{ address.id }}" data-address-form="{{ address.id }}">
+              {%- form 'customer_address', address, class: 'auth-form' -%}
+                <div class="form-row">
+                  <label class="form-field">
+                    <span class="form-field__label">First name</span>
+                    <input type="text" name="address[first_name]" value="{{ address.first_name }}">
+                  </label>
+                  <label class="form-field">
+                    <span class="form-field__label">Last name</span>
+                    <input type="text" name="address[last_name]" value="{{ address.last_name }}">
+                  </label>
+                </div>
+
+                <label class="form-field">
+                  <span class="form-field__label">Address</span>
+                  <input type="text" name="address[address1]" value="{{ address.address1 }}">
+                </label>
+
+                <label class="form-field">
+                  <span class="form-field__label">Apartment, suite, etc.</span>
+                  <input type="text" name="address[address2]" value="{{ address.address2 }}">
+                </label>
+
+                <div class="form-row">
+                  <label class="form-field">
+                    <span class="form-field__label">City</span>
+                    <input type="text" name="address[city]" value="{{ address.city }}">
+                  </label>
+                  <label class="form-field">
+                    <span class="form-field__label">PIN code</span>
+                    <input type="text" name="address[zip]" inputmode="numeric" value="{{ address.zip }}">
+                  </label>
+                </div>
+
+                <div class="form-row">
+                  <label class="form-field">
+                    <span class="form-field__label">Country</span>
+                    <div class="form-select">
+                      <select name="address[country]" data-address-country data-default="{{ address.country }}">
+                        {{ country_option_tags }}
+                      </select>
+                      {%- render 'paavai-icon', icon: 'chevron-down', size: 16 -%}
+                    </div>
+                  </label>
+                  <label class="form-field" data-address-province-wrap>
+                    <span class="form-field__label">State</span>
+                    <div class="form-select">
+                      <select name="address[province]" data-address-province data-default="{{ address.province }}"></select>
+                      {%- render 'paavai-icon', icon: 'chevron-down', size: 16 -%}
+                    </div>
+                  </label>
+                </div>
+
+                <label class="form-field">
+                  <span class="form-field__label">Phone</span>
+                  <input type="tel" name="address[phone]" value="{{ address.phone }}">
+                </label>
+
+                <label class="form-check">
+                  {{ form.set_as_default_checkbox }}
+                  <span>Set as my default delivery address</span>
+                </label>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn--primary">Update address</button>
+                  <button type="button" class="btn btn--outline-primary" data-address-cancel="{{ address.id }}">Cancel</button>
+                </div>
+              {%- endform -%}
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- else -%}
+      <div class="empty-state">
+        <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
+        <h2 class="empty-state__title">No addresses saved</h2>
+        <p class="empty-state__text">Add one and it will be ready at checkout.</p>
+      </div>
+    {%- endif -%}
+
+    {%- if paginate.pages > 1 -%}
+      <nav class="pagination" aria-label="Address pages">
+        {%- if paginate.previous -%}
+          <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--arrow" rel="prev">&#10094; Previous</a>
+        {%- endif -%}
+        {%- if paginate.next -%}
+          <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--arrow" rel="next">Next &#10095;</a>
+        {%- endif -%}
+      </nav>
+    {%- endif -%}
+
+  {%- endpaginate -%}
+</div>

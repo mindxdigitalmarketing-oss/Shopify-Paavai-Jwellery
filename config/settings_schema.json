@@ -80,25 +80,33 @@
     "settings": [
       {
         "type": "header",
-        "content": "Reference only — core palette is hardcoded in theme.css as CSS variables (--color-primary, --color-gold, --color-canvas) for design consistency."
+        "content": "These pickers drive the live palette. They are read in layout/theme.liquid and cascade through every component."
       },
       {
         "type": "color",
         "id": "color_primary",
-        "label": "Deep Emerald",
-        "default": "#0A2E23"
+        "label": "Deep Royal Purple",
+        "default": "#492359",
+        "info": "Header, footer, primary buttons and headings."
+      },
+      {
+        "type": "color",
+        "id": "color_plum",
+        "label": "Plum",
+        "default": "#8B2671",
+        "info": "Hover states and sale prices. Keep it dark enough to read on ivory."
       },
       {
         "type": "color",
         "id": "color_gold",
-        "label": "Regal Gold",
+        "label": "Champagne Gold",
         "default": "#D4AF37"
       },
       {
         "type": "color",
         "id": "color_canvas",
-        "label": "Warm Off-White",
-        "default": "#FBFAF7"
+        "label": "Warm Ivory",
+        "default": "#FAF8F5"
       }
     ]
   },

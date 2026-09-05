@@ -1,0 +1,347 @@
+{%- comment -%}
+  templates/customers/account.liquid — Customer Portal
+
+  Replaces Shopify's default account page with a two-tab dashboard.
+
+  Order status badges are derived from Shopify's real fulfilment and
+  financial status, NOT invented. The mapping is:
+
+    cancelled                        → Cancelled
+    fulfilled + delivered            → Delivered
+    fulfilled (in transit)           → In Transit
+    partially fulfilled              → Part-shipped
+    paid, not yet fulfilled          → Confirmed
+    otherwise                        → Processing
+
+  Tracking links come from order.fulfillments[].tracking_url and only
+  render when the courier actually supplied one.
+
+  Loyalty points: shown only when a customer.metafields.loyalty.points
+  metafield exists. There is no loyalty backend in this theme, and printing
+  a fabricated balance next to real order data would be a lie the customer
+  might act on. The panel explains how points accrue instead.
+
+  Tabs are anchor-driven (#orders / #profile) so a shopper can link straight
+  to either, and both panels are in the DOM for no-JS users.
+{%- endcomment -%}
+
+<div class="portal container">
+
+  {%- comment -%} ============ HEADER ============ {%- endcomment -%}
+  <header class="portal__head">
+    <div>
+      <p class="pv-eyebrow">My account</p>
+      <h1 class="portal__title">
+        {%- if customer.first_name != blank -%}
+          Welcome back, {{ customer.first_name }}
+        {%- else -%}
+          Welcome back
+        {%- endif -%}
+      </h1>
+      <p class="portal__sub">{{ customer.email }}</p>
+    </div>
+
+    <a href="{{ routes.account_logout_url }}" class="btn btn--outline-primary btn--small">
+      {%- render 'paavai-icon', icon: 'log-out', size: 16 -%} Sign out
+    </a>
+  </header>
+
+  {%- comment -%} ============ TABS ============ {%- endcomment -%}
+  <div class="portal__tabs" role="tablist" aria-label="Account sections">
+    <a href="#orders" class="portal__tab is-active" role="tab"
+       id="PortalTabOrders" aria-controls="PortalPanelOrders" aria-selected="true"
+       data-portal-tab="orders">
+      {%- render 'paavai-icon', icon: 'package', size: 18 -%}
+      Orders
+      {%- if customer.orders_count > 0 -%}
+        <span class="portal__tab-count">{{ customer.orders_count }}</span>
+      {%- endif -%}
+    </a>
+    <a href="#profile" class="portal__tab" role="tab"
+       id="PortalTabProfile" aria-controls="PortalPanelProfile" aria-selected="false"
+       data-portal-tab="profile">
+      {%- render 'paavai-icon', icon: 'user', size: 18 -%}
+      Profile
+    </a>
+  </div>
+
+  {%- comment -%} ============ ORDERS PANEL ============ {%- endcomment -%}
+  <section class="portal__panel" id="PortalPanelOrders" role="tabpanel"
+           aria-labelledby="PortalTabOrders" data-portal-panel="orders">
+
+    {%- if customer.orders.size > 0 -%}
+
+      {%- paginate customer.orders by 10 -%}
+        <ul class="order-list">
+          {%- for order in customer.orders -%}
+            {%- liquid
+              # Derive one honest status from Shopify's own fields.
+              assign status_label = 'Processing'
+              assign status_key = 'processing'
+
+              if order.cancelled
+                assign status_label = 'Cancelled'
+                assign status_key = 'cancelled'
+              elsif order.fulfillment_status == 'fulfilled'
+                assign status_label = 'In Transit'
+                assign status_key = 'transit'
+                for f in order.fulfillments
+                  if f.delivered_at
+                    assign status_label = 'Delivered'
+                    assign status_key = 'delivered'
+                    break
+                  endif
+                endfor
+              elsif order.fulfillment_status == 'partial'
+                assign status_label = 'Part-shipped'
+                assign status_key = 'transit'
+              elsif order.financial_status == 'paid'
+                assign status_label = 'Confirmed'
+                assign status_key = 'confirmed'
+              endif
+            -%}
+
+            <li class="order-card">
+              <header class="order-card__head">
+                <div>
+                  <a href="{{ order.customer_url }}" class="order-card__number">
+                    Order {{ order.name }}
+                  </a>
+                  <p class="order-card__date">
+                    Placed {{ order.created_at | date: '%d %B %Y' }}
+                  </p>
+                </div>
+
+                <div class="order-card__head-right">
+                  <span class="status-badge status-badge--{{ status_key }}">
+                    {%- case status_key -%}
+                      {%- when 'delivered' -%}{%- render 'paavai-icon', icon: 'check-circle', size: 14 -%}
+                      {%- when 'transit' -%}{%- render 'paavai-icon', icon: 'truck', size: 14 -%}
+                      {%- when 'cancelled' -%}{%- render 'paavai-icon', icon: 'x', size: 14 -%}
+                      {%- else -%}{%- render 'paavai-icon', icon: 'package', size: 14 -%}
+                    {%- endcase -%}
+                    {{ status_label }}
+                  </span>
+                  <span class="order-card__total">{{ order.total_price | money }}</span>
+                </div>
+              </header>
+
+              <ul class="order-card__items">
+                {%- for line in order.line_items limit: 3 -%}
+                  <li class="order-line">
+                    <a href="{{ line.product.url | default: '#' }}" class="order-line__media" tabindex="-1" aria-hidden="true">
+                      {%- if line.image -%}
+                        <img src="{{ line.image | image_url: width: 200 }}"
+                             alt="" loading="lazy" width="72" height="90">
+                      {%- else -%}
+                        {%- render 'paavai-placeholder', title: line.title -%}
+                      {%- endif -%}
+                    </a>
+                    <div class="order-line__detail">
+                      <p class="order-line__title">
+                        {%- if line.product -%}
+                          <a href="{{ line.product.url }}">{{ line.title }}</a>
+                        {%- else -%}
+                          {{ line.title }}
+                        {%- endif -%}
+                      </p>
+                      <p class="order-line__meta">
+                        Qty {{ line.quantity }} &middot; {{ line.final_line_price | money }}
+                      </p>
+                    </div>
+                  </li>
+                {%- endfor -%}
+
+                {%- if order.line_items.size > 3 -%}
+                  {%- assign more = order.line_items.size | minus: 3 -%}
+                  <li class="order-line order-line--more">
+                    + {{ more }} more {% if more == 1 %}piece{% else %}pieces{% endif %}
+                  </li>
+                {%- endif -%}
+              </ul>
+
+              <footer class="order-card__foot">
+                {%- assign tracked = false -%}
+                {%- for f in order.fulfillments -%}
+                  {%- if f.tracking_url and tracked == false -%}
+                    {%- assign tracked = true -%}
+                    <a href="{{ f.tracking_url }}" class="btn btn--outline-primary btn--small"
+                       target="_blank" rel="noopener">
+                      {%- render 'paavai-icon', icon: 'truck', size: 15 -%}
+                      Track
+                      {%- if f.tracking_company != blank %} &middot; {{ f.tracking_company }}{% endif -%}
+                    </a>
+                  {%- endif -%}
+                {%- endfor -%}
+
+                <a href="{{ order.customer_url }}" class="btn btn--outline-primary btn--small">
+                  View order
+                </a>
+
+                {%- comment -%}
+                  Buy Again re-adds every still-purchasable line via the
+                  permalink. Lines whose variant no longer exists are skipped,
+                  which is why this is built rather than linking /cart/add
+                  blindly — a dead variant id would 404 the whole cart.
+                {%- endcomment -%}
+                {%- liquid
+                  # Built by appending rather than by capturing the loop
+                  # output: a capture keeps the newlines and indentation of
+                  # the loop that wrote it, and `remove: ' '` does not strip
+                  # newlines — they would end up percent-encoded in the URL
+                  # and break the permalink.
+                  assign again = ''
+                  for line in order.line_items
+                    if line.variant.id
+                      assign pair = line.variant.id | append: ':' | append: line.quantity
+                      if again == ''
+                        assign again = pair
+                      else
+                        assign again = again | append: ',' | append: pair
+                      endif
+                    endif
+                  endfor
+                -%}
+
+                {%- if again != blank -%}
+                  <a href="/cart/{{ again }}" class="btn btn--gold btn--small">
+                    {%- render 'paavai-icon', icon: 'refresh', size: 15 -%} Buy Again
+                  </a>
+                {%- endif -%}
+              </footer>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="pagination" aria-label="Order history pages">
+            {%- if paginate.previous -%}
+              <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--arrow" rel="prev">&#10094; Newer</a>
+            {%- endif -%}
+            <ol class="pagination__list">
+              {%- for part in paginate.parts -%}
+                {%- if part.is_link -%}
+                  <li><a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a></li>
+                {%- elsif part.title == paginate.current_page -%}
+                  <li><span class="pagination__link is-current" aria-current="page">{{ part.title }}</span></li>
+                {%- else -%}
+                  <li><span class="pagination__gap" aria-hidden="true">&hellip;</span></li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ol>
+            {%- if paginate.next -%}
+              <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--arrow" rel="next">Older &#10095;</a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- endpaginate -%}
+
+    {%- else -%}
+      <div class="empty-state">
+        <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
+        <h2 class="empty-state__title">No orders yet</h2>
+        <p class="empty-state__text">
+          When you place your first order it will appear here, with tracking and
+          a one-tap reorder.
+        </p>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">Start browsing</a>
+      </div>
+    {%- endif -%}
+  </section>
+
+  {%- comment -%} ============ PROFILE PANEL ============ {%- endcomment -%}
+  <section class="portal__panel" id="PortalPanelProfile" role="tabpanel"
+           aria-labelledby="PortalTabProfile" data-portal-panel="profile" hidden>
+
+    <div class="profile-grid">
+
+      {%- comment -%} Contact details {%- endcomment -%}
+      <div class="profile-card">
+        <h2 class="profile-card__title">
+          {%- render 'paavai-icon', icon: 'user', size: 18 -%} Contact details
+        </h2>
+        <dl class="profile-dl">
+          <div><dt>Name</dt><dd>{{ customer.name | default: '—' }}</dd></div>
+          <div><dt>Email</dt><dd>{{ customer.email }}</dd></div>
+          {%- if customer.phone != blank -%}
+            <div><dt>Phone</dt><dd>{{ customer.phone }}</dd></div>
+          {%- elsif customer.default_address.phone != blank -%}
+            <div><dt>Phone</dt><dd>{{ customer.default_address.phone }}</dd></div>
+          {%- endif -%}
+          <div><dt>Orders</dt><dd>{{ customer.orders_count }}</dd></div>
+          <div><dt>Lifetime spend</dt><dd>{{ customer.total_spent | money }}</dd></div>
+        </dl>
+      </div>
+
+      {%- comment -%} Loyalty {%- endcomment -%}
+      <div class="profile-card profile-card--loyalty">
+        <h2 class="profile-card__title">
+          {%- render 'paavai-icon', icon: 'sparkles', size: 18 -%} Paavai Circle
+        </h2>
+        {%- assign points = customer.metafields.loyalty.points.value -%}
+        {%- if points -%}
+          <p class="loyalty__balance">{{ points }}<span>points</span></p>
+          <p class="loyalty__note">Redeemable against making charges on your next piece.</p>
+        {%- else -%}
+          <p class="loyalty__note loyalty__note--empty">
+            Your points balance will appear here once the Paavai Circle programme
+            is active on your account. Points accrue at 1 for every ₹1,000 spent
+            and can be set against making charges.
+          </p>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Addresses {%- endcomment -%}
+      <div class="profile-card profile-card--wide">
+        <h2 class="profile-card__title">
+          {%- render 'paavai-icon', icon: 'map-pin', size: 18 -%} Delivery addresses
+        </h2>
+
+        {%- if customer.addresses.size > 0 -%}
+          <ul class="address-list">
+            {%- for address in customer.addresses limit: 4 -%}
+              <li class="address-card{% if address.id == customer.default_address.id %} is-default{% endif %}">
+                {%- if address.id == customer.default_address.id -%}
+                  <span class="address-card__flag">Default</span>
+                {%- endif -%}
+                <p class="address-card__name">{{ address.first_name }} {{ address.last_name }}</p>
+                <p class="address-card__body">
+                  {{ address.address1 }}{% if address.address2 != blank %}<br>{{ address.address2 }}{% endif %}<br>
+                  {{ address.city }}{% if address.province != blank %}, {{ address.province }}{% endif %}<br>
+                  {{ address.country }} {{ address.zip }}
+                </p>
+                {%- if address.phone != blank -%}
+                  <p class="address-card__phone">{{ address.phone }}</p>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <p class="profile-card__empty">No saved addresses yet.</p>
+        {%- endif -%}
+
+        <a href="{{ routes.account_addresses_url }}" class="btn btn--outline-primary btn--small">
+          Manage addresses
+        </a>
+      </div>
+
+      {%- comment -%}
+        Wishlist. theme.js keeps saved handles in localStorage via the
+        wishlist button on the product card, so this grid is filled client
+        side — Liquid has no access to that store.
+      {%- endcomment -%}
+      <div class="profile-card profile-card--wide">
+        <h2 class="profile-card__title">
+          {%- render 'paavai-icon', icon: 'heart', size: 18 -%} Wishlist
+        </h2>
+        <div class="wishlist-grid" data-wishlist-grid>
+          <p class="profile-card__empty" data-wishlist-empty>
+            Nothing saved yet. Tap the heart on any piece to keep it here.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>

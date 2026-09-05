@@ -1,0 +1,138 @@
+{%- comment -%}
+  templates/page.our-story.liquid — Brand Story
+
+  Assign this template to a page in Shopify admin:
+    Online Store → Pages → Our Story → Theme template → "our-story"
+
+  The page's own body content, if any, renders in the Heritage section, so
+  the copy stays editable in admin. The literals below are fallbacks that
+  make the page presentable before anyone writes anything.
+
+  Timeline markers are a semantic <ol> — this is a sequence, and a screen
+  reader should hear it as one.
+{%- endcomment -%}
+
+<div class="story-page">
+
+  {%- comment -%} ============ HERO ============ {%- endcomment -%}
+  <section class="story-hero">
+    <div class="story-hero__inner container">
+      <p class="pv-eyebrow">Est. in the temple towns of Tamil Nadu</p>
+      <h1 class="story-hero__title">
+        Jewellery that remembers<br><em>where it came from</em>
+      </h1>
+      <p class="story-hero__lede">
+        Every Paavai piece begins the same way it did generations ago — with a sheet of
+        hallmarked gold, a steel stylus, and an artisan who learned the craft from the
+        person sitting beside them.
+      </p>
+    </div>
+    <span class="story-hero__rule" aria-hidden="true"></span>
+  </section>
+
+  {%- comment -%} ============ HERITAGE ============ {%- endcomment -%}
+  <section class="story-section container" aria-labelledby="StoryHeritage">
+    <div class="story-section__grid">
+      <div class="story-section__body">
+        <p class="pv-eyebrow">Our heritage</p>
+        <h2 id="StoryHeritage" class="story-section__title">A craft passed hand to hand</h2>
+
+        {%- if page.content != blank -%}
+          <div class="rte">{{ page.content }}</div>
+        {%- else -%}
+          <p>
+            Paavai grew out of a workshop where nakshi work, temple motifs and jadau setting
+            were never treated as heritage techniques to be preserved — just the way things
+            were done. The Lakshmi on a haram, the peacock on a choker, the uncut diamond
+            held in a bed of gold foil: each of these carries a vocabulary that predates the
+            brand by centuries.
+          </p>
+          <p>
+            We work with goldsmiths who still finish by hand. A single temple haram can take
+            a month, because the nakshi detailing on the reverse — the side no one sees —
+            gets the same attention as the front. That is not romanticism. It is how a piece
+            survives being worn by a granddaughter.
+          </p>
+          <p>
+            What we have changed is everything around the craft: transparent gold rates,
+            honest making charges, certification you can verify, and the ability to see a
+            piece on your own neck before you commit to it.
+          </p>
+        {%- endif -%}
+      </div>
+
+      <figure class="story-section__media">
+        {%- if page.metafields.custom.story_image -%}
+          <img src="{{ page.metafields.custom.story_image | image_url: width: 900 }}"
+               alt="{{ page.metafields.custom.story_image.alt | default: 'A Paavai artisan at work' | escape }}"
+               loading="lazy" width="450" height="560">
+        {%- else -%}
+          {%- render 'paavai-placeholder', title: 'Our workshop' -%}
+        {%- endif -%}
+      </figure>
+    </div>
+  </section>
+
+  {%- comment -%} ============ TIMELINE MARKERS ============ {%- endcomment -%}
+  <section class="story-timeline" aria-labelledby="StoryTimeline">
+    <div class="container">
+      <header class="story-timeline__head">
+        <p class="pv-eyebrow">How a piece is made</p>
+        <h2 id="StoryTimeline" class="story-section__title">From ore to heirloom</h2>
+      </header>
+
+      <ol class="story-timeline__list">
+        <li class="story-marker">
+          <span class="story-marker__dot" aria-hidden="true">
+            {%- render 'paavai-icon', icon: 'award', size: 22 -%}
+          </span>
+          <h3 class="story-marker__title">Heritage Craftsmanship</h3>
+          <p class="story-marker__text">
+            Nakshi, temple and jadau techniques worked by goldsmiths who trained under
+            the previous generation. Motifs drawn from the same iconography that fills
+            the gopurams a few streets away.
+          </p>
+        </li>
+
+        <li class="story-marker">
+          <span class="story-marker__dot" aria-hidden="true">
+            {%- render 'paavai-icon', icon: 'hammer', size: 22 -%}
+          </span>
+          <h3 class="story-marker__title">Handcrafted Precision</h3>
+          <p class="story-marker__text">
+            Every stone is set by hand, one at a time. Gemstones are ethically sourced
+            and traceable to their supplier, and each diamond piece leaves with its
+            gemological documentation in the box.
+          </p>
+        </li>
+
+        <li class="story-marker">
+          <span class="story-marker__dot" aria-hidden="true">
+            {%- render 'paavai-icon', icon: 'shield', size: 22 -%}
+          </span>
+          <h3 class="story-marker__title">Modern Design Standards</h3>
+          <p class="story-marker__text">
+            BIS hallmarking on every gold piece, published making charges, and a
+            lifetime exchange. Traditional form, contemporary accountability.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  {%- comment -%} ============ CLOSING CTA ============ {%- endcomment -%}
+  <section class="story-cta">
+    <div class="container story-cta__inner">
+      <h2 class="story-cta__title">Come and see the work</h2>
+      <p class="story-cta__text">
+        Book a consultation at the flagship, or have a piece brought to you on video.
+        No obligation, and no pressure to buy on the day.
+      </p>
+      <div class="story-cta__actions">
+        <a href="/pages/contact" class="btn btn--gold">Book a consultation</a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-light">Browse the collection</a>
+      </div>
+    </div>
+  </section>
+
+</div>

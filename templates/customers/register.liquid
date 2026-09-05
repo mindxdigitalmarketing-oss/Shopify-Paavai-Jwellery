@@ -1,0 +1,55 @@
+{%- comment -%}
+  templates/customers/register.liquid — create an account
+{%- endcomment -%}
+
+<div class="auth-page container">
+  <div class="auth-card">
+    <div class="auth-card__head">
+      <p class="pv-eyebrow">Paavai Circle</p>
+      <h1 class="auth-card__title">Create your account</h1>
+      <p class="auth-card__sub">Order tracking, saved addresses and a wishlist that follows you.</p>
+    </div>
+
+    {%- form 'create_customer', class: 'auth-form' -%}
+      {%- if form.errors -%}
+        <div class="form-banner form-banner--error" role="alert">
+          {%- render 'paavai-icon', icon: 'x', size: 18 -%}
+          <ul class="form-banner__list">
+            {%- for field in form.errors -%}
+              <li>{{ form.errors.translated_fields[field] | capitalize }} — {{ form.errors.messages[field] }}</li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      <div class="form-row">
+        <label class="form-field">
+          <span class="form-field__label">First name</span>
+          <input type="text" name="customer[first_name]" autocomplete="given-name" value="{{ form.first_name }}">
+        </label>
+        <label class="form-field">
+          <span class="form-field__label">Last name</span>
+          <input type="text" name="customer[last_name]" autocomplete="family-name" value="{{ form.last_name }}">
+        </label>
+      </div>
+
+      <label class="form-field">
+        <span class="form-field__label">Email</span>
+        <input type="email" name="customer[email]" required autocomplete="email" spellcheck="false" value="{{ form.email }}">
+      </label>
+
+      <label class="form-field">
+        <span class="form-field__label">Password</span>
+        <input type="password" name="customer[password]" required autocomplete="new-password">
+        <span class="form-field__hint">At least 5 characters.</span>
+      </label>
+
+      <button type="submit" class="btn btn--primary btn--full btn--large">Create account</button>
+
+      <div class="auth-form__foot">
+        <span>Already registered?</span>
+        <a href="{{ routes.account_login_url }}">Sign in</a>
+      </div>
+    {%- endform -%}
+  </div>
+</div>
