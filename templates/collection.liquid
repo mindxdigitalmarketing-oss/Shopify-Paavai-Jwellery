@@ -1,0 +1,161 @@
+{%- comment -%}
+  templates/collection.liquid — PAAVAI JEWELLERY collection / category page
+
+  Handles three routes with one template, which is why the header logic
+  looks fussier than a plain collection page:
+    /collections/<handle>            the collection itself
+    /collections/all                 everything
+    /collections/all/<tag>           the tag "edits" the homepage links to
+
+  Sorting and tag filtering are plain links and a <form>, not JavaScript.
+  They work with the page reloading, which means they survive a shopper on
+  a slow connection and are indexable.
+{%- endcomment -%}
+
+{%- paginate collection.products by 24 -%}
+
+  <div class="collection-page">
+
+    {%- comment -%} ============ BREADCRUMB ============ {%- endcomment -%}
+    <nav class="breadcrumb container" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="{{ routes.root_url }}">Home</a></li>
+        {%- if current_tags -%}
+          <li><a href="{{ collection.url }}">{{ collection.title }}</a></li>
+          <li aria-current="page">{{ current_tags | join: ', ' }}</li>
+        {%- else -%}
+          <li aria-current="page">{{ collection.title }}</li>
+        {%- endif -%}
+      </ol>
+    </nav>
+
+    {%- comment -%} ============ HEADER ============ {%- endcomment -%}
+    <header class="page-header container">
+      <p class="page-header__eyebrow">
+        {%- if current_tags -%}Curated Edit{%- else -%}Collection{%- endif -%}
+      </p>
+      <h1 class="page-header__title">
+        {%- if current_tags -%}
+          {{ current_tags | join: ', ' }}
+        {%- else -%}
+          {{ collection.title }}
+        {%- endif -%}
+      </h1>
+
+      {%- if collection.description != blank and current_tags == empty -%}
+        <div class="page-header__description rte">{{ collection.description }}</div>
+      {%- endif -%}
+
+      <p class="page-header__count">
+        {{ paginate.items }} {% if paginate.items == 1 %}piece{% else %}pieces{% endif %}
+      </p>
+    </header>
+
+    {%- comment -%}
+      ============ TOOLBAR ============
+      Tag list is built from the collection's own tags, so it never offers a
+      filter that would return an empty page.
+    {%- endcomment -%}
+    {%- if collection.all_tags.size > 0 or collection.products.size > 1 -%}
+      <div class="collection-toolbar container">
+
+        {%- if collection.all_tags.size > 0 -%}
+          <div class="collection-filters" role="group" aria-label="Filter by style">
+            <a href="{{ collection.url }}"
+               class="filter-chip{% if current_tags == empty %} is-active{% endif %}">All</a>
+            {%- for tag in collection.all_tags limit: 12 -%}
+              {%- if current_tags contains tag -%}
+                <a href="{{ collection.url }}" class="filter-chip is-active" aria-current="true">
+                  {{ tag | replace: '-', ' ' | capitalize }}
+                  <span aria-hidden="true">&times;</span>
+                </a>
+              {%- else -%}
+                <a href="{{ collection.url }}/{{ tag | handleize }}" class="filter-chip">
+                  {{ tag | replace: '-', ' ' | capitalize }}
+                </a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%}
+          Submits on change via paavai-pages.js, and still works through
+          the Apply button when JavaScript is unavailable.
+        {%- endcomment -%}
+        <form method="get" action="{{ collection.url }}" class="collection-sort" data-collection-sort>
+          <label for="SortBy">Sort by</label>
+          <select name="sort_by" id="SortBy" class="collection-sort__select">
+            {%- assign current_sort = collection.sort_by | default: collection.default_sort_by -%}
+            {%- for option in collection.sort_options -%}
+              <option value="{{ option.value }}"{% if option.value == current_sort %} selected{% endif %}>
+                {{ option.name }}
+              </option>
+            {%- endfor -%}
+          </select>
+          {%- comment -%}
+            Always rendered, so sorting works with no JavaScript.
+            paavai-pages.js hides it and submits on change instead.
+          {%- endcomment -%}
+          <button type="submit" class="btn btn--outline-maroon btn--small" data-sort-apply>Apply</button>
+        </form>
+
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} ============ PRODUCT GRID ============ {%- endcomment -%}
+    <div class="container">
+      {%- if collection.products.size > 0 -%}
+        <div class="product-grid">
+          {%- for product in collection.products -%}
+            {%- render 'product-card', product: product, eager: forloop.first -%}
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <div class="empty-state">
+          <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
+          <h2 class="empty-state__title">Nothing here just yet</h2>
+          <p class="empty-state__text">
+            {%- if current_tags -%}
+              We have no pieces tagged &ldquo;{{ current_tags | join: ', ' }}&rdquo; at the moment.
+            {%- else -%}
+              This collection is being restocked. Our other edits are worth a look in the meantime.
+            {%- endif -%}
+          </p>
+          <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse everything</a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ============ PAGINATION ============ {%- endcomment -%}
+    {%- if paginate.pages > 1 -%}
+      <nav class="pagination container" aria-label="Pagination">
+        {%- if paginate.previous -%}
+          <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--arrow" rel="prev">&#10094; Previous</a>
+        {%- endif -%}
+
+        <ol class="pagination__list">
+          {%- for part in paginate.parts -%}
+            {%- comment -%}
+              Three kinds of part: a link, the current page, and the gap
+              Shopify emits between distant page ranges. The gap is the only
+              non-link whose title is not the current page number.
+            {%- endcomment -%}
+            {%- if part.is_link -%}
+              <li><a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a></li>
+            {%- elsif part.title == paginate.current_page -%}
+              <li><span class="pagination__link is-current" aria-current="page">{{ part.title }}</span></li>
+            {%- else -%}
+              <li><span class="pagination__gap" aria-hidden="true">&hellip;</span></li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ol>
+
+        {%- if paginate.next -%}
+          <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--arrow" rel="next">Next &#10095;</a>
+        {%- endif -%}
+      </nav>
+    {%- endif -%}
+
+  </div>
+
+{%- endpaginate -%}

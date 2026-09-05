@@ -1,0 +1,31 @@
+{%- comment -%}
+  templates/404.liquid — page not found.
+
+  A 404 on a jewellery store is usually a discontinued piece or a stale
+  link from social. Give them a route onward rather than a dead end.
+{%- endcomment -%}
+
+<div class="error-page container">
+
+  <div class="empty-state empty-state--tall">
+    <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
+    <p class="page-header__eyebrow">Error 404</p>
+    <h1 class="empty-state__title">This piece has moved</h1>
+    <p class="empty-state__text">
+      The page you were looking for is no longer here. It may have been a piece
+      that sold, or a link that has since changed.
+    </p>
+
+    <div class="empty-state__actions">
+      <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse the collection</a>
+      <a href="{{ routes.root_url }}" class="btn btn--outline-maroon">Back to home</a>
+    </div>
+
+    <form action="{{ routes.search_url }}" method="get" role="search" class="search-form search-form--compact">
+      <label class="visually-hidden" for="Error404Search">Search the collection</label>
+      <input type="search" id="Error404Search" name="q" placeholder="Search for a piece" class="search-form__input">
+      <button type="submit" class="btn btn--outline-maroon">Search</button>
+    </form>
+  </div>
+
+</div>
