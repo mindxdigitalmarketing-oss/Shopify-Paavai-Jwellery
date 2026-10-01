@@ -183,10 +183,20 @@ def build_ticket(order, source, rng, alias_base, batch, now):
 
 
 def post_ticket(session, base, ticket):
-    for attempt in range(6):
-        r = session.post(f"{base}/api/tickets", json=ticket, timeout=30)
+    for attempt in range(8):
+        try:
+            r = session.post(f"{base}/api/tickets", json=ticket, timeout=30)
+        except Exception as e:  # network blip: wait and try again
+            time.sleep(3 * (attempt + 1))
+            if attempt == 7:
+                raise RuntimeError(f"network error: {e}")
+            continue
         if r.status_code == 429:
             time.sleep(float(r.headers.get("Retry-After", 2 * (attempt + 1))))
+            continue
+        if r.status_code >= 500:  # Gorgias had a hiccup (502/503/504): back off and retry
+            print(f"   Gorgias returned HTTP {r.status_code}, retrying in {3 * (attempt + 1)}s...")
+            time.sleep(3 * (attempt + 1))
             continue
         if r.status_code in (401, 403):
             sys.exit(f"Gorgias rejected the login (HTTP {r.status_code}). Check GORGIAS_EMAIL and GORGIAS_API_KEY.")
@@ -203,6 +213,8 @@ def main():
     ap.add_argument("--alias-base")
     ap.add_argument("--batch", default="sample-2026-10")
     ap.add_argument("--seed", type=int, default=7)
+    ap.add_argument("--skip", type=int, default=0,
+                    help="skip the first N tickets, e.g. --skip 89 after 89 were already created")
     ap.add_argument("--live", action="store_true")
     ap.add_argument("--confirm-real-emails", action="store_true")
     a = ap.parse_args()
@@ -248,8 +260,13 @@ def main():
     session.headers.update({"Accept": "application/json", "Content-Type": "application/json"})
     base = f"https://{domain}.gorgias.com"
 
+    out_file = os.path.join(ROOT, "integrations", "out", "gorgias_created.json")
     created = []
+    if a.skip and os.path.exists(out_file):
+        created = json.load(open(out_file))  # keep the record of tickets made by the earlier run
     for i, (ticket, meta) in enumerate(built, 1):
+        if i <= a.skip:
+            continue
         try:
             res = post_ticket(session, base, ticket)
         except RuntimeError as e:
