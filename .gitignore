@@ -2,3 +2,4 @@
 .env.*
 scripts/out/
 integrations/out/
+__pycache__/
