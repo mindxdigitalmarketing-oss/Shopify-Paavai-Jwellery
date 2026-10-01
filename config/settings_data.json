@@ -9,20 +9,28 @@
  */
 {
   "current": {
+    "enable_free_shipping_bar": true,
+    "free_shipping_threshold": 15000,
     "social_instagram_link": "",
     "social_facebook_link": "",
     "color_primary": "#492359",
     "color_plum": "#8B2671",
     "color_gold": "#D4AF37",
     "color_canvas": "#FAF8F5",
-    "enable_free_shipping_bar": true,
-    "free_shipping_threshold": 15000,
     "enable_gold_rate_bar": true,
     "gold_rate_22k": 0,
     "gold_rate_24k": 0,
     "gold_rate_18k": 0,
     "gold_rate_updated": "",
-    "making_charge_percent": 14
+    "making_charge_percent": 14,
+    "content_for_index": [],
+    "blocks": {
+      "855628211100114053": {
+        "type": "shopify://apps/klaviyo-email-marketing-sms/blocks/klaviyo-onsite-embed/2632fe16-c075-4321-a88b-50b567f42507",
+        "disabled": false,
+        "settings": {}
+      }
+    }
   },
   "presets": {
     "Default": {
