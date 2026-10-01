@@ -167,12 +167,13 @@ writeFileSync(file, '\uFEFF' + [header, ...rows.map((r) => header.map((h) => r[h
 // Matrixify does not read Shopify's export columns: it wants "Line: ..." rows and "Shipping: ..." fields.
 {
   const mHeader = ['Name', 'Command', 'Send Receipt', 'Inventory Behaviour', 'Processed At', 'Created At', 'Currency', 'Email', 'Tags', 'Note', 'Source',
-    'Financial Status', 'Fulfillment Status', 'Tax: Included',
+    'Financial Status', 'Tax: Included',
     'Customer: Email', 'Customer: First Name', 'Customer: Last Name', 'Customer: Phone',
     'Shipping: First Name', 'Shipping: Last Name', 'Shipping: Address 1', 'Shipping: Address 2', 'Shipping: City', 'Shipping: Province Code', 'Shipping: Zip', 'Shipping: Country Code', 'Shipping: Phone',
     'Billing: First Name', 'Billing: Last Name', 'Billing: Address 1', 'Billing: Address 2', 'Billing: City', 'Billing: Province Code', 'Billing: Zip', 'Billing: Country Code', 'Billing: Phone',
     'Line: Type', 'Line: Title', 'Line: Quantity', 'Line: Price', 'Line: Requires Shipping', 'Line: Taxable', 'Line: Fulfillment Status',
-    'Transaction: Kind', 'Transaction: Status', 'Transaction: Amount', 'Transaction: Gateway'];
+    'Transaction: Kind', 'Transaction: Status', 'Transaction: Amount', 'Transaction: Gateway',
+    'Fulfillment: Status', 'Fulfillment: Processed At', 'Fulfillment: Notify Customer'];
   const mRows = [];
   orders.forEach((o, idx) => {
     const name = `#${lastNo + 1 + idx}`;
@@ -189,10 +190,12 @@ writeFileSync(file, '\uFEFF' + [header, ...rows.map((r) => header.map((h) => r[h
       const line = { 'Line: Type': 'Line Item', 'Line: Title': l.name, 'Line: Quantity': l.qty, 'Line: Price': money(l.price), 'Line: Requires Shipping': 'TRUE', 'Line: Taxable': 'TRUE', 'Line: Fulfillment Status': o.fulfilled ? 'fulfilled' : '' };
       mRows.push(row(li === 0 ? {
         Name: name, Command: 'NEW', 'Send Receipt': 'FALSE', 'Inventory Behaviour': 'bypass', 'Processed At': iso, 'Created At': iso, Currency: 'INR', Email: c.Email, Tags: `dummy-data, ${BATCH}${o.refunded ? ', returned' : ''}`,
-        Note: 'Demo order for AI-agent testing', Source: 'web', 'Financial Status': status, 'Fulfillment Status': o.fulfilled ? 'fulfilled' : '', 'Tax: Included': 'TRUE',
+        Note: 'Demo order for AI-agent testing', Source: 'web', 'Financial Status': status, 'Tax: Included': 'TRUE',
         'Customer: Email': c.Email, 'Customer: First Name': c['First Name'], 'Customer: Last Name': c['Last Name'], 'Customer: Phone': c.Phone, ...addr('Shipping'), ...addr('Billing'), ...line,
       } : { Name: name, ...line }));
     });
+    // Matrixify's "Fulfillment: Status" is the status of a fulfilment record (success, open, ...), so a fulfilled order gets its own row.
+    if (o.fulfilled) mRows.push(row({ Name: name, 'Fulfillment: Status': 'success', 'Fulfillment: Processed At': new Date(Math.min(Date.now(), o.created.getTime() + (1 + (idx % 4)) * 86400000)).toISOString(), 'Fulfillment: Notify Customer': 'FALSE' }));
     if (!o.cod) mRows.push(row({ Name: name, 'Transaction: Kind': 'sale', 'Transaction: Status': 'success', 'Transaction: Amount': money(total), 'Transaction: Gateway': 'manual' }));
     if (o.refunded) mRows.push(row({ Name: name, 'Transaction: Kind': 'refund', 'Transaction: Status': 'success', 'Transaction: Amount': money(o.refunded), 'Transaction: Gateway': 'manual' }));
   });
