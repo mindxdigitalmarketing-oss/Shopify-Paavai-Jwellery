@@ -32,7 +32,7 @@
     {%- comment -%} ============ HEADER ============ {%- endcomment -%}
     <header class="page-header container">
       <p class="page-header__eyebrow">
-        {%- if current_tags -%}Curated Edit{%- else -%}Collection{%- endif -%}
+        {%- if current_tags -%}Filtered{%- else -%}Collection{%- endif -%}
       </p>
       <h1 class="page-header__title">
         {%- if current_tags -%}
@@ -47,7 +47,7 @@
       {%- endif -%}
 
       <p class="page-header__count">
-        {{ paginate.items }} {% if paginate.items == 1 %}piece{% else %}pieces{% endif %}
+        {{ paginate.items }} {% if paginate.items == 1 %}product{% else %}products{% endif %}
       </p>
     </header>
 
@@ -116,9 +116,9 @@
           <h2 class="empty-state__title">Nothing here just yet</h2>
           <p class="empty-state__text">
             {%- if current_tags -%}
-              We have no pieces tagged &ldquo;{{ current_tags | join: ', ' }}&rdquo; at the moment.
+              We have no products tagged &ldquo;{{ current_tags | join: ', ' }}&rdquo; at the moment.
             {%- else -%}
-              This collection is being restocked. Our other edits are worth a look in the meantime.
+              There are no products here yet. Check back soon.
             {%- endif -%}
           </p>
           <a href="{{ routes.all_products_collection_url }}" class="btn btn--navy">Shop RS1</a>

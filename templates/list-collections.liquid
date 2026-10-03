@@ -16,7 +16,7 @@
   </nav>
 
   <header class="page-header">
-    <p class="page-header__eyebrow">Curated Edits</p>
+    <p class="page-header__eyebrow">Collections</p>
     <h1 class="page-header__title">All Collections</h1>
     <p class="page-header__description">
       Five houses of craft, each finished by hand.
@@ -41,7 +41,7 @@
             <span class="category-card__title">{{ collection.title }}</span>
           </span>
           <span class="category-card__count">
-            {{ collection.all_products_count }} {% if collection.all_products_count == 1 %}piece{% else %}pieces{% endif %}
+            {{ collection.all_products_count }} {% if collection.all_products_count == 1 %}product{% else %}products{% endif %}
           </span>
         </a>
       {%- endif -%}
