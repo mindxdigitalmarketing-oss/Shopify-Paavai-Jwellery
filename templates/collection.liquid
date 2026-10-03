@@ -1,5 +1,5 @@
 {%- comment -%}
-  templates/collection.liquid — PAAVAI JEWELLERY collection / category page
+  templates/collection.liquid — RS1 collection / category page
 
   Handles three routes with one template, which is why the header logic
   looks fussier than a plain collection page:
@@ -96,7 +96,7 @@
             Always rendered, so sorting works with no JavaScript.
             paavai-pages.js hides it and submits on change instead.
           {%- endcomment -%}
-          <button type="submit" class="btn btn--outline-maroon btn--small" data-sort-apply>Apply</button>
+          <button type="submit" class="btn btn--outline-navy btn--small" data-sort-apply>Apply</button>
         </form>
 
       </div>
@@ -121,7 +121,7 @@
               This collection is being restocked. Our other edits are worth a look in the meantime.
             {%- endif -%}
           </p>
-          <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse everything</a>
+          <a href="{{ routes.all_products_collection_url }}" class="btn btn--navy">Shop RS1</a>
         </div>
       {%- endif -%}
     </div>

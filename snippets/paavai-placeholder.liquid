@@ -4,8 +4,8 @@
   Shown where a product has no photograph yet.
 
   Shopify's built-in `placeholder_svg_tag` draws a grey camera icon, which
-  reads as a broken image on a jewellery store. This draws the house
-  monogram on pearl with a gold rule instead — so a product without a photo
+  reads as a broken image on a store. This draws the house
+  monogram on pearl with a blue rule instead — so a product without a photo
   looks like it is waiting for one, not like the page failed to load.
 
   37 of the catalogue's products currently have no image, so this is on
@@ -21,33 +21,20 @@
   <svg class="pv-ph__art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="pvPhGround" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#FDFBF7"/>
-        <stop offset="100%" stop-color="#F2ECE1"/>
+        <stop offset="0%" stop-color="#EEF3FD"/>
+        <stop offset="100%" stop-color="#DDE6F7"/>
       </linearGradient>
     </defs>
 
     <rect width="400" height="500" fill="url(#pvPhGround)"/>
 
-    {%- comment -%} Gold hairline frame, inset. {%- endcomment -%}
-    <rect x="26" y="26" width="348" height="448" fill="none" stroke="#D4AF37" stroke-width="1" opacity="0.5"/>
+    {%- comment -%} Blue hairline frame, inset. {%- endcomment -%}
+    <rect x="26" y="26" width="348" height="448" fill="none" stroke="#0A5CFF" stroke-width="1" opacity="0.5"/>
 
-    {%- comment -%} Eight-petal lotus — the motif the catalogue already uses. {%- endcomment -%}
-    <g transform="translate(200 214)" fill="none" stroke="#580820" stroke-width="1.1" opacity="0.26">
-      <circle r="15"/>
-      <ellipse rx="9" ry="34"/>
-      <ellipse rx="9" ry="34" transform="rotate(45)"/>
-      <ellipse rx="9" ry="34" transform="rotate(90)"/>
-      <ellipse rx="9" ry="34" transform="rotate(135)"/>
-    </g>
 
-    <text x="200" y="322" text-anchor="middle"
-          font-family="'Playfair Display', Georgia, serif"
-          font-size="30" letter-spacing="9" fill="#580820" opacity="0.55">PAAVAI</text>
+    <text x="200" y="270" text-anchor="middle"
+          font-family="'Inter Tight', Inter, sans-serif" font-weight="800"
+          font-size="64" letter-spacing="2" fill="#0A1A3F" opacity="0.55">RS1</text>
 
-    <line x1="152" y1="346" x2="248" y2="346" stroke="#D4AF37" stroke-width="1.2" opacity="0.75"/>
-
-    <text x="200" y="374" text-anchor="middle"
-          font-family="Montserrat, sans-serif"
-          font-size="11" letter-spacing="4" fill="#1A1A1A" opacity="0.38">JEWELLERY</text>
   </svg>
 </span>

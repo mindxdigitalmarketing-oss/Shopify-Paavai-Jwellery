@@ -1,5 +1,5 @@
 {%- comment -%}
-  templates/cart.liquid — PAAVAI JEWELLERY cart page
+  templates/cart.liquid — RS1 cart page
 
   The theme already has a slide-out drawer (snippets/cart-drawer.liquid).
   This is the full page a shopper lands on from /cart, from the drawer's
@@ -108,7 +108,7 @@
           {%- endfor -%}
 
           <noscript>
-            <button type="submit" name="update" class="btn btn--outline-maroon btn--small">Update bag</button>
+            <button type="submit" name="update" class="btn btn--outline-navy btn--small">Update cart</button>
           </noscript>
         </div>
 
@@ -149,7 +149,7 @@
                       placeholder="e.g. gift wrap, engraving, delivery date">{{ cart.note }}</textarea>
           </label>
 
-          <button type="submit" name="checkout" class="btn btn--maroon btn--full btn--large">
+          <button type="submit" name="checkout" class="btn btn--navy btn--full btn--large">
             Proceed to Checkout
           </button>
 
@@ -158,9 +158,9 @@
           </a>
 
           <ul class="cart-summary__trust">
-            <li>&#10022; BIS Hallmarked Gold</li>
-            <li>&#10022; Fully insured delivery</li>
-            <li>&#10022; 15-day exchange</li>
+            <li>&#10022; Secure checkout</li>
+            <li>&#10022; Order tracking</li>
+            <li>&#10022; Support when you need it</li>
           </ul>
 
         </aside>
@@ -172,14 +172,12 @@
 
     <div class="empty-state">
       <span class="empty-state__mark" aria-hidden="true">&#10022;</span>
-      <h2 class="empty-state__title">Your bag is empty</h2>
+      <h2 class="empty-state__title">Your cart is empty</h2>
       <p class="empty-state__text">
-        Every Paavai piece is hallmarked, insured in transit and backed by a lifetime exchange.
-        Start with the bridal edit, or browse the full collection.
+        Add RS1 to your cart to get started.
       </p>
       <div class="empty-state__actions">
-        <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse the collection</a>
-        <a href="/collections/all/bridal" class="btn btn--outline-maroon">Bridal edit</a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--navy">Shop RS1</a>
       </div>
     </div>
 

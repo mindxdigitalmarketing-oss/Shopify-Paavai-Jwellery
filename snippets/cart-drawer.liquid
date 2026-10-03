@@ -1,5 +1,5 @@
 {%- comment -%}
-  snippets/cart-drawer.liquid — PAAVAI JEWELLERY Slide-Out AJAX Cart Drawer
+  snippets/cart-drawer.liquid — RS1 Slide-Out AJAX Cart Drawer
   Rendered globally from layout/theme.liquid. Controlled by assets/theme.js (CartDrawer module).
 {%- endcomment -%}
 
@@ -77,7 +77,7 @@
     {%- else -%}
       <div class="cart-drawer__empty" data-cart-drawer-empty>
         <p>Your bag is empty.</p>
-        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-maroon" data-cart-drawer-close>Continue Shopping</a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline-navy" data-cart-drawer-close>Continue Shopping</a>
       </div>
     {%- endif -%}
   </div>
@@ -91,10 +91,10 @@
       <span data-cart-drawer-subtotal>{{ cart.total_price | money }}</span>
     </div>
     <p class="cart-drawer__shipping-note">Taxes and shipping calculated at checkout.</p>
-    <a href="{{ routes.cart_url }}" class="btn btn--outline-maroon btn--full">View Bag</a>
-    <button type="button" class="btn btn--checkout-gold btn--full" data-checkout-btn>
+    <a href="{{ routes.cart_url }}" class="btn btn--outline-navy btn--full">View cart</a>
+    <button type="button" class="btn btn--checkout-blue btn--full" data-checkout-btn>
       <span>Proceed to Checkout</span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn--checkout-gold__arrow"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn--checkout-blue__arrow"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
     </button>
     <div class="cart-drawer__trust-row" aria-label="Secure checkout">
       <span class="cart-drawer__trust-item">
@@ -103,7 +103,7 @@
       </span>
       <span class="cart-drawer__trust-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="6"></circle><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"></path></svg>
-        Certified Hallmarked Gold
+        Delivered to your door
       </span>
     </div>
     <div class="cart-drawer__payment-icons" aria-label="Accepted payment methods">

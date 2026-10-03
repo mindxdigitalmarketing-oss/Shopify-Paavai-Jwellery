@@ -238,7 +238,7 @@
       if (cart.item_count === 0) {
         body.innerHTML = '<div class="cart-drawer__empty" data-cart-drawer-empty>' +
           '<p>Your bag is empty.</p>' +
-          '<a href="/collections/all" class="btn btn--outline-maroon" data-cart-drawer-close>Continue Shopping</a>' +
+          '<a href="/collections/all" class="btn btn--outline-navy" data-cart-drawer-close>Continue Shopping</a>' +
           '</div>';
         if (footer) { footer.hidden = true; }
         var closeLink = qs('[data-cart-drawer-close]', body);
@@ -790,7 +790,7 @@
             '<input type="hidden" name="id" value="' + variant.id + '" data-qv-variant-id>' +
             optionsHtml +
             '<div class="product-form__buttons">' +
-              '<button type="submit" name="add" class="btn btn--maroon btn--full btn--large" data-qv-add-btn' + (variant.available ? '' : ' disabled') + '>' +
+              '<button type="submit" name="add" class="btn btn--navy btn--full btn--large" data-qv-add-btn' + (variant.available ? '' : ' disabled') + '>' +
                 '<span data-qv-add-text>' + (variant.available ? 'Add to Cart &mdash; ' + formatMoney(variant.price) : 'Sold Out') + '</span>' +
               '</button>' +
             '</div>' +

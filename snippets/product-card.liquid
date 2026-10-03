@@ -54,15 +54,6 @@
       {%- endif -%}
     </a>
 
-    {%- comment -%} Karat badge — the first thing a gold buyer checks. {%- endcomment -%}
-    {%- if product.tags contains '24kt-gold' -%}
-      <span class="badge badge--karat">24KT</span>
-    {%- elsif product.tags contains '22kt-gold' -%}
-      <span class="badge badge--karat">22KT</span>
-    {%- elsif product.tags contains '18kt-gold' -%}
-      <span class="badge badge--karat">18KT</span>
-    {%- endif -%}
-
     {%- if product.compare_at_price > product.price -%}
       <span class="badge badge--sale">Sale</span>
     {%- endif -%}

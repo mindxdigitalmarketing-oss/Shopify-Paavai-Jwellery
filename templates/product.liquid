@@ -1,5 +1,5 @@
 {%- comment -%}
-  templates/product.liquid — PAAVAI JEWELLERY Product Detail Page
+  templates/product.liquid — RS1 Product Detail Page
   Image gallery + dynamic variant pricing + AJAX add-to-cart
 {%- endcomment -%}
 
@@ -78,7 +78,7 @@
 
       {%- if product.selected_or_first_available_variant.weight > 0 -%}
         <p class="product-info__weight" data-variant-weight>
-          Gross Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}
+          Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}
         </p>
       {%- endif -%}
 
@@ -126,7 +126,7 @@
           <button
             type="submit"
             name="add"
-            class="btn btn--maroon btn--full btn--large"
+            class="btn btn--navy btn--full btn--large"
             data-add-to-cart-btn
             {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
             <span data-add-to-cart-text>
@@ -137,7 +137,7 @@
               {%- endif -%}
             </span>
           </button>
-          <button type="button" class="btn btn--outline-maroon btn--full" data-buy-now-btn>Buy It Now</button>
+          <button type="button" class="btn btn--outline-navy btn--full" data-buy-now-btn>Buy It Now</button>
         </div>
       {%- endform -%}
 
@@ -148,7 +148,7 @@
         </span>
         <span class="product-info__ssl">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="6"></circle><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5"></path></svg>
-          Certified Hallmarked Gold
+          Secure payment: UPI, cards, netbanking
         </span>
         <div class="product-info__payment-icons">
           <span class="payment-chip">UPI</span>
@@ -159,10 +159,10 @@
       </div>
 
       <div class="product-info__trust-badges">
-        <div class="trust-badge"><span>&#10022;</span> BIS Hallmarked</div>
-        <div class="trust-badge"><span>&#10022;</span> Certificate of Authenticity</div>
-        <div class="trust-badge"><span>&#10022;</span> Free Insured Shipping</div>
-        <div class="trust-badge"><span>&#10022;</span> 15-Day Exchange</div>
+        <div class="trust-badge"><span>&#10022;</span> Secure checkout</div>
+        <div class="trust-badge"><span>&#10022;</span> Delivered to your door</div>
+        <div class="trust-badge"><span>&#10022;</span> Order tracking</div>
+        <div class="trust-badge"><span>&#10022;</span> Support when you need it</div>
       </div>
 
       {%- if product.tags contains 'sku' or product.variants.size > 0 -%}
@@ -170,30 +170,32 @@
       {%- endif -%}
 
       <details class="product-accordion" open>
-        <summary>Product Details &amp; Purity</summary>
+        <summary>Product details</summary>
         <div class="product-accordion__body">
           <ul>
             {%- if product.type != blank -%}<li>Category: {{ product.type }}</li>{%- endif -%}
-            {%- if product.selected_or_first_available_variant.weight > 0 -%}<li>Gross Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}</li>{%- endif -%}
+            {%- if product.selected_or_first_available_variant.weight > 0 -%}<li>Weight: {{ product.selected_or_first_available_variant.weight | weight_with_unit }}</li>{%- endif -%}
             {%- for option in product.options_with_values -%}
               <li>{{ option.name }}: {{ option.selected_value }}</li>
             {%- endfor -%}
-            <li>Care: Store in a dry, lined box; avoid contact with perfume, sweat and chemicals</li>
           </ul>
         </div>
       </details>
       <details class="product-accordion">
         <summary>Shipping &amp; Returns</summary>
         <div class="product-accordion__body">
-          <p>Complimentary fully-insured shipping across India, dispatched within 3&ndash;5 business days. 15-day exchange window on unworn, tagged pieces with original packaging and invoice.</p>
+          <p>See our <a href="/pages/shipping-policy">shipping</a> and <a href="/pages/refund-policy">returns &amp; refunds</a> policies for delivery times and how to return an order.</p>
         </div>
       </details>
+      {%- comment -%} Shown only when the product has the custom.ingredients metafield filled in. {%- endcomment -%}
+      {%- if product.metafields.custom.ingredients != blank -%}
       <details class="product-accordion">
-        <summary>Certification Info</summary>
+        <summary>Ingredients &amp; nutrition</summary>
         <div class="product-accordion__body">
-          <p>Every gold piece ships with its purity hallmark and an accompanying certificate of authenticity issued at the time of crafting. Diamond and gemstone pieces, where applicable, include the relevant gemological documentation in the box. Reach out to our support team via <a href="/pages/contact-us">Contact Us</a> if you'd like a copy re-sent.</p>
+          {{ product.metafields.custom.ingredients }}
         </div>
       </details>
+      {%- endif -%}
     </div>
   </div>
 
@@ -202,8 +204,8 @@
   {%- if related_collection -%}
     <section class="related-products">
       <div class="section-heading">
-        <p class="section-heading__eyebrow">You May Also Like</p>
-        <h2 class="section-heading__title">Complete The Look</h2>
+        <p class="section-heading__eyebrow">You may also like</p>
+        <h2 class="section-heading__title">More from RS1</h2>
       </div>
       <div class="product-grid">
         {%- assign related_count = 0 -%}
