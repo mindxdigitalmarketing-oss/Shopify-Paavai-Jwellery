@@ -35,7 +35,7 @@
                    alt="{{ collection.featured_image.alt | default: collection.title | escape }}"
                    loading="lazy" width="900" height="1200" class="category-card__img">
             {%- else -%}
-              {%- render 'paavai-placeholder', title: collection.title -%}
+              {%- render 'rs1-placeholder', title: collection.title -%}
             {%- endif -%}
             <span class="category-card__overlay" aria-hidden="true"></span>
             <span class="category-card__title">{{ collection.title }}</span>

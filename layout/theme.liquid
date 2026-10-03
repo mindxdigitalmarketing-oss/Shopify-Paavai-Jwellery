@@ -65,11 +65,11 @@
     cart, search, page, 404 and the collections index. Loaded second so it
     wins on equal specificity. Same maroon tokens, no new colours.
   {%- endcomment -%}
-  {{ 'paavai-pages.css' | asset_url | stylesheet_tag }}
+  {{ 'rs1-pages.css' | asset_url | stylesheet_tag }}
   {{ 'rs1-home.css' | asset_url | stylesheet_tag }}
 
   <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
-  <script src="{{ 'paavai-pages.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'rs1-pages.js' | asset_url }}" defer="defer"></script>
 
   {%- render 'social-meta-tags' -%}
 </head>

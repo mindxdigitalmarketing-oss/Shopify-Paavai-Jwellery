@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PAAVAI JEWELLERY — theme.js
+   RS1 — theme.js
    Vanilla JS: AJAX cart, cart drawer, mobile nav, product gallery,
    variant selection with dynamic pricing.
    No external dependencies. Safe to defer-load.
@@ -861,7 +861,7 @@
     QuickView.init();
   });
 
-  window.PaavaiTheme = {
+  window.RS1Theme = {
     Cart: Cart,
     CartDrawer: CartDrawer,
     FeaturedCarousel: FeaturedCarousel,

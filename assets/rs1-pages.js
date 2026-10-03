@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PAAVAI — behaviour for the storefront pages added alongside theme.js
+   RS1 — behaviour for the storefront pages added alongside theme.js
    ========================================================================== */
 (function () {
   'use strict';

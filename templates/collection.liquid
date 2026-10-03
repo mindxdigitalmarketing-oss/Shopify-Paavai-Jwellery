@@ -79,7 +79,7 @@
         {%- endif -%}
 
         {%- comment -%}
-          Submits on change via paavai-pages.js, and still works through
+          Submits on change via rs1-pages.js, and still works through
           the Apply button when JavaScript is unavailable.
         {%- endcomment -%}
         <form method="get" action="{{ collection.url }}" class="collection-sort" data-collection-sort>
@@ -94,7 +94,7 @@
           </select>
           {%- comment -%}
             Always rendered, so sorting works with no JavaScript.
-            paavai-pages.js hides it and submits on change instead.
+            rs1-pages.js hides it and submits on change instead.
           {%- endcomment -%}
           <button type="submit" class="btn btn--outline-navy btn--small" data-sort-apply>Apply</button>
         </form>

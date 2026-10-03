@@ -1,5 +1,5 @@
 {%- comment -%}
-  snippets/paavai-placeholder.liquid
+  snippets/rs1-placeholder.liquid
   --------------------------------------------------------------------------
   Shown where a product has no photograph yet.
 
@@ -13,8 +13,8 @@
   shouting at the shopper from every card.
 
   Usage:
-    {%- render 'paavai-placeholder' -%}
-    {%- render 'paavai-placeholder', title: product.title -%}
+    {%- render 'rs1-placeholder' -%}
+    {%- render 'rs1-placeholder', title: product.title -%}
 {%- endcomment -%}
 
 <span class="pv-ph" role="img" aria-label="{{ title | default: 'Photograph coming soon' | escape }}">

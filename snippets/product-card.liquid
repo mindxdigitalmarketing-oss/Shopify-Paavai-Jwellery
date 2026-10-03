@@ -7,7 +7,7 @@
 
   Two deliberate differences from the version it was extracted from:
 
-  1. No-image products render the house monogram (paavai-placeholder)
+  1. No-image products render the house monogram (rs1-placeholder)
      rather than Shopify's grey camera icon.
   2. The quick-add button no longer says "Sold Out". Every product is now
      set to continue selling when out of stock, so `available` is true
@@ -50,7 +50,7 @@
             class="product-card__media-hover">
         {%- endif -%}
       {%- else -%}
-        {%- render 'paavai-placeholder', title: product.title -%}
+        {%- render 'rs1-placeholder', title: product.title -%}
       {%- endif -%}
     </a>
 
