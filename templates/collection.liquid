@@ -1,5 +1,5 @@
 {%- comment -%}
-  templates/collection.liquid — PAAVAI JEWELLERY collection / category page
+  templates/collection.liquid — RS1 collection / category page
 
   Handles three routes with one template, which is why the header logic
   looks fussier than a plain collection page:
@@ -32,7 +32,7 @@
     {%- comment -%} ============ HEADER ============ {%- endcomment -%}
     <header class="page-header container">
       <p class="page-header__eyebrow">
-        {%- if current_tags -%}Curated Edit{%- else -%}Collection{%- endif -%}
+        {%- if current_tags -%}Filtered{%- else -%}Collection{%- endif -%}
       </p>
       <h1 class="page-header__title">
         {%- if current_tags -%}
@@ -47,7 +47,7 @@
       {%- endif -%}
 
       <p class="page-header__count">
-        {{ paginate.items }} {% if paginate.items == 1 %}piece{% else %}pieces{% endif %}
+        {{ paginate.items }} {% if paginate.items == 1 %}product{% else %}products{% endif %}
       </p>
     </header>
 
@@ -79,7 +79,7 @@
         {%- endif -%}
 
         {%- comment -%}
-          Submits on change via paavai-pages.js, and still works through
+          Submits on change via rs1-pages.js, and still works through
           the Apply button when JavaScript is unavailable.
         {%- endcomment -%}
         <form method="get" action="{{ collection.url }}" class="collection-sort" data-collection-sort>
@@ -94,9 +94,9 @@
           </select>
           {%- comment -%}
             Always rendered, so sorting works with no JavaScript.
-            paavai-pages.js hides it and submits on change instead.
+            rs1-pages.js hides it and submits on change instead.
           {%- endcomment -%}
-          <button type="submit" class="btn btn--outline-maroon btn--small" data-sort-apply>Apply</button>
+          <button type="submit" class="btn btn--outline-navy btn--small" data-sort-apply>Apply</button>
         </form>
 
       </div>
@@ -116,12 +116,12 @@
           <h2 class="empty-state__title">Nothing here just yet</h2>
           <p class="empty-state__text">
             {%- if current_tags -%}
-              We have no pieces tagged &ldquo;{{ current_tags | join: ', ' }}&rdquo; at the moment.
+              We have no products tagged &ldquo;{{ current_tags | join: ', ' }}&rdquo; at the moment.
             {%- else -%}
-              This collection is being restocked. Our other edits are worth a look in the meantime.
+              There are no products here yet. Check back soon.
             {%- endif -%}
           </p>
-          <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse everything</a>
+          <a href="{{ routes.all_products_collection_url }}" class="btn btn--navy">Shop RS1</a>
         </div>
       {%- endif -%}
     </div>

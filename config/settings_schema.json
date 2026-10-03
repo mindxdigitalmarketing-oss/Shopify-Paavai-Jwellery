@@ -1,9 +1,9 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Paavai Jewellery",
+    "theme_name": "RS1",
     "theme_version": "1.0.0",
-    "theme_author": "PAAVAI JEWELLERY",
+    "theme_author": "RS1",
     "theme_documentation_url": "https://github.com/",
     "theme_support_url": "https://github.com/"
   },
@@ -80,25 +80,25 @@
     "settings": [
       {
         "type": "header",
-        "content": "Reference only — core palette is hardcoded in theme.css as CSS variables (--color-maroon, --color-gold, --color-pearl) for design consistency."
+        "content": "Reference only — core palette is hardcoded in theme.css as CSS variables (--color-navy, --color-blue, --color-mist) for design consistency."
       },
       {
         "type": "color",
-        "id": "color_maroon",
-        "label": "Royal Maroon",
-        "default": "#580820"
+        "id": "color_navy",
+        "label": "Navy",
+        "default": "#0A1A3F"
       },
       {
         "type": "color",
-        "id": "color_gold",
-        "label": "Metallic Gold",
-        "default": "#D4AF37"
+        "id": "color_blue",
+        "label": "Bright Blue",
+        "default": "#0A5CFF"
       },
       {
         "type": "color",
-        "id": "color_pearl",
-        "label": "Warm Off-White",
-        "default": "#FDFBF7"
+        "id": "color_mist",
+        "label": "Mist (page background)",
+        "default": "#EEF3FD"
       }
     ]
   }

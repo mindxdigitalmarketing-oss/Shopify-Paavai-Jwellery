@@ -7,7 +7,7 @@
 
   Two deliberate differences from the version it was extracted from:
 
-  1. No-image products render the house monogram (paavai-placeholder)
+  1. No-image products render the house monogram (rs1-placeholder)
      rather than Shopify's grey camera icon.
   2. The quick-add button no longer says "Sold Out". Every product is now
      set to continue selling when out of stock, so `available` is true
@@ -50,18 +50,9 @@
             class="product-card__media-hover">
         {%- endif -%}
       {%- else -%}
-        {%- render 'paavai-placeholder', title: product.title -%}
+        {%- render 'rs1-placeholder', title: product.title -%}
       {%- endif -%}
     </a>
-
-    {%- comment -%} Karat badge — the first thing a gold buyer checks. {%- endcomment -%}
-    {%- if product.tags contains '24kt-gold' -%}
-      <span class="badge badge--karat">24KT</span>
-    {%- elsif product.tags contains '22kt-gold' -%}
-      <span class="badge badge--karat">22KT</span>
-    {%- elsif product.tags contains '18kt-gold' -%}
-      <span class="badge badge--karat">18KT</span>
-    {%- endif -%}
 
     {%- if product.compare_at_price > product.price -%}
       <span class="badge badge--sale">Sale</span>

@@ -1,5 +1,5 @@
 {%- comment -%}
-  templates/search.liquid — PAAVAI JEWELLERY search results
+  templates/search.liquid — RS1 search results
 
   The header already has a search overlay. This is the results page it
   posts to, and the page a shopper reaches from a bookmarked or shared
@@ -31,7 +31,7 @@
           <p class="page-header__count">for &ldquo;{{ terms | escape }}&rdquo;</p>
         {%- endif -%}
       {%- else -%}
-        <h1 class="page-header__title">Find your piece</h1>
+        <h1 class="page-header__title">Search the store</h1>
       {%- endif -%}
     </header>
 
@@ -42,11 +42,11 @@
              id="SearchPageInput"
              name="q"
              value="{{ terms | escape }}"
-             placeholder="Try &ldquo;temple haram&rdquo; or &ldquo;22KT choker&rdquo;"
+             placeholder="Search RS1"
              autocomplete="off"
              class="search-form__input">
       <input type="hidden" name="options[prefix]" value="last">
-      <button type="submit" class="btn btn--maroon">Search</button>
+      <button type="submit" class="btn btn--navy">Search</button>
     </form>
 
     {%- if search.performed -%}
@@ -102,7 +102,7 @@
             such as &ldquo;nakshi&rdquo;, &ldquo;jadau&rdquo; or &ldquo;victorian&rdquo;.
           </p>
           <div class="empty-state__actions">
-            <a href="{{ routes.all_products_collection_url }}" class="btn btn--maroon">Browse everything</a>
+            <a href="{{ routes.all_products_collection_url }}" class="btn btn--navy">Shop RS1</a>
           </div>
         </div>
 
@@ -114,13 +114,8 @@
       <div class="search-suggest">
         <p class="search-suggest__label">Popular searches</p>
         <div class="collection-filters">
-          <a href="{{ routes.search_url }}?q=temple" class="filter-chip">Temple</a>
-          <a href="{{ routes.search_url }}?q=jadau" class="filter-chip">Jadau</a>
-          <a href="{{ routes.search_url }}?q=nakshi" class="filter-chip">Nakshi</a>
-          <a href="{{ routes.search_url }}?q=victorian" class="filter-chip">Victorian</a>
-          <a href="{{ routes.search_url }}?q=choker" class="filter-chip">Chokers</a>
-          <a href="{{ routes.search_url }}?q=haram" class="filter-chip">Harams</a>
-          <a href="{{ routes.search_url }}?q=bridal" class="filter-chip">Bridal</a>
+          <a href="{{ routes.search_url }}?q=rs1" class="filter-chip">RS1</a>
+          <a href="{{ routes.search_url }}?q=subscription" class="filter-chip">Subscription</a>
         </div>
       </div>
 

@@ -1,0 +1,40 @@
+{%- comment -%}
+  snippets/rs1-placeholder.liquid
+  --------------------------------------------------------------------------
+  Shown where a product has no photograph yet.
+
+  Shopify's built-in `placeholder_svg_tag` draws a grey camera icon, which
+  reads as a broken image on a store. This draws the house
+  monogram on pearl with a blue rule instead — so a product without a photo
+  looks like it is waiting for one, not like the page failed to load.
+
+  37 of the catalogue's products currently have no image, so this is on
+  screen a lot. It is deliberately quiet: no "image coming soon" text
+  shouting at the shopper from every card.
+
+  Usage:
+    {%- render 'rs1-placeholder' -%}
+    {%- render 'rs1-placeholder', title: product.title -%}
+{%- endcomment -%}
+
+<span class="pv-ph" role="img" aria-label="{{ title | default: 'Photograph coming soon' | escape }}">
+  <svg class="pv-ph__art" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="pvPhGround" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#EEF3FD"/>
+        <stop offset="100%" stop-color="#DDE6F7"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="400" height="500" fill="url(#pvPhGround)"/>
+
+    {%- comment -%} Blue hairline frame, inset. {%- endcomment -%}
+    <rect x="26" y="26" width="348" height="448" fill="none" stroke="#0A5CFF" stroke-width="1" opacity="0.5"/>
+
+
+    <text x="200" y="270" text-anchor="middle"
+          font-family="'Inter Tight', Inter, sans-serif" font-weight="800"
+          font-size="64" letter-spacing="2" fill="#0A1A3F" opacity="0.55">RS1</text>
+
+  </svg>
+</span>

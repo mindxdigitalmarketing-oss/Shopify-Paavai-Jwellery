@@ -1,9 +1,9 @@
-/* ==========================================================================
-   PAAVAI JEWELLERY — styles for the storefront pages that theme.css
+﻿/* ==========================================================================
+   RS1 â€” styles for the storefront pages that theme.css
    never covered: collection, cart, search, page, 404, list-collections.
    --------------------------------------------------------------------------
    Loaded after theme.css. Uses the live maroon/gold/pearl tokens defined in
-   layout/theme.liquid — no colour is restated here, so the Theme Editor
+   layout/theme.liquid â€” no colour is restated here, so the Theme Editor
    pickers still drive everything.
    ========================================================================== */
 
@@ -14,7 +14,7 @@
   padding: 24px 0 0;
   font-size: 0.78rem;
   letter-spacing: 0.04em;
-  color: #7a6a6e;
+  color: #5B6578;
 }
 .breadcrumb ol {
   display: flex;
@@ -29,8 +29,8 @@
   margin-right: 8px;
   opacity: 0.45;
 }
-.breadcrumb a:hover { color: var(--color-maroon); text-decoration: underline; }
-.breadcrumb [aria-current='page'] { color: var(--color-maroon); font-weight: 500; }
+.breadcrumb a:hover { color: var(--color-navy); text-decoration: underline; }
+.breadcrumb [aria-current='page'] { color: var(--color-navy); font-weight: 500; }
 
 .page-header {
   padding: 40px 0 32px;
@@ -42,14 +42,14 @@
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--color-gold-dark);
+  color: var(--color-blue-dark);
 }
 .page-header__title {
   margin: 0;
   font-family: var(--font-heading);
   font-size: clamp(1.9rem, 3.4vw, 2.9rem);
   font-weight: 500;
-  color: var(--color-maroon);
+  color: var(--color-navy);
   line-height: 1.15;
 }
 .page-header__title::after {
@@ -58,7 +58,7 @@
   width: 54px;
   height: 2px;
   margin: 16px auto 0;
-  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-blue), transparent);
 }
 .page-header__description,
 .page-header__count {
@@ -66,7 +66,7 @@
   margin: 16px auto 0;
   font-size: 0.9rem;
   line-height: 1.65;
-  color: #6b5b5f;
+  color: #5B6578;
 }
 .page-header__count {
   font-size: 0.78rem;
@@ -90,13 +90,13 @@
 
 /* --------------------------------------------------------------------------
    3. BRANDED PLACEHOLDER
-   Fills whatever box it is dropped into — card media, cart thumb, tile.
+   Fills whatever box it is dropped into â€” card media, cart thumb, tile.
    -------------------------------------------------------------------------- */
 .pv-ph {
   display: block;
   width: 100%;
   height: 100%;
-  background-color: var(--color-pearl);
+  background-color: var(--color-mist);
   overflow: hidden;
 }
 .pv-ph__art {
@@ -107,7 +107,7 @@
 }
 /* Card media has a fixed ratio; make sure the placeholder honours it. */
 .product-card__media .pv-ph { position: absolute; inset: 0; }
-.product-card__media:has(.pv-ph) { background-color: var(--color-pearl); }
+.product-card__media:has(.pv-ph) { background-color: var(--color-mist); }
 
 /* --------------------------------------------------------------------------
    4. KARAT BADGE
@@ -117,8 +117,8 @@
   top: 12px;
   left: 12px;
   z-index: 2;
-  background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
-  color: var(--color-maroon-dark);
+  background: linear-gradient(135deg, var(--color-blue-light), var(--color-blue));
+  color: var(--color-navy-dark);
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -160,12 +160,12 @@
   transition: all var(--transition-base);
 }
 .filter-chip:hover {
-  border-color: var(--color-gold);
-  color: var(--color-maroon);
+  border-color: var(--color-blue);
+  color: var(--color-navy);
 }
 .filter-chip.is-active {
-  background-color: var(--color-maroon);
-  border-color: var(--color-maroon);
+  background-color: var(--color-navy);
+  border-color: var(--color-navy);
   color: #fff;
 }
 
@@ -175,7 +175,7 @@
   gap: 10px;
   font-size: 0.78rem;
   letter-spacing: 0.06em;
-  color: #6b5b5f;
+  color: #5B6578;
 }
 .collection-sort__select {
   padding: 9px 14px;
@@ -187,7 +187,7 @@
   cursor: pointer;
 }
 .collection-sort__select:focus-visible {
-  outline: 2px solid var(--color-gold-dark);
+  outline: 2px solid var(--color-blue-dark);
   outline-offset: 2px;
 }
 
@@ -220,9 +220,9 @@
   color: var(--color-ink);
   transition: all var(--transition-base);
 }
-.pagination__link:hover { background-color: var(--color-pearl-dark); color: var(--color-maroon); }
+.pagination__link:hover { background-color: var(--color-mist-dark); color: var(--color-navy); }
 .pagination__link.is-current {
-  background-color: var(--color-maroon);
+  background-color: var(--color-navy);
   color: #fff;
   font-weight: 600;
 }
@@ -243,7 +243,7 @@
 .empty-state__mark {
   display: block;
   font-size: 1.8rem;
-  color: var(--color-gold);
+  color: var(--color-blue);
   margin-bottom: 20px;
 }
 .empty-state__title {
@@ -251,13 +251,13 @@
   font-family: var(--font-heading);
   font-size: clamp(1.4rem, 2.4vw, 2rem);
   font-weight: 500;
-  color: var(--color-maroon);
+  color: var(--color-navy);
 }
 .empty-state__text {
   margin: 0 0 28px;
   font-size: 0.92rem;
   line-height: 1.7;
-  color: #6b5b5f;
+  color: #5B6578;
 }
 .empty-state__actions {
   display: flex;
@@ -291,7 +291,7 @@
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #8a7a7e;
+  color: #8A94A6;
 }
 .cart-items__head span:first-child { grid-column: 1 / 3; }
 .cart-items__head span:nth-child(2) { text-align: center; }
@@ -327,7 +327,7 @@
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: var(--radius-md);
-  background-color: var(--color-pearl-dark);
+  background-color: var(--color-mist-dark);
 }
 .cart-item__media img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -338,12 +338,12 @@
   font-weight: 500;
   line-height: 1.35;
 }
-.cart-item__title a:hover { color: var(--color-maroon); }
+.cart-item__title a:hover { color: var(--color-navy); }
 .cart-item__variant,
 .cart-item__unit {
   margin: 0;
   font-size: 0.78rem;
-  color: #7a6a6e;
+  color: #5B6578;
 }
 .cart-item__unit { margin-top: 6px; }
 .cart-item__discounts {
@@ -351,7 +351,7 @@
   padding: 0;
   list-style: none;
   font-size: 0.75rem;
-  color: var(--color-gold-dark);
+  color: var(--color-blue-dark);
 }
 
 .cart-item__quantity { display: grid; gap: 8px; justify-items: center; }
@@ -359,18 +359,18 @@
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #8a7a7e;
+  color: #8A94A6;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.cart-item__remove:hover { color: var(--color-maroon); }
+.cart-item__remove:hover { color: var(--color-navy); }
 
 .cart-item__total { text-align: right; font-weight: 600; }
 .cart-item__total .price--compare {
   display: block;
   font-weight: 400;
   font-size: 0.8rem;
-  color: #8a7a7e;
+  color: #8A94A6;
   text-decoration: line-through;
 }
 
@@ -380,7 +380,7 @@
   top: 24px;
   padding: 28px 26px;
   border-radius: var(--radius-md);
-  background-color: var(--color-pearl);
+  background-color: var(--color-mist);
   box-shadow: var(--shadow-soft), inset 0 0 0 1px var(--color-line);
 }
 .cart-summary__title {
@@ -388,7 +388,7 @@
   font-family: var(--font-heading);
   font-size: 1.15rem;
   font-weight: 500;
-  color: var(--color-maroon);
+  color: var(--color-navy);
 }
 .cart-summary__row {
   display: flex;
@@ -397,7 +397,7 @@
   padding: 10px 0;
   font-size: 0.88rem;
 }
-.cart-summary__row--discount { color: var(--color-gold-dark); }
+.cart-summary__row--discount { color: var(--color-blue-dark); }
 .cart-summary__row--total {
   margin-top: 8px;
   padding-top: 16px;
@@ -405,13 +405,13 @@
   font-family: var(--font-heading);
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-maroon);
+  color: var(--color-navy);
 }
 .cart-summary__free { color: #1f7a4d; font-weight: 500; }
 .cart-summary__tax {
   margin: 4px 0 20px;
   font-size: 0.74rem;
-  color: #8a7a7e;
+  color: #8A94A6;
 }
 
 .cart-note { display: block; margin-bottom: 20px; }
@@ -421,7 +421,7 @@
   font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6b5b5f;
+  color: #5B6578;
 }
 .cart-note textarea {
   width: 100%;
@@ -432,7 +432,7 @@
   font-size: 0.85rem;
   resize: vertical;
 }
-.cart-note textarea:focus-visible { outline: 2px solid var(--color-gold-dark); outline-offset: 1px; }
+.cart-note textarea:focus-visible { outline: 2px solid var(--color-blue-dark); outline-offset: 1px; }
 
 .cart-summary__continue {
   display: block;
@@ -441,11 +441,11 @@
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #6b5b5f;
+  color: #5B6578;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.cart-summary__continue:hover { color: var(--color-maroon); }
+.cart-summary__continue:hover { color: var(--color-navy); }
 
 .cart-summary__trust {
   margin: 24px 0 0;
@@ -455,7 +455,7 @@
   display: grid;
   gap: 8px;
   font-size: 0.75rem;
-  color: #6b5b5f;
+  color: #5B6578;
 }
 
 /* --------------------------------------------------------------------------
@@ -480,7 +480,7 @@
   background-color: #fff;
   font-size: 0.92rem;
 }
-.search-form__input:focus-visible { outline: 2px solid var(--color-gold-dark); outline-offset: 1px; }
+.search-form__input:focus-visible { outline: 2px solid var(--color-blue-dark); outline-offset: 1px; }
 
 .search-suggest { text-align: center; padding-bottom: 72px; }
 .search-suggest__label {
@@ -488,7 +488,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #8a7a7e;
+  color: #8A94A6;
 }
 .search-suggest .collection-filters { justify-content: center; }
 
@@ -498,7 +498,7 @@
   font-family: var(--font-heading);
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--color-maroon);
+  color: var(--color-navy);
 }
 .search-content__list { margin: 0; padding: 0; list-style: none; }
 .search-content__list li + li { border-top: 1px solid var(--color-line); }
@@ -509,14 +509,14 @@
   gap: 16px;
   padding: 14px 0;
 }
-.search-content__list a:hover .search-content__title { color: var(--color-maroon); }
+.search-content__list a:hover .search-content__title { color: var(--color-navy); }
 .search-content__title { font-size: 0.92rem; }
 .search-content__type {
   flex: none;
   font-size: 0.68rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8a7a7e;
+  color: #8A94A6;
 }
 
 /* --------------------------------------------------------------------------
@@ -526,7 +526,7 @@
 .static-page__body { max-width: 68ch; margin: 0 auto; }
 .static-page__body .rte { font-size: 0.95rem; line-height: 1.8; color: #4a3f42; }
 .static-page__body .rte h2,
-.static-page__body .rte h3 { color: var(--color-maroon); margin-top: 2em; }
+.static-page__body .rte h3 { color: var(--color-navy); margin-top: 2em; }
 .static-page__body .rte img { border-radius: var(--radius-md); margin: 1.5em 0; }
 
 .collections-page { padding-bottom: 88px; }
@@ -545,7 +545,7 @@
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8a7a7e;
+  color: #8A94A6;
 }
 
 .error-page { padding-bottom: 40px; }
