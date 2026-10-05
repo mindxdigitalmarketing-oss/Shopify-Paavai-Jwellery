@@ -15,6 +15,7 @@ Orders are tagged TEST-DATA, no receipts are sent, customers use mindx.digitalma
 """
 import json
 import random
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from openpyxl import Workbook
@@ -35,11 +36,17 @@ SKU = {
 # Orders already created in the store by an earlier (trial) import; Matrixify refuses NEW for an existing name.
 ALREADY_IMPORTED = {"#2001", "#2004", "#2005", "#2007", "#2008", "#2009", "#2010", "#2014"}
 
+#   python scripts/make-rs1-matrixify-xlsx.py [COUNT]   (default 300, max 992)
+COUNT = int(sys.argv[1]) if len(sys.argv) > 1 else 300
+BATCH_SIZE = 10  # Matrixify's free plan imports at most 10 orders per job
 rng = random.Random(20261005)
-COMBOS = [("fulfilled", "paid", 300), ("fulfilled", "unpaid", 200), ("unfulfilled", "paid", 250), ("unfulfilled", "unpaid", 250)]
-assignment = [(f, p) for f, p, n in COMBOS for _ in range(n)]
-assert len(assignment) == len(orders), f"expected {len(assignment)} orders, got {len(orders)}"
+# 30% fulfilled+paid, 20% fulfilled+unpaid, 25% unfulfilled+paid, 25% unfulfilled+unpaid
+COMBOS = [("fulfilled", "paid", 0.30), ("fulfilled", "unpaid", 0.20), ("unfulfilled", "paid", 0.25), ("unfulfilled", "unpaid", 0.25)]
+assignment = [(f, p) for f, p, share in COMBOS for _ in range(round(COUNT * share))]
+assert len(assignment) == COUNT, f"COUNT {COUNT} does not split evenly into the four combinations"
 rng.shuffle(assignment)
+selected = [(i, o) for i, o in enumerate(orders) if f"#{FIRST_NUMBER + i}" not in ALREADY_IMPORTED][:COUNT]
+assert len(selected) == COUNT, f"only {len(selected)} orders available in the preview"
 CHANNELS = [("website", 35), ("amazon", 20), ("flipkart", 20), ("delhivery", 10), ("instagram", 8), ("whatsapp", 7)]
 COURIER = {"amazon": "Amazon Logistics", "flipkart": "Ekart Logistics", "delhivery": "Delhivery"}
 OTHER_COURIERS = ["Delhivery", "DTDC", "India Post", "Blue Dart"]
@@ -56,16 +63,24 @@ header = [
     "Fulfillment: Status", "Fulfillment: Processed At", "Fulfillment: Notify Customer", "Fulfillment: Tracking Company", "Fulfillment: Tracking Number", "Fulfillment: Shipment Status",
 ]
 
-wb = Workbook()
-ws = wb.active
-ws.title = "Orders"
-ws.append(header)
-for c in ws[1]:
-    c.font = Font(bold=True)
+all_rows = []  # (order name, cell values)
 
 
 def row(**kw):
-    ws.append([kw.get(h, "") for h in header])
+    all_rows.append((kw["Name"], [kw.get(h, "") for h in header]))
+
+
+def save(path, rows):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Orders"
+    ws.append(header)
+    for c in ws[1]:
+        c.font = Font(bold=True)
+    for _, vals in rows:
+        ws.append(vals)
+    ws.freeze_panes = "B2"
+    wb.save(path)
 
 
 def addr(prefix, a):
@@ -83,12 +98,10 @@ def money(x):
 
 summary = {}
 now = datetime.now(timezone.utc)
-for i, o in enumerate(orders):
+for k, (i, o) in enumerate(selected):
     name = f"#{FIRST_NUMBER + i}"
-    f_state, p_state = assignment[i]  # drawn before the skip so the mix stays the same
+    f_state, p_state = assignment[k]
     channel = rng.choices([c for c, _ in CHANNELS], [w for _, w in CHANNELS])[0]
-    if name in ALREADY_IMPORTED:
-        continue
     cu = o["customer"]["toUpsert"]
     fulfilled, paid = f_state == "fulfilled", p_state == "paid"
     summary[channel] = summary.get(channel, 0) + 1
@@ -135,8 +148,19 @@ for i, o in enumerate(orders):
     if paid:
         row(**{"Name": name, "Transaction: Kind": "sale", "Transaction: Status": "success", "Transaction: Amount": f"{total:.2f}", "Transaction: Gateway": "manual"})
 
-ws.freeze_panes = "B2"
-out = root / "scripts/out/rs1_orders_matrixify.xlsx"
-wb.save(out)
-print(f"Wrote {len(orders)} orders ({ws.max_row - 1} rows) to {out}")
+suffix = f"_{COUNT}"
+out = root / f"scripts/out/rs1_orders_matrixify{suffix}.xlsx"
+save(out, all_rows)
+print(f"Wrote {COUNT} orders ({len(all_rows)} rows) to {out}")
+
+# Same orders split into files of BATCH_SIZE orders each, for plans with a per-job limit.
+names = list(dict.fromkeys(n for n, _ in all_rows))
+batch_dir = root / f"scripts/out/batches{suffix}"
+batch_dir.mkdir(parents=True, exist_ok=True)
+for old in batch_dir.glob("*.xlsx"):
+    old.unlink()
+for b in range(0, len(names), BATCH_SIZE):
+    chunk = set(names[b:b + BATCH_SIZE])
+    save(batch_dir / f"rs1_orders_part_{b // BATCH_SIZE + 1:03d}.xlsx", [r for r in all_rows if r[0] in chunk])
+print(f"Also wrote {-(-len(names) // BATCH_SIZE)} batch files of {BATCH_SIZE} orders to {batch_dir}")
 print("Channels:", dict(sorted(summary.items(), key=lambda kv: -kv[1])))
