@@ -37,7 +37,7 @@ const SEED = Number(args.seed ?? 20261001);
 const BATCH = String(args.batch ?? 'rs1-test-2026-10');
 const LIVE = args.live === true;
 const API_VERSION = '2025-07';
-const CURRENCY = 'USD'; // the store's currency (prices are used as-is)
+const CURRENCY = 'USD'; // the store's currency; amounts are left as-is and can be rescaled in the spreadsheet
 
 // ---------- seeded random, so the same --seed gives the same 100 orders ----------
 function mulberry32(a) {
@@ -76,8 +76,8 @@ const areas = ['Anna Nagar', 'T Nagar', 'RS Puram', 'Adyar', 'Indiranagar', 'Jub
 
 // Preview-only catalogue, used when not connected. In --live the real products are fetched.
 const SAMPLE_CATALOG = [
-  { title: 'RS1 Daily Drink: Monthly Pack - Monthly (30 servings)', price: 299 }, { title: 'RS1 Daily Drink: Travel Packs - 14 single-serve packs', price: 499 },
-  { title: 'RS1 Starter Bundle', price: 599 }, { title: 'RS1 Shaker Bottle - Navy', price: 399 }, { title: 'RS1 Sample Pack - 5 single-serve packs', price: 399 },
+  { title: 'RS1 Daily Drink: Monthly Pack - Monthly (30 servings)', price: 299, variantId: 'gid://shopify/ProductVariant/50598542213337' }, { title: 'RS1 Daily Drink: Travel Packs - 14 single-serve packs', price: 499, variantId: 'gid://shopify/ProductVariant/50598542377177' },
+  { title: 'RS1 Starter Bundle', price: 599, variantId: 'gid://shopify/ProductVariant/50598542475481' }, { title: 'RS1 Shaker Bottle - Navy', price: 399, variantId: 'gid://shopify/ProductVariant/50598542573785' }, { title: 'RS1 Sample Pack - 5 single-serve packs', price: 399, variantId: 'gid://shopify/ProductVariant/50598542770393' },
 ];
 
 // ---------- order generation ----------
