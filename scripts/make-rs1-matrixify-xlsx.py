@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Turns scripts/out/seed-preview.json (made by `node scripts/seed-rs1-orders.mjs`, preview mode)
 into a Matrixify-format Excel file: scripts/out/rs1_orders_matrixify.xlsx
@@ -33,7 +33,7 @@ SKU = {
 }
 
 # Orders already created in the store by an earlier (trial) import; Matrixify refuses NEW for an existing name.
-ALREADY_IMPORTED = {"#2001", "#2004", "#2005", "#2007", "#2008", "#2009", "#2010"}
+ALREADY_IMPORTED = {"#2001", "#2004", "#2005", "#2007", "#2008", "#2009", "#2010", "#2014"}
 
 rng = random.Random(20261005)
 COMBOS = [("fulfilled", "paid", 300), ("fulfilled", "unpaid", 200), ("unfulfilled", "paid", 250), ("unfulfilled", "unpaid", 250)]
@@ -53,7 +53,7 @@ header = [
     "Line: Type", "Line: Title", "Line: SKU", "Line: Quantity", "Line: Price", "Line: Requires Shipping", "Line: Taxable", "Line: Fulfillment Status",
     "Shipping Line: Title", "Shipping Line: Price",
     "Transaction: Kind", "Transaction: Status", "Transaction: Amount", "Transaction: Gateway",
-    "Fulfillment: Status", "Fulfillment: Processed At", "Fulfillment: Notify Customer", "Fulfillment: Tracking Company", "Fulfillment: Tracking Number",
+    "Fulfillment: Status", "Fulfillment: Processed At", "Fulfillment: Notify Customer", "Fulfillment: Tracking Company", "Fulfillment: Tracking Number", "Fulfillment: Shipment Status",
 ]
 
 wb = Workbook()
@@ -129,7 +129,7 @@ for i, o in enumerate(orders):
             if li == 0:
                 f.update({
                     "Fulfillment: Status": "success", "Fulfillment: Processed At": shipped.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-                    "Fulfillment: Notify Customer": "FALSE", "Fulfillment: Tracking Company": courier, "Fulfillment: Tracking Number": track,
+                    "Fulfillment: Notify Customer": "FALSE", "Fulfillment: Tracking Company": courier, "Fulfillment: Tracking Number": track, "Fulfillment: Shipment Status": "delivered",
                 })
             row(**f)
     if paid:
