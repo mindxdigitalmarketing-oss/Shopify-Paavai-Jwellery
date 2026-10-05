@@ -34,10 +34,10 @@ SKU = {
 }
 
 # Orders already created in the store by an earlier (trial) import; Matrixify refuses NEW for an existing name.
-ALREADY_THROUGH = int(sys.argv[2]) if len(sys.argv) > 2 else 2018  # highest order number already in the store (all below exist too)
+ALREADY_THROUGH = int(sys.argv[2]) if len(sys.argv) > 2 else 2028  # highest order number already in the store (all below exist too)
 ALREADY_IMPORTED = {f"#{n}" for n in range(FIRST_NUMBER, ALREADY_THROUGH + 1)}
 
-#   python scripts/make-rs1-matrixify-xlsx.py [COUNT] [ALREADY_THROUGH]   (default 300 orders, skipping #2001-#2018)
+#   python scripts/make-rs1-matrixify-xlsx.py [COUNT] [ALREADY_THROUGH]   (default 300 orders, skipping #2001-#2028)
 COUNT = int(sys.argv[1]) if len(sys.argv) > 1 else 300
 BATCH_SIZE = 10  # Matrixify's free plan imports at most 10 orders per job
 rng = random.Random(20261005)
