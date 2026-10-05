@@ -32,6 +32,9 @@ SKU = {
     "50598542770393": ("RS1 Sample Pack", "RS1-SAMPLE"),
 }
 
+# Orders already created in the store by an earlier (trial) import; Matrixify refuses NEW for an existing name.
+ALREADY_IMPORTED = {"#2001", "#2004", "#2005", "#2007", "#2008", "#2009", "#2010"}
+
 rng = random.Random(20261005)
 COMBOS = [("fulfilled", "paid", 300), ("fulfilled", "unpaid", 200), ("unfulfilled", "paid", 250), ("unfulfilled", "unpaid", 250)]
 assignment = [(f, p) for f, p, n in COMBOS for _ in range(n)]
@@ -82,10 +85,12 @@ summary = {}
 now = datetime.now(timezone.utc)
 for i, o in enumerate(orders):
     name = f"#{FIRST_NUMBER + i}"
-    cu = o["customer"]["toUpsert"]
-    f_state, p_state = assignment[i]
-    fulfilled, paid = f_state == "fulfilled", p_state == "paid"
+    f_state, p_state = assignment[i]  # drawn before the skip so the mix stays the same
     channel = rng.choices([c for c, _ in CHANNELS], [w for _, w in CHANNELS])[0]
+    if name in ALREADY_IMPORTED:
+        continue
+    cu = o["customer"]["toUpsert"]
+    fulfilled, paid = f_state == "fulfilled", p_state == "paid"
     summary[channel] = summary.get(channel, 0) + 1
     tags = ["TEST-DATA", "rs1-test-2026-10", f"channel-{channel}", "Prepaid" if paid else "Payment-Pending", f_state.capitalize()]
     ts = o["processedAt"]
@@ -116,11 +121,17 @@ for i, o in enumerate(orders):
         else:
             row(Name=name, **line)
     if fulfilled:
-        row(**{
-            "Name": name, "Fulfillment: Status": "success", "Fulfillment: Processed At": shipped.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
-            "Fulfillment: Notify Customer": "FALSE", "Fulfillment: Tracking Company": courier,
-            "Fulfillment: Tracking Number": f"RS1{rng.randint(10**9, 10**10 - 1)}",
-        })
+        # Matrixify needs "Line: Type" = Fulfillment Line on fulfilment rows; one row per fulfilled line item.
+        track = f"RS1{rng.randint(10**9, 10**10 - 1)}"
+        for li, l in enumerate(o["lineItems"]):
+            title, sku = SKU[l["variantId"].rsplit("/", 1)[1]]
+            f = {"Name": name, "Line: Type": "Fulfillment Line", "Line: Title": title, "Line: SKU": sku, "Line: Quantity": l["quantity"]}
+            if li == 0:
+                f.update({
+                    "Fulfillment: Status": "success", "Fulfillment: Processed At": shipped.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+                    "Fulfillment: Notify Customer": "FALSE", "Fulfillment: Tracking Company": courier, "Fulfillment: Tracking Number": track,
+                })
+            row(**f)
     if paid:
         row(**{"Name": name, "Transaction: Kind": "sale", "Transaction: Status": "success", "Transaction: Amount": f"{total:.2f}", "Transaction: Gateway": "manual"})
 
