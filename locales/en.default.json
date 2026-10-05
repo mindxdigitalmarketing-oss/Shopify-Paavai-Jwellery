@@ -4,8 +4,8 @@
       "placeholder": "Search"
     },
     "cart": {
-      "title": "Your Bag",
-      "empty": "Your bag is empty.",
+      "title": "Your Cart",
+      "empty": "Your cart is empty.",
       "subtotal": "Subtotal",
       "checkout": "Checkout Securely"
     }

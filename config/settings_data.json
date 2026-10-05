@@ -11,9 +11,9 @@
   "current": {
     "social_instagram_link": "",
     "social_facebook_link": "",
-    "color_maroon": "#580820",
-    "color_gold": "#D4AF37",
-    "color_pearl": "#FDFBF7",
+    "color_navy": "#0A1A3F",
+    "color_blue": "#0A5CFF",
+    "color_mist": "#EEF3FD",
     "enable_free_shipping_bar": true,
     "free_shipping_threshold": 15000
   },
@@ -21,9 +21,9 @@
     "Default": {
       "social_instagram_link": "",
       "social_facebook_link": "",
-      "color_maroon": "#580820",
-      "color_gold": "#D4AF37",
-      "color_pearl": "#FDFBF7",
+      "color_navy": "#0A1A3F",
+      "color_blue": "#0A5CFF",
+      "color_mist": "#EEF3FD",
       "enable_free_shipping_bar": true,
       "free_shipping_threshold": 15000
     }
