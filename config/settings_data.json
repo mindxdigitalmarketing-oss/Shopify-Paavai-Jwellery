@@ -9,13 +9,73 @@
  */
 {
   "current": {
+    "enable_free_shipping_bar": true,
+    "free_shipping_threshold": 15000,
     "social_instagram_link": "",
     "social_facebook_link": "",
     "color_navy": "#0A1A3F",
     "color_blue": "#0A5CFF",
     "color_mist": "#EEF3FD",
-    "enable_free_shipping_bar": true,
-    "free_shipping_threshold": 15000
+    "content_for_index": [],
+    "blocks": {
+      "17127118858292894184": {
+        "type": "shopify://apps/aftership-tracking/blocks/protection/019a0a96-1a0c-71ad-8ce2-ce2d49c2d945",
+        "disabled": false,
+        "settings": {
+          "logo-display": true,
+          "title-text": "Checkout plus",
+          "title-color": "#232933",
+          "title-font-size": 14,
+          "desc-color": "#6C717A",
+          "desc-font-size": 12
+        }
+      },
+      "8962992520437913685": {
+        "type": "shopify://apps/yotpo-loyalty-rewards/blocks/loader-app-embed-block/2f9660df-5018-4e02-9868-ee1fb88d6ccd",
+        "disabled": false,
+        "settings": {
+          "inject_modules_loader": true,
+          "inject_sdk_loader": false,
+          "promotion_font": "inter_n4"
+        }
+      },
+      "17151115064775110295": {
+        "type": "shopify://apps/recharge-subscriptions/blocks/recharge-theme/371eed76-0b44-4869-9813-730372ea378e",
+        "disabled": false,
+        "settings": {
+          "color_brand": "#1773B0",
+          "contrast_color": "#FFFFFF",
+          "color_brand_secondary": "#1773B0",
+          "corners": "8px",
+          "app_background": "#f7f7f7",
+          "app_container": 1200,
+          "app_vertical_padding": 32,
+          "images_aspect_ratio": "1",
+          "cards_background": "#FFFFFF",
+          "cards_border_color": "rgba(0,0,0,0)"
+        }
+      },
+      "17676059084223943535": {
+        "type": "shopify://apps/triplewhale/blocks/triple_pixel_snippet/483d496b-3f1a-4609-aea7-8eee3b6b7a2a",
+        "disabled": false,
+        "settings": {}
+      },
+      "10864971697205422121": {
+        "type": "shopify://apps/gorgias-live-chat-helpdesk/blocks/gorgias/a66db725-7b96-4e3f-916e-6c8e6f87aaaa",
+        "disabled": false,
+        "settings": {}
+      },
+      "14060646107696862457": {
+        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {}
+      },
+      "855628211100114053": {
+        "type": "shopify://apps/klaviyo-email-marketing-sms/blocks/klaviyo-onsite-embed/2632fe16-c075-4321-a88b-50b567f42507",
+        "disabled": false,
+        "settings": {}
+      }
+    }
   },
   "presets": {
     "Default": {
